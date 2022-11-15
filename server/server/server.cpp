@@ -5,9 +5,39 @@
 #define MAX_PLAYER 4
 
 CLIENTINFO players[MAX_PLAYER];
-SC_GAMEINFO player_data[MAX_PLAYER];
+SC_GAMEINFO player_data{};	// SC_GAMEINFO를 배열에서 단일 변수로 변환
 
 int cur_player = 0;
+
+void Map_Init()
+{
+	// player_data의 itemtype과 blocktype의 값을 채우는 함수
+
+	int map_range = INDEX_MAPEND - INDEX_MAPSTART;
+	for (int i = 0; i < map_range; i++) {
+		if (rand() % 10 <= 7)	// 70% 확률로 벽, 30%확률로 공간
+			player_data.blockType[i] = 1;
+		else
+			player_data.blockType[i] = 0;
+	}
+
+	for (int i = 0; i < MAX_ITEM_CNT; i++)
+	{
+		player_data.itemType[i].type = rand() % 7;
+		player_data.itemType[i].pos = rand() % (map_range) + INDEX_MAPSTART;
+	}
+
+
+	// 테스트 전용 코드
+	for (int a : player_data.blockType)
+		printf("[%d]\t", a);
+	printf("\n");
+	for (auto a : player_data.itemType)
+		printf("[%d,%d]\t", a.pos, a.type);
+	// 테스트 전용 코드
+}
+
+
 
 // 클라이언트와 데이터 통신
 DWORD WINAPI RecvThread(LPVOID arg)
@@ -26,41 +56,42 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
 	
 	// 클라이언트 초기 정보 보내주기
-	SC_GAMEINFO p_data;
+	SC_GAMEINFO p_data{};
 	p_data.ID = cur_player;
 	cur_player++;
 	p_data.gameStart = 0;
+
 	retval = send(players[cur_player].sock, (char*)&p_data, sizeof(SC_GAMEINFO), 0);
 	if (retval == SOCKET_ERROR) {
 		err_display("send()");
 		return NULL;
 	}
-	while (1) {
-		retval = recv(players[p_data.ID].sock, buf, sizeof(CS_EVENT), MSG_WAITALL);
-		if (retval == SOCKET_ERROR) {
-			err_display("recv()");
-			break;
-		}
-		switch (KEY_EVENT) {
-		case PRESS_LEFT:
-			SC_PLAYERUPDATE p_update;
-			p_update.ID = players[p_data.ID].ID;
-			p_update.pt.x = 
-			break;
-		case PRESS_RIGHT:
-			break;
-		case PRESS_UP:
-			break;
-		case PRESS_DOWN:
-			break;
-		case PRESS_SPACE:
-			break;
-		case PRESS_ITEM:
-			break;
-		default:
-			break;
-		}
-	}
+	//while (1) {
+	//	retval = recv(players[p_data.ID].sock, buf, sizeof(CS_EVENT), MSG_WAITALL);
+	//	if (retval == SOCKET_ERROR) {
+	//		err_display("recv()");
+	//		break;
+	//	}
+	//	switch (KEY_EVENT) {
+	//	case PRESS_LEFT:
+	//		SC_PLAYERUPDATE p_update;
+	//		p_update.ID = players[p_data.ID].ID;
+	//		p_update.pt.x = 
+	//		break;
+	//	case PRESS_RIGHT:
+	//		break;
+	//	case PRESS_UP:
+	//		break;
+	//	case PRESS_DOWN:
+	//		break;
+	//	case PRESS_SPACE:
+	//		break;
+	//	case PRESS_ITEM:
+	//		break;
+	//	default:
+	//		break;
+	//	}
+	//}
 	return 0;
 }
 
@@ -124,6 +155,7 @@ int main(int argc, char* argv[])
 	int addrlen;
 	HANDLE hThread;
 
+	Map_Init();
 	while (1) {
 		// accept()
 		addrlen = sizeof(clientaddr);

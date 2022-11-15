@@ -5,7 +5,7 @@
 #define MAX_ITEM_CNT		15
 #define VERTBLOCKCNT		15
 #define HORZBLOCKCNT		13
-#define BLOCKSIZE		20
+#define BLOCKSIZE			20
 #define INDEX_MAPSTART		30
 #define INDEX_MAPEND		135
 
@@ -25,7 +25,13 @@ struct CLIENTINFO
 	CPlayer player;
 };
 
+struct ObjectINFO
+{
+	unsigned short pos;
+	unsigned short type;
+};
 #pragma pack(push, 1)
+
 
 struct SC_GAMEINFO
 {
@@ -34,8 +40,8 @@ struct SC_GAMEINFO
 	int gameStart;
 	TEAM teamId;
 
-	int blockType[MAX_ITEM_CNT];
-	int itemType[MAX_ITEM_CNT];
+	int blockType[INDEX_MAPEND - INDEX_MAPSTART];
+	ObjectINFO itemType[MAX_ITEM_CNT];
 };
 
 struct SC_PLAYERUPDATE
