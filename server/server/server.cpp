@@ -37,6 +37,50 @@ void Map_Init()
 	// 테스트 전용 코드
 }
 
+int Player_Create(LPVOID arg)
+{
+	SOCKET s_find = (SOCKET)arg;
+	unsigned short index = -1;
+
+	// player소켓을 찾아서 위치 생성
+	for (int i = 0; i < MAX_PLAYER; i++) {
+		if (s_find == players[i].sock) {
+			index = players[i].ID;
+		}
+		else {
+			printf("소켓을 못찾았습니다.\n");
+			return -1;
+		}
+	}
+
+	// 플레이어 위치 저장
+	if (index == 0) {
+		players[index].player.p_pos.x = 0;
+		players[index].player.p_pos.y = 0;
+		printf("플레이어 id: %d, 플레이어 pos_x : %d, pos_y : %d\n", index, 
+			players[index].player.p_pos.x, index, players[index].player.p_pos.x);
+	}
+	if (index == 1) {
+		players[index].player.p_pos.x = 100;
+		players[index].player.p_pos.y = 150;
+		printf("플레이어 id: %d, 플레이어 pos_x : %d, pos_y : %d\n", index, 
+			players[index].player.p_pos.x, index, players[index].player.p_pos.x);
+	}
+	if (index == 2) {
+		players[index].player.p_pos.x = 500;
+		players[index].player.p_pos.y = 550;
+		printf("플레이어 id: %d, 플레이어 pos_x : %d, pos_y : %d\n", index, 
+			players[index].player.p_pos.x, index, players[index].player.p_pos.x);
+	}
+	if (index == 3) {
+		players[index].player.p_pos.x = 600;
+		players[index].player.p_pos.y = 650;
+		printf("플레이어 id: %d, 플레이어 pos_x : %d, pos_y : %d\n", index, 
+			players[index].player.p_pos.x, index, players[index].player.p_pos.x);
+	}
+	return 1;
+}
+
 
 
 // 클라이언트와 데이터 통신
@@ -55,6 +99,12 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	getpeername(client_sock, (struct sockaddr*)&clientaddr, &addrlen);
 	inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
 	
+	retval = Player_Create((LPVOID)client_sock);
+	if (retval == -1)
+		printf("생성 실패\n");
+	else if (retval == 1)
+		printf("생성 성공\n");
+
 	// 클라이언트 초기 정보 보내주기
 	SC_GAMEINFO p_data{};
 	p_data.ID = cur_player;
