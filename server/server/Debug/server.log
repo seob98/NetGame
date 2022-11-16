@@ -1,7 +1,0 @@
-﻿  server.cpp
-C:\Users\Administrator\Desktop\넷겜프 텀\server\server.cpp(20,6): warning C4101: 'len' :참조되지 않은 지역 변수입니다.
-C:\Users\Administrator\Desktop\넷겜프 텀\server\server.cpp(21,7): warning C4101: 'buf' :참조되지 않은 지역 변수입니다.
-C:\Users\Administrator\Desktop\넷겜프 텀\server\server.cpp(46,6): warning C4101: 'len' :참조되지 않은 지역 변수입니다.
-C:\Users\Administrator\Desktop\넷겜프 텀\server\server.cpp(47,7): warning C4101: 'buf' :참조되지 않은 지역 변수입니다.
-C:\Users\Administrator\Desktop\넷겜프 텀\server\server.cpp(41,6): warning C4101: 'retval' :참조되지 않은 지역 변수입니다.
-  server.vcxproj -> C:\Users\Administrator\Desktop\넷겜프 텀\server\Debug\server.exe
