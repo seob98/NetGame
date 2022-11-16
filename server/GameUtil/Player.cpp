@@ -267,6 +267,11 @@ void CPlayer::SetPosY(int y)
 	UpdateRect();
 }
 
+void CPlayer::SetState(STATE State)
+{
+	eCurState = State;
+}
+
 int CPlayer::GetCurrentIndex(std::vector<CBlock>& map)
 {
 	for (auto& block : map)

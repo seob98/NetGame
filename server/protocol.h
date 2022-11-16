@@ -1,6 +1,6 @@
 #include "GameUtil/stdafx.h"
 #include "Common.h"
-#include "CPlayer.h"
+#include "GameUtil/Player.h"
 
 #pragma once
 
@@ -16,7 +16,7 @@ enum KEYEVENT {
 	PRESS_UP, PRESS_DOWN, PRESS_SPACE, PRESS_ITEM, PRESS_END
 };
 
-enum STATE { IDLE, UP, DOWN, LEFT, RIGHT, TRAPPED, SAVED, DIE, DEAD, WIN };
+//enum STATE { IDLE, UP, DOWN, LEFT, RIGHT, TRAPPED, SAVED, DIE, DEAD, WIN };
 
 enum TEAM { DAO, BAZZI };
 
@@ -50,7 +50,7 @@ struct SC_PLAYERUPDATE
 {
 	unsigned short ID;
 	POINT pt;
-	STATE state;
+	CPlayer::STATE state;
 	int   ballonLength;
 	bool keydown;
 };

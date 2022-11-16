@@ -7,10 +7,21 @@
 CLIENTINFO players[MAX_PLAYER];
 SC_GAMEINFO player_data{};	// SC_GAMEINFO를 배열에서 단일 변수로 변환
 
+std::vector<CBlock> map;
+
 int cur_player = 0;
 
 void Map_Init()
 {
+	// 맵 바닥 설치 ( 포지션 계산을 위해 )
+	for (int i = 0; i < 13; ++i)
+	{
+		for (int j = 0; j < 15; ++j)
+		{
+			map.emplace_back(POINT{ 40 + j * 40, 60 + i * 40 }, 20, i * 15 + j);
+		}
+	}
+
 	// player_data의 itemtype과 blocktype의 값을 채우는 함수
 
 	int map_range = INDEX_MAPEND - INDEX_MAPSTART;
@@ -38,48 +49,21 @@ void Map_Init()
 }
 
 
-int Player_Create(LPVOID arg)
+unsigned short Player_Create(SOCKET sock)
 {
-	SOCKET s_find = (SOCKET)arg;
-	unsigned short index = -1;
+	// 게임 접속시 플레이어 상태 대기 상태
+	CPlayer::STATE p_state = CPlayer::STATE::IDLE;
+	POINT pos = map[cur_player].GetPos();
 
-	// player소켓을 찾아서 위치 생성
-	for (int i = 0; i < MAX_PLAYER; i++) {
-		if (s_find == players[i].sock) {
-			index = players[i].ID;
-		}
-		else {
-			printf("소켓을 못찾았습니다.\n");
-			return -1;
-		}
-	}
+	players[cur_player].sock = sock;
+	players[cur_player].ID = cur_player;
+	players[cur_player].player.SetPosX(pos.x);
+	players[cur_player].player.SetPosY(pos.y);
+	players[cur_player].player.SetState(p_state);
+	cur_player++;
 
-	// 플레이어 위치 저장
-	if (index == 0) {
-		players[index].player.SetPosX(0);
-		players[index].player.SetPosY(0);
-		//printf("플레이어 id: %d, 플레이어 pos_x : %d, pos_y : %d\n", index,
-		//	players[index].player.p_pos.x, index, players[index].player.p_pos.x);
-	}
-	if (index == 1) {
-		players[index].player.SetPosX(100);
-		players[index].player.SetPosY(150);
-		//printf("플레이어 id: %d, 플레이어 pos_x : %d, pos_y : %d\n", index,
-		//	players[index].player.p_pos.x, index, players[index].player.p_pos.x);
-	}
-	if (index == 2) {
-		players[index].player.SetPosX(500);
-		players[index].player.SetPosY(550);
-		//printf("플레이어 id: %d, 플레이어 pos_x : %d, pos_y : %d\n", index,
-		//	players[index].player.p_pos.x, index, players[index].player.p_pos.x);
-	}
-	if (index == 3) {
-		players[index].player.SetPosX(600);
-		players[index].player.SetPosY(650);
-		//printf("플레이어 id: %d, 플레이어 pos_x : %d, pos_y : %d\n", index,
-		//	players[index].player.p_pos.x, index, players[index].player.p_pos.x);
-	}
-	return 1;
+	return players[cur_player].ID;
+	
 }
 
 
@@ -99,19 +83,16 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	getpeername(client_sock, (struct sockaddr*)&clientaddr, &addrlen);
 	inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
 	
-	retval = Player_Create((LPVOID)client_sock);
+	retval = Player_Create(client_sock);
 	if (retval == -1)
 		printf("생성 실패\n");
-	else if (retval == 1)
-		printf("생성 성공\n");
 
 	// 클라이언트 초기 정보 보내주기
 	SC_GAMEINFO p_data{};
-	p_data.ID = cur_player;
-	cur_player++;
+	p_data.ID = retval;
 	p_data.gameStart = 0;
 
-	retval = send(players[cur_player].sock, (char*)&p_data, sizeof(SC_GAMEINFO), 0);
+	retval = send(client_sock, (char*)&p_data, sizeof(SC_GAMEINFO), 0);
 	if (retval == SOCKET_ERROR) {
 		err_display("send()");
 		return NULL;

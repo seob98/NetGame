@@ -63,6 +63,7 @@ public:
 public:
 	void SetPosX(int x);
 	void SetPosY(int y);
+	void SetState(STATE eCurState);
 
 public:
 	int GetCurrentIndex(std::vector<CBlock>& map);
