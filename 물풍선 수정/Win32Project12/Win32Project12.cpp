@@ -325,9 +325,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//PLAYERS[1].CheckCollisionWaterStreams(WATERSTREAMS);
 			//PLAYERS[0].STATE_CHECK();
 			//PLAYERS[1].STATE_CHECK();
+			PLAYERS[myClientID].Move(true, TILES);
 			for (auto& player : PLAYERS)
 			{
-				player.Move(true, TILES);
 				player.MoveTrapped(true, TILES);
 				player.CheckCollisionMap(TILES);
 				player.CheckCollisionWaterStreams(WATERSTREAMS);
@@ -433,6 +433,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			for (auto& Item : ITEMS)
 				Item.Draw(hMemDC);
 
+			for (auto& Player : PLAYERS)
+				Player.Draw(hMemDC);
 
 			//승패조건 코드. 이후에 수정
 			//if (PLAYERS[0].Get_State() == CPlayer::DEAD || PLAYERS[0].Get_State() == CPlayer::DIE)		//0이 죽었으면 0그리고 생존자 그려
@@ -479,9 +481,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//if (PLAYERS[0].GetState() == 8 && (PLAYERS[1].GetState() == 8))
 			//	PLAYERS[0].DrawDrawUI(hMemDC);
 
+			/*
 			if(currentPlayerCnt >= 4)
 				PLAYERS[myClientID].DrawItem(hMemDC);
-
+			*/
 			BitBlt(hdc, 0, 0, WINCX, WINCY, hMemDC, 0, 0, SRCCOPY);
 			DeleteDC(hMemDC);
 			DeleteDC(hMemDCUI);
@@ -517,6 +520,8 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     return (INT_PTR)FALSE;
 }
 
+void Add_Player(int cnt);
+
 DWORD WINAPI RecvThread(LPVOID arg)
 {
 	int retval;
@@ -535,29 +540,48 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
 	//if (retval == SOCKET_ERROR) err_quit("connect()");
 
+	retval = recv(sock, buf, sizeof(SC_GAMEINFO), MSG_WAITALL);
+	data = (SC_GAMEINFO*)buf;
+	myClientID = data->ID;
+	currentPlayerCnt = data->currentPlayerCnt;
 
+	// 내 플레이어 생성
+	Add_Player(myClientID);
+	//맵 설치
+	for (int i = 0; i < 135; ++i)
+	{
+		if (data->blockType[i] != -1)
+			OBSTACLES.emplace_back(TILES[i + 30].GetPos(), TILES[i + 30].GetIndex(), TILES, data->blockType[i]);
+	}
 	// 서버와 데이터 통신
 	while (1) {
 		retval = recv(sock, buf, sizeof(SC_GAMEINFO), MSG_WAITALL);
 		data = (SC_GAMEINFO*)buf;
-		myClientID = data->ID;
 		currentPlayerCnt = data->currentPlayerCnt;
 						// data->blockType[0];		서버의 map_init에서 배열의 첫번째 수를 -1로 하고 값을 받으면 0이 뜸. 현재 배열의 모든값이 0으로 전달되는 상태.
 						 
-		//플레이어 설치
+		//새로 접속한 플레이어 생성
+		Add_Player(currentPlayerCnt);
 
-		//맵 설치
+		
 		//if (currentPlayerCnt >= 4)
 		//{
 			//for (int i = 30; i < 165; ++i)
-			for (int i = 0; i < 135; ++i)
-			{
-				if (data->blockType[i] != -1)
-					OBSTACLES.emplace_back(TILES[i + 30].GetPos(), TILES[i + 30].GetIndex(), TILES, data->blockType[i]);	
-			}
+		
 		//}
 
 	}
 
 	return 0;
+}
+
+void Add_Player(int cnt) {
+	for (int i = 0; i <= cnt; i++) {
+		PLAYERS.reserve(i);
+		PLAYERS.resize(i);
+		PLAYERS.emplace_back(TILES[i].GetPos());
+		PLAYERS[i].clientNum = 0;
+		PLAYERS[i].clinetTeam = 0;
+		PLAYERS[i].SetPlayer0();
+	}
 }

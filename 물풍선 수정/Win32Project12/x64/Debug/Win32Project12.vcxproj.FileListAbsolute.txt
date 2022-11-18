@@ -1,2 +1,3 @@
 C:\Users\Administrator\Downloads\크레이지아케이드\Win32Project12\x64\Debug\Win32Project12.exe
 C:\Users\PC-2\Desktop\NetGame\물풍선 수정\Win32Project12\x64\Debug\Win32Project12.exe
+C:\Users\als63\Desktop\수업\네트워크게임프로그래밍\텀 프로젝트\NetGame\물풍선 수정\Win32Project12\x64\Debug\Win32Project12.exe

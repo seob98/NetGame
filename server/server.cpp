@@ -73,7 +73,7 @@ unsigned short Player_Create(SOCKET sock)
 	players[cur_player].player.SetState(p_state);
 	cur_player++;
 
-	return players[cur_player].ID;
+	return players[cur_player - 1].ID;
 	
 }
 
@@ -99,20 +99,25 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		printf("생성 실패\n");
 
 	// 클라이언트 초기 정보 보내주기
-	SC_GAMEINFO p_data{};
-	p_data.ID = retval;
-	p_data.gameStart = 0;
-	p_data.currentPlayerCnt = cur_player;
-	for(int i =0; i< INDEX_MAPEND - INDEX_MAPSTART; ++i)
-		p_data.blockType[i] = player_data.blockType[i];
+	player_data.ID = retval;
+	player_data.gameStart = 0;
+	player_data.currentPlayerCnt = retval;
 
-	retval = send(client_sock, (char*)&p_data, sizeof(SC_GAMEINFO), 0);
+	retval = send(client_sock, (char*)&player_data, sizeof(SC_GAMEINFO), 0);
 	printf("\n초기 게임 정보 전송\n");
 
 	if (retval == SOCKET_ERROR) {
 		err_display("send()");
 		return NULL;
 	}
+
+	if (player_data.ID > 0) {
+		for (int i = 0; i < player_data.ID; i++) {
+			retval = send(players[i].sock, (char*)&player_data, sizeof(SC_GAMEINFO), 0);
+			printf("\n기존 유저에게 내 게임 정보 전송\n");
+		}
+	}
+
 	//while (1) {
 	//	retval = recv(players[p_data.ID].sock, buf, sizeof(CS_EVENT), MSG_WAITALL);
 	//	if (retval == SOCKET_ERROR) {
