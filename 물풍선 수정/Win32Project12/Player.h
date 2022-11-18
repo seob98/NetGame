@@ -47,18 +47,20 @@ public:
 		rt.bottom = pos.y + size;
 		ballonLength = 2;
 
-		CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/test4.bmp", L"test2");
+		//CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/test4.bmp", L"test2");
 		CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Player/dao.bmp", L"dao");
 		CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Player/daodead_new.bmp", L"daodead");
 		CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Player/bazzi.bmp", L"bazzi");
 		CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Player/bazzidead_old.bmp", L"bazzidead");
 
-		//CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Player/bazzidead_old.bmp", L"bazzidead");
-		CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Stage/win1p.bmp", L"win0");
-		CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Stage/win2p.bmp", L"win1");
-		CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Stage/draw.bmp", L"draw");
-		//CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Stage/win2p.bmp", L"draw");
-		CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Start.bmp", L"start");
+		////CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Player/bazzidead_old.bmp", L"bazzidead");
+		//CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Stage/win1p.bmp", L"win0");
+		//CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Stage/win2p.bmp", L"win1");
+		//CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Stage/draw.bmp", L"draw");
+		////CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Stage/win2p.bmp", L"draw");
+
+		//CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Start.bmp", L"start");
+		//CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/number.bmp", L"loading");
 	}
 
 public:
@@ -66,7 +68,8 @@ public:
 	void DrawMainFrmUI(HDC hdc);
 	void DrawWinnerUI(HDC hdc);
 	void DrawDrawUI(HDC hdc);
-	void DrawStartUI(HDC hdc, bool Start);
+	void DrawStartUI(HDC hdc, int currentPlayerCnt, bool pressStart);
+	void DrawLoadingUI(HDC hdc, int currentPlayerCnt, bool pressStart);
 	void DrawItem(HDC hdc);
 	void Move(bool playerA, std::vector<CBlock>& map);
 	void MoveTrapped(bool playerA, std::vector<CBlock>& map);

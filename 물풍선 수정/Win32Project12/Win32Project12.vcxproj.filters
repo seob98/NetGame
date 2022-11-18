@@ -40,6 +40,9 @@
     <Filter Include="소스 파일\ballon">
       <UniqueIdentifier>{4f35e18b-b5cb-4242-857d-8aef7ec6cf51}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\UI">
+      <UniqueIdentifier>{8a550e24-f078-4b3f-8f74-2d3509c72f12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -93,6 +96,15 @@
     <ClInclude Include="Ballon.h">
       <Filter>소스 파일\ballon</Filter>
     </ClInclude>
+    <ClInclude Include="Common.h">
+      <Filter>소스 파일\Basics</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol.h">
+      <Filter>소스 파일\Basics</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>소스 파일\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -124,6 +136,12 @@
     </ClCompile>
     <ClCompile Include="Ballon.cpp">
       <Filter>소스 파일\ballon</Filter>
+    </ClCompile>
+    <ClCompile Include="Common.cpp">
+      <Filter>소스 파일\Basics</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>소스 파일\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

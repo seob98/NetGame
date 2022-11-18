@@ -4,6 +4,8 @@
 #include "stdafx.h"
 #include "Win32Project12.h"
 
+#define SERVERPORT 9000
+#define SERVERIP "127.0.0.1"
 
 int WINCX{ 816 };
 int WINCY{ 659 };
@@ -11,9 +13,23 @@ int horzBlockCnt = 15;
 int vertBlockCnt = 13;
 int blockSize = 20;
 
+SOCKET sock;
+int myClientID{ -1 };
+int currentPlayerCnt{0};
+
 #pragma region init
 
 using namespace std;
+
+vector<CBlock>			TILES{};
+vector<CPlayer>			PLAYERS{};
+vector<CBallon>			BALLONS{};
+vector<CObstacle>		OBSTACLES{};
+vector<CWaterStream>	WATERSTREAMS{};
+vector<CItem>			ITEMS{};
+CUI						UI{};
+
+
 
 #define MAX_LOADSTRING 100
 
@@ -22,6 +38,8 @@ HWND hWnd;
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
+
+DWORD WINAPI RecvThread(LPVOID arg);
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -54,6 +72,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
 
+	CreateThread(NULL, 0, RecvThread, NULL, 0, NULL);
+
     // 기본 메시지 루프입니다.
     while (GetMessage(&msg, nullptr, 0, 0))
     {
@@ -66,6 +86,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     return (int) msg.wParam;
 }
+
 
 
 
@@ -126,9 +147,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 //
 //  함수: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
 //  목적:  주 창의 메시지를 처리합니다.
-//
 //  WM_COMMAND  - 응용 프로그램 메뉴를 처리합니다.
 //  WM_PAINT    - 주 창을 그립니다.
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
@@ -143,18 +162,45 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	HDC hdc, hMemDC, hMemDCUI;
 	HBITMAP hBit;
 
-	static vector<CBlock> map{};
-	static vector<CPlayer> players{};
-	static vector<CBallon> ballons{};
-	static vector<CObstacle> obstacles{};
-	static vector<CWaterStream> waterstreams{};
-	static vector<CItem> items{};
-	static bool GameStart = false;
+	static bool pressStart = false;
+	
+#pragma region 최초연결
+
+	static bool connection = false;
+	
+	// 윈속 초기화
+	if (!connection)
+	{
+		WSADATA wsa;
+		int retval{};
+		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+			return 1;
+
+	//	// connect() 호출에 사용할 변수
+	//	struct sockaddr_in serveraddr;
+	//	memset(&serveraddr, 0, sizeof(serveraddr));
+	//	serveraddr.sin_family = AF_INET;
+	//	inet_pton(AF_INET, SERVERIP, &serveraddr.sin_addr);
+	//	serveraddr.sin_port = htons(SERVERPORT);
+
+	//	// 소켓 생성
+	//	SOCKET sockConnect = socket(AF_INET, SOCK_STREAM, 0);
+	//	if (sockConnect == INVALID_SOCKET) err_quit("socket()");
+
+	//	// connect()
+	//	retval = connect(sockConnect, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
+	//	if (retval == SOCKET_ERROR) err_quit("connect()");
+
+		connection = true;
+	}
+
+#pragma endregion
 
 	switch (message)
 	{
 	case WM_CREATE:
-		
+#pragma endregion
+
 		SetTimer(hWnd, 1, 10, NULL);
 
 		srand((unsigned int)time(NULL));
@@ -164,50 +210,51 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			for (int j = 0; j < horzBlockCnt; ++j)
 			{
-				map.emplace_back(POINT{ 40 + j * 40, 60 + i * 40 }, blockSize, i * horzBlockCnt + j);
+				TILES.emplace_back(POINT{ 40 + j * 40, 60 + i * 40 }, blockSize, i * horzBlockCnt + j);
 			}
 		}
 
 		// 부딪히는 블럭 설치
-		for (int i = 30; i < 165; ++i)
-		{
-			//80%로 깐다.
-			if (rand() % 10 <= 7)
-			{
-				if(rand()%10 <=1)
-					obstacles.emplace_back(map[i].GetPos(), map[i].GetIndex(), map, true);
-				else
-					obstacles.emplace_back(map[i].GetPos(), map[i].GetIndex(), map, false);
-			}
-		}
-			// 플레이어 추가
-		players.emplace_back(map[0].GetPos());
-		players[0].clientNum = 0;
-		players[0].clinetTeam = 0;
-		players[0].SetPlayer0();
-		players.emplace_back(map[horzBlockCnt* vertBlockCnt - 1].GetPos());
-		players[1].clientNum = 1;
-		players[1].clinetTeam = 1;
+		//for (int i = 30; i < 165; ++i)
+		//{
+		//	//80%로 깐다.
+		//	if (rand() % 10 <= 7)
+		//	{
+		//		if(rand()%10 <=1)
+		//			OBSTACLES.emplace_back(TILES[i].GetPos(), TILES[i].GetIndex(), TILES, true);
+		//		else
+		//			OBSTACLES.emplace_back(TILES[i].GetPos(), TILES[i].GetIndex(), TILES, false);
+		//	}
+		//}
+	
+		// 플레이어 추가
+		//PLAYERS.emplace_back(TILES[170].GetPos());
+		//PLAYERS[0].clientNum = 0;
+		//PLAYERS[0].clinetTeam = 0;
+		//PLAYERS[0].SetPlayer0();
+		//PLAYERS.emplace_back(TILES[170].GetPos());
+		//PLAYERS[1].clientNum = 1;
+		//PLAYERS[1].clinetTeam = 1;
 
 		break;
 
 	case WM_KEYDOWN:
 		if (wParam == VK_SPACE)
 		{
-			players[0].SetupBallon(map, ballons, players, true);
+			PLAYERS[0].SetupBallon(TILES, BALLONS, PLAYERS, true);
 		}
 		if (wParam == VK_SHIFT)
 		{
-			players[1].SetupBallon(map, ballons, players, false);
+			PLAYERS[1].SetupBallon(TILES, BALLONS, PLAYERS, false);
 		}
 
 		if (wParam == 'Q')
 		{
-			players[0].useNeedle();
+			PLAYERS[0].useNeedle();
 		}
 		if (wParam == 'P')
 		{
-			players[1].useNeedle();
+			PLAYERS[1].useNeedle();
 		}
 	case WM_LBUTTONDOWN:
 	{
@@ -216,11 +263,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		RECT rtQuit2{647, 565, 647 + 140, 565 + 34};
 		POINT pos{ LOWORD(lParam),HIWORD(lParam) };
 		if (PtInRect(&rtStart, pos))
-			GameStart = true;
+			pressStart = true;
 		else if(PtInRect(&rtQuit, pos))
 			PostQuitMessage(0);
 
-		if (GameStart)
+		if (pressStart)
 		{
 			if (PtInRect(&rtQuit2, pos))
 				PostQuitMessage(0);
@@ -249,61 +296,66 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 		case 1:
-			if (!GameStart)
+			if (!pressStart)
 				break;
 
-			static bool Once = true;
-			static bool Once2 = true;
-			if (Once)
-			{
-				Once = false;
-			}
-			if (Once2)
-			{
-				if (players[0].GetState() == 9 || players[1].GetState() == 9 || (players[0].GetState() == 8 && (players[1].GetState() == 8)))
-				{
-					Once2 = false;
-				}
-			}
+			//static bool Once = true;
+			//static bool Once2 = true;
+			//if (Once)
+			//{
+			//	Once = false;
+			//}
+			//if (Once2)
+			//{
+			//	if (PLAYERS[0].GetState() == 9 || PLAYERS[1].GetState() == 9 || (PLAYERS[0].GetState() == 8 && (PLAYERS[1].GetState() == 8)))
+			//	{
+			//		Once2 = false;
+			//	}
+			//}
 
 
 #pragma region player
-			players[0].Move(true, map);
-			players[0].MoveTrapped(true, map);
-			players[0].CheckCollisionMap(map);
-			players[1].Move(false, map);
-			players[1].MoveTrapped(false, map);
-			players[1].CheckCollisionMap(map);
-			players[0].CheckCollisionWaterStreams(waterstreams);
-			players[1].CheckCollisionWaterStreams(waterstreams);
-			players[0].STATE_CHECK();
-			players[1].STATE_CHECK();
-			for (auto& player : players)
+			//PLAYERS[0].Move(true, TILES);
+			//PLAYERS[0].MoveTrapped(true, TILES);
+			//PLAYERS[0].CheckCollisionMap(TILES);
+			//PLAYERS[1].Move(false, TILES);
+			//PLAYERS[1].MoveTrapped(false, TILES);
+			//PLAYERS[1].CheckCollisionMap(TILES);
+			//PLAYERS[0].CheckCollisionWaterStreams(WATERSTREAMS);
+			//PLAYERS[1].CheckCollisionWaterStreams(WATERSTREAMS);
+			//PLAYERS[0].STATE_CHECK();
+			//PLAYERS[1].STATE_CHECK();
+			for (auto& player : PLAYERS)
 			{
+				player.Move(true, TILES);
+				player.MoveTrapped(true, TILES);
+				player.CheckCollisionMap(TILES);
+				player.CheckCollisionWaterStreams(WATERSTREAMS);
+				player.STATE_CHECK();
 				//player.CheckCollisionWaterStreams(waterstreams);
 				//player.STATE_CHECK();
 				player.Update_Frame();
 				player.Update_Frame_Once();
-				player.CheckCollisionPlayers(players);
-				player.Update_DeadTime(players);
+				player.CheckCollisionPlayers(PLAYERS);
+				player.Update_DeadTime(PLAYERS);
 			}
 			//players[1].Update_Frame_Once();
 #pragma endregion
 
 #pragma region ballon
 			// ballon충돌처리
-			for (auto& ballon : ballons)
+			for (auto& ballon : BALLONS)
 			{
-				ballon.CheckPlayerOut(players);
-				ballon.CheckCollision(players);
+				ballon.CheckPlayerOut(PLAYERS);
+				ballon.CheckCollision(PLAYERS);
 				ballon.UpdateFrame();		
 			}
-			for (auto& ballon : ballons)
-				ballon.Update(ballons, waterstreams, map, obstacles, horzBlockCnt, vertBlockCnt);
-			for (int i = 0; i < ballons.size();)
+			for (auto& ballon : BALLONS)
+				ballon.Update(BALLONS, WATERSTREAMS, TILES, OBSTACLES, horzBlockCnt, vertBlockCnt);
+			for (int i = 0; i < BALLONS.size();)
 			{
-				if (ballons[i].getExplode())
-					ballons.erase(ballons.begin() + i);
+				if (BALLONS[i].getExplode())
+					BALLONS.erase(BALLONS.begin() + i);
 				else
 					++i;
 			}
@@ -311,24 +363,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #pragma endregion
 
 #pragma region item
-			for (auto& Item : items)
+			for (auto& Item : ITEMS)
 			{
-				Item.CheckCollisionPlayers(players);
-				Item.CheckCollisionWaterStreams(waterstreams);
+				Item.CheckCollisionPlayers(PLAYERS);
+				Item.CheckCollisionWaterStreams(WATERSTREAMS);
 
 			}
 #pragma endregion
 
 #pragma region waterstream
 			//물줄기 업데이트
-			for (int i = 0; i < waterstreams.size(); ++i)
+			for (int i = 0; i < WATERSTREAMS.size(); ++i)
 			{
-				waterstreams[i].Update();
+				WATERSTREAMS[i].Update();
 			}		
-			for (int i = 0; i < waterstreams.size();)
+			for (int i = 0; i < WATERSTREAMS.size();)
 			{
-				if (waterstreams[i].GetDead())
-					waterstreams.erase(waterstreams.begin() + i);
+				if (WATERSTREAMS[i].GetDead())
+					WATERSTREAMS.erase(WATERSTREAMS.begin() + i);
 				else
 					++i;
 			}			
@@ -337,15 +389,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 #pragma region obstacle
 			//장애물 처리 (컨테이너 비우기)
-			for (int i = 0; i < obstacles.size(); ++i)
+			for (int i = 0; i < OBSTACLES.size(); ++i)
 			{
-				obstacles[i].CheckExplosionRange(map);
-				obstacles[i].makeItem(items);
+				OBSTACLES[i].CheckExplosionRange(TILES);
+				OBSTACLES[i].makeItem(ITEMS);
 			}
-			for (int i = 0; i < obstacles.size();)
+			for (int i = 0; i < OBSTACLES.size();)
 			{
-				if (obstacles[i].GetDead())
-					obstacles.erase(obstacles.begin() + i);
+				if (OBSTACLES[i].GetDead())
+					OBSTACLES.erase(OBSTACLES.begin() + i);
 				else
 					++i;
 			}
@@ -364,45 +416,48 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			Rectangle(hMemDC, 0, 0, WINCX, WINCY);
 
-			players[0].DrawMainFrmUI(hMemDC);
-			for (auto& Block : map)
+			//PLAYERS[0].DrawMainFrmUI(hMemDC);
+			UI.DrawMainframeUI(hMemDC);
+
+			for (auto& Block : TILES)
 				Block.draw(hMemDC);
-			for (auto& Obstacle : obstacles)
+			for (auto& Obstacle : OBSTACLES)
 				Obstacle.draw(hMemDC);
 
-			for (auto& ballon : ballons)
+			for (auto& ballon : BALLONS)
 				ballon.Draw(hMemDC);
 
-			for (auto& WaterStream : waterstreams)
+			for (auto& WaterStream : WATERSTREAMS)
 				WaterStream.Draw(hMemDC);
 
-			for (auto& Item : items)
+			for (auto& Item : ITEMS)
 				Item.Draw(hMemDC);
 
-			if (players[0].Get_State() == CPlayer::DEAD || players[0].Get_State() == CPlayer::DIE)		//0이 죽었으면 0그리고 생존자 그려
-			{
-				players[0].Draw(hMemDC);
-				players[1].Draw(hMemDC);
-			}
-			else if (players[1].Get_State() == CPlayer::DEAD || players[1].Get_State() == CPlayer::DIE)	//1이 죽었으면 1그리고 생존자 그려
-			{
-				players[1].Draw(hMemDC);
-				players[0].Draw(hMemDC);
-			}
-			else																					// 둘다 아니면 아무렇게나
-			{
-				if (players[0].GetPos().y > players[1].GetPos().y)
-				{
-					players[1].Draw(hMemDC);
-					players[0].Draw(hMemDC);
-				}
-				else
-				{
-					players[0].Draw(hMemDC);
-					players[1].Draw(hMemDC);
-				}
 
-			}
+			//승패조건 코드. 이후에 수정
+			//if (PLAYERS[0].Get_State() == CPlayer::DEAD || PLAYERS[0].Get_State() == CPlayer::DIE)		//0이 죽었으면 0그리고 생존자 그려
+			//{
+			//	PLAYERS[0].Draw(hMemDC);
+			//	PLAYERS[1].Draw(hMemDC);
+			//}
+			//else if (PLAYERS[1].Get_State() == CPlayer::DEAD || PLAYERS[1].Get_State() == CPlayer::DIE)	//1이 죽었으면 1그리고 생존자 그려
+			//{
+			//	PLAYERS[1].Draw(hMemDC);
+			//	PLAYERS[0].Draw(hMemDC);
+			//}
+			//else																					// 둘다 아니면 아무렇게나
+			//{
+			//	if (PLAYERS[0].GetPos().y > PLAYERS[1].GetPos().y)
+			//	{
+			//		PLAYERS[1].Draw(hMemDC);
+			//		PLAYERS[0].Draw(hMemDC);
+			//	}
+			//	else
+			//	{
+			//		PLAYERS[0].Draw(hMemDC);
+			//		PLAYERS[1].Draw(hMemDC);
+			//	}
+			//}
 
 			hMemDCUI = CBmpMgr::Get_Instance()->Find_Image(L"test");
 
@@ -414,16 +469,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				, 800,600
 				, RGB(182, 185, 183));
 
-			for (auto& player : players)
+			for (auto& player : PLAYERS)
 				player.DrawWinnerUI(hMemDC);
 
-			players[0].DrawStartUI(hMemDC, GameStart);
-			if (players[0].GetState() == 8 && (players[1].GetState() == 8))
-				players[0].DrawDrawUI(hMemDC);
+			UI.DrawStartUI(hMemDC, pressStart, currentPlayerCnt);
+			UI.DrawLoadingUI(hMemDC, pressStart, currentPlayerCnt);
 
-			players[0].DrawItem(hMemDC);
-			players[1].DrawItem(hMemDC);
-			//
+
+			//if (PLAYERS[0].GetState() == 8 && (PLAYERS[1].GetState() == 8))
+			//	PLAYERS[0].DrawDrawUI(hMemDC);
+
+			if(currentPlayerCnt >= 4)
+				PLAYERS[myClientID].DrawItem(hMemDC);
 
 			BitBlt(hdc, 0, 0, WINCX, WINCY, hMemDC, 0, 0, SRCCOPY);
 			DeleteDC(hMemDC);
@@ -458,4 +515,49 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+DWORD WINAPI RecvThread(LPVOID arg)
+{
+	int retval;
+	char buf[1024];
+	SC_GAMEINFO* data;
+
+	// 소켓 생성
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+
+	// connect()
+	struct sockaddr_in serveraddr;
+	memset(&serveraddr, 0, sizeof(serveraddr));
+	serveraddr.sin_family = AF_INET;
+	serveraddr.sin_addr.s_addr = inet_addr(SERVERIP);
+	serveraddr.sin_port = htons(SERVERPORT);
+	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
+	//if (retval == SOCKET_ERROR) err_quit("connect()");
+
+
+	// 서버와 데이터 통신
+	while (1) {
+		retval = recv(sock, buf, sizeof(SC_GAMEINFO), MSG_WAITALL);
+		data = (SC_GAMEINFO*)buf;
+		myClientID = data->ID;
+		currentPlayerCnt = data->currentPlayerCnt;
+						// data->blockType[0];		서버의 map_init에서 배열의 첫번째 수를 -1로 하고 값을 받으면 0이 뜸. 현재 배열의 모든값이 0으로 전달되는 상태.
+						 
+		//플레이어 설치
+
+		//맵 설치
+		//if (currentPlayerCnt >= 4)
+		//{
+			//for (int i = 30; i < 165; ++i)
+			for (int i = 0; i < 135; ++i)
+			{
+				if (data->blockType[i] != -1)
+					OBSTACLES.emplace_back(TILES[i + 30].GetPos(), TILES[i + 30].GetIndex(), TILES, data->blockType[i]);	
+			}
+		//}
+
+	}
+
+	return 0;
 }

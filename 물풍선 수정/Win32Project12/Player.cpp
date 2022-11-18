@@ -118,9 +118,12 @@ void CPlayer::DrawDrawUI(HDC hdc)
 		, RGB(255, 0, 255));
 }
 
-void CPlayer::DrawStartUI(HDC hdc, bool Start)
+void CPlayer::DrawStartUI(HDC hdc, int currentPlayerCnt, bool pressStart)
 {
-	if (Start)
+	if (pressStart)
+		return;
+
+	if (currentPlayerCnt >= 4)
 		return;
 
 	HDC hMemDC = CBmpMgr::Get_Instance()->Find_Image(L"start");
@@ -131,6 +134,28 @@ void CPlayer::DrawStartUI(HDC hdc, bool Start)
 		, hMemDC
 		, 0, 0
 		, 800, 600
+		, RGB(255, 245, 255));
+}
+
+void CPlayer::DrawLoadingUI(HDC hdc, int currentPlayerCnt, bool pressStart)
+{
+	return;
+
+	if (!pressStart)
+		return;			//start버튼 눌러야 나오는 UI
+
+	if (currentPlayerCnt >= 4)
+		return;			//플레이어 4명이상이면 실행X
+
+
+	HDC hMemDC = CBmpMgr::Get_Instance()->Find_Image(L"loading");
+
+	GdiTransparentBlt(hdc
+		, 200, 200
+		, 150, 17
+		, hMemDC
+		, 0, 0
+		, 150, 17
 		, RGB(255, 245, 255));
 }
 

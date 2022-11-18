@@ -27,9 +27,14 @@ void Map_Init()
 	int map_range = INDEX_MAPEND - INDEX_MAPSTART;
 	for (int i = 0; i < map_range; i++) {
 		if (rand() % 10 <= 7)	// 70% 확률로 벽, 30%확률로 공간
-			player_data.blockType[i] = 1;
+		{
+			if (rand() % 10 <= 3)
+				player_data.blockType[i] = 1;		//돌
+			else
+				player_data.blockType[i] = 0;		//나무블럭
+		}
 		else
-			player_data.blockType[i] = 0;
+			player_data.blockType[i] = -1;
 	}
 
 	for (int i = 0; i < MAX_ITEM_CNT; i++)
@@ -39,6 +44,9 @@ void Map_Init()
 	}
 
 
+	// 테스트 용도 : 첫번째 블럭을 -1 (설치 안함)
+	player_data.blockType[0] = -1;
+
 	// 테스트 전용 코드
 	for (int a : player_data.blockType)
 		printf("[%d]\t", a);
@@ -46,6 +54,9 @@ void Map_Init()
 	for (auto a : player_data.itemType)
 		printf("[%d,%d]\t", a.pos, a.type);
 	// 테스트 전용 코드
+
+
+
 }
 
 
@@ -91,8 +102,13 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	SC_GAMEINFO p_data{};
 	p_data.ID = retval;
 	p_data.gameStart = 0;
+	p_data.currentPlayerCnt = cur_player;
+	for(int i =0; i< INDEX_MAPEND - INDEX_MAPSTART; ++i)
+		p_data.blockType[i] = player_data.blockType[i];
 
 	retval = send(client_sock, (char*)&p_data, sizeof(SC_GAMEINFO), 0);
+	printf("\n초기 게임 정보 전송\n");
+
 	if (retval == SOCKET_ERROR) {
 		err_display("send()");
 		return NULL;

@@ -12,7 +12,7 @@
 #include <windows.h>//#include <C:/Program Files (x86)/FMOD SoundSystem/FMOD Studio API Windows/api/core/inc/fmod.h>
 
 // C 런타임 헤더 파일입니다.
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
@@ -39,6 +39,10 @@
 #include "Obstacle.h"
 #include "WaterStream.h"
 #include "Item.h"
+#include "UI.h"
+
+#include "protocol.h"
+#include "Common.h"
 
 
 

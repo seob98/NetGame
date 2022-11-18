@@ -28,26 +28,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -159,15 +159,18 @@
     <ClInclude Include="BitMap.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="BmpMgr.h" />
+    <ClInclude Include="Common.h" />
     <ClInclude Include="extern.h" />
     <ClInclude Include="functor.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="Obstacle.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="protocol.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="struct.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="UI.h" />
     <ClInclude Include="WaterStream.h" />
     <ClInclude Include="Win32Project12.h" />
     <ClInclude Include="define.h" />
@@ -177,6 +180,7 @@
     <ClCompile Include="BitMap.cpp" />
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="BmpMgr.cpp" />
+    <ClCompile Include="Common.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="Obstacle.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -186,6 +190,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="UI.cpp" />
     <ClCompile Include="WaterStream.cpp" />
     <ClCompile Include="Win32Project12.cpp" />
   </ItemGroup>

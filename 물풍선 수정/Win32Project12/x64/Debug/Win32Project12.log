@@ -1,6 +1,2 @@
-﻿  Player.cpp
-C:\Users\Administrator\Downloads\크레이지아케이드\Win32Project12\Player.cpp(583,19): warning C4244: '+=': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  Win32Project12.cpp
-  코드를 생성하고 있습니다...
-C:\Users\Administrator\Downloads\크레이지아케이드\Win32Project12\Player.cpp(376): warning C4715: 'CPlayer::GetCurrentIndex': 모든 제어 경로에서 값을 반환하지는 않습니다.
-  Win32Project12.vcxproj -> C:\Users\Administrator\Downloads\크레이지아케이드\Win32Project12\x64\Debug\Win32Project12.exe
+﻿  Win32Project12.cpp
+  Win32Project12.vcxproj -> C:\Users\PC-2\Desktop\NetGame\물풍선 수정\Win32Project12\x64\Debug\Win32Project12.exe
