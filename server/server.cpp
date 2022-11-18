@@ -64,14 +64,28 @@ unsigned short Player_Create(SOCKET sock)
 {
 	// 게임 접속시 플레이어 상태 대기 상태
 	CPlayer::STATE p_state = CPlayer::STATE::IDLE;
-	POINT pos = map[cur_player].GetPos();
+	POINT pos;
+	if (cur_player == 0) {
+		pos = map[0].GetPos();
+	}
+	else if (cur_player == 1) {
+		pos = map[14].GetPos();
+	}
+	else if (cur_player == 2) {
+		pos = map[180].GetPos();
+	}
+	else if (cur_player == 3) {
+		pos = map[194].GetPos();
+	}
 
 	players[cur_player].sock = sock;
 	players[cur_player].ID = cur_player;
 	players[cur_player].player.SetPosX(pos.x);
 	players[cur_player].player.SetPosY(pos.y);
-	players[cur_player].player.SetState(p_state);
 	cur_player++;
+
+	printf("player id: %d, x: %d, y: %d\n", players[cur_player].ID,
+		pos.x, pos.y);
 
 	return players[cur_player - 1].ID;
 	
@@ -102,6 +116,10 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	player_data.ID = retval;
 	player_data.gameStart = 0;
 	player_data.currentPlayerCnt = retval;
+	if (player_data.ID % 2 == 0)
+		player_data.teamId = BAZZI;
+	else
+		player_data.teamId = DAO;
 
 	retval = send(client_sock, (char*)&player_data, sizeof(SC_GAMEINFO), 0);
 	printf("\n초기 게임 정보 전송\n");

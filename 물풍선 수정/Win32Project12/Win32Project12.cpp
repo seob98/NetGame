@@ -540,19 +540,22 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
 	//if (retval == SOCKET_ERROR) err_quit("connect()");
 
+	
 	retval = recv(sock, buf, sizeof(SC_GAMEINFO), MSG_WAITALL);
 	data = (SC_GAMEINFO*)buf;
 	myClientID = data->ID;
 	currentPlayerCnt = data->currentPlayerCnt;
-
+	
 	// 내 플레이어 생성
 	Add_Player(myClientID);
+
 	//맵 설치
 	for (int i = 0; i < 135; ++i)
 	{
 		if (data->blockType[i] != -1)
 			OBSTACLES.emplace_back(TILES[i + 30].GetPos(), TILES[i + 30].GetIndex(), TILES, data->blockType[i]);
 	}
+	
 	// 서버와 데이터 통신
 	while (1) {
 		retval = recv(sock, buf, sizeof(SC_GAMEINFO), MSG_WAITALL);
@@ -579,9 +582,19 @@ void Add_Player(int cnt) {
 	for (int i = 0; i <= cnt; i++) {
 		PLAYERS.reserve(i);
 		PLAYERS.resize(i);
-		PLAYERS.emplace_back(TILES[i].GetPos());
+		if (i == 0)
+			PLAYERS.emplace_back(TILES[0].GetPos());
+		else if(i == 1)
+			PLAYERS.emplace_back(TILES[14].GetPos());
+		else if (i == 2)
+			PLAYERS.emplace_back(TILES[180].GetPos());
+		else if (i == 3)
+			PLAYERS.emplace_back(TILES[194].GetPos());
 		PLAYERS[i].clientNum = 0;
-		PLAYERS[i].clinetTeam = 0;
+		if (i % 2 == 0)
+			PLAYERS[i].clinetTeam = 1;
+		else
+			PLAYERS[i].clinetTeam = 0;
 		PLAYERS[i].SetPlayer0();
 	}
 }
