@@ -15,8 +15,9 @@ int blockSize = 20;
 
 SOCKET sock;
 int myClientID{ -1 };
-int currentPlayerCnt{0};
+int currentPlayerCnt{ 0 };
 
+CS_EVENT event;
 #pragma region init
 
 using namespace std;
@@ -39,6 +40,7 @@ HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 
+HANDLE SendEvent;
 DWORD WINAPI RecvThread(LPVOID arg);
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
@@ -48,43 +50,44 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPWSTR    lpCmdLine,
+	_In_ int       nCmdShow)
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // TODO: 여기에 코드를 입력합니다.
+	// TODO: 여기에 코드를 입력합니다.
 
-    // 전역 문자열을 초기화합니다.
-    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_WIN32PROJECT12, szWindowClass, MAX_LOADSTRING);
-    MyRegisterClass(hInstance);
+	// 전역 문자열을 초기화합니다.
+	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+	LoadStringW(hInstance, IDC_WIN32PROJECT12, szWindowClass, MAX_LOADSTRING);
+	MyRegisterClass(hInstance);
 
-    // 응용 프로그램 초기화를 수행합니다.
-    if (!InitInstance (hInstance, nCmdShow))
-    {
-        return FALSE;
-    }
+	// 응용 프로그램 초기화를 수행합니다.
+	if (!InitInstance(hInstance, nCmdShow))
+	{
+		return FALSE;
+	}
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT12));
+	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT12));
 
-    MSG msg;
+	MSG msg;
 
+	SendEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	CreateThread(NULL, 0, RecvThread, NULL, 0, NULL);
 
-    // 기본 메시지 루프입니다.
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-    }
+	// 기본 메시지 루프입니다.
+	while (GetMessage(&msg, nullptr, 0, 0))
+	{
+		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
 
-    return (int) msg.wParam;
+	return (int)msg.wParam;
 }
 
 
@@ -97,23 +100,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
-    WNDCLASSEXW wcex;
+	WNDCLASSEXW wcex;
 
-    wcex.cbSize = sizeof(WNDCLASSEX);
+	wcex.cbSize = sizeof(WNDCLASSEX);
 
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = WndProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WIN32PROJECT12));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_WIN32PROJECT12);
-    wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WIN32PROJECT12));
+	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_WIN32PROJECT12);
+	wcex.lpszClassName = szWindowClass;
+	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
-    return RegisterClassExW(&wcex);
+	return RegisterClassExW(&wcex);
 }
 
 //
@@ -128,21 +131,21 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
+	hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-   hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      0, 0, WINCX, WINCY, nullptr, nullptr, hInstance, nullptr);
+	hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+		0, 0, WINCX, WINCY, nullptr, nullptr, hInstance, nullptr);
 
 
-   if (!hWnd)
-   {
-      return FALSE;
-   }
+	if (!hWnd)
+	{
+		return FALSE;
+	}
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd);
 
-   return TRUE;
+	return TRUE;
 }
 
 //
@@ -163,11 +166,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	HBITMAP hBit;
 
 	static bool pressStart = false;
-	
+
 #pragma region 최초연결
 
 	static bool connection = false;
-	
+
 	// 윈속 초기화
 	if (!connection)
 	{
@@ -176,20 +179,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 			return 1;
 
-	//	// connect() 호출에 사용할 변수
-	//	struct sockaddr_in serveraddr;
-	//	memset(&serveraddr, 0, sizeof(serveraddr));
-	//	serveraddr.sin_family = AF_INET;
-	//	inet_pton(AF_INET, SERVERIP, &serveraddr.sin_addr);
-	//	serveraddr.sin_port = htons(SERVERPORT);
+		//	// connect() 호출에 사용할 변수
+		//	struct sockaddr_in serveraddr;
+		//	memset(&serveraddr, 0, sizeof(serveraddr));
+		//	serveraddr.sin_family = AF_INET;
+		//	inet_pton(AF_INET, SERVERIP, &serveraddr.sin_addr);
+		//	serveraddr.sin_port = htons(SERVERPORT);
 
-	//	// 소켓 생성
-	//	SOCKET sockConnect = socket(AF_INET, SOCK_STREAM, 0);
-	//	if (sockConnect == INVALID_SOCKET) err_quit("socket()");
+		//	// 소켓 생성
+		//	SOCKET sockConnect = socket(AF_INET, SOCK_STREAM, 0);
+		//	if (sockConnect == INVALID_SOCKET) err_quit("socket()");
 
-	//	// connect()
-	//	retval = connect(sockConnect, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
-	//	if (retval == SOCKET_ERROR) err_quit("connect()");
+		//	// connect()
+		//	retval = connect(sockConnect, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
+		//	if (retval == SOCKET_ERROR) err_quit("connect()");
 
 		connection = true;
 	}
@@ -226,7 +229,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//			OBSTACLES.emplace_back(TILES[i].GetPos(), TILES[i].GetIndex(), TILES, false);
 		//	}
 		//}
-	
+
 		// 플레이어 추가
 		//PLAYERS.emplace_back(TILES[170].GetPos());
 		//PLAYERS[0].clientNum = 0;
@@ -241,7 +244,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 		if (wParam == VK_SPACE)
 		{
-			PLAYERS[0].SetupBallon(TILES, BALLONS, PLAYERS, true);
+			//PLAYERS[0].SetupBallon(TILES, BALLONS, PLAYERS, true);
+			event.setBallon = true;
 		}
 		if (wParam == VK_SHIFT)
 		{
@@ -258,13 +262,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 	case WM_LBUTTONDOWN:
 	{
-		RECT rtStart{155, 432, 155+78, 432 +97};
+		RECT rtStart{ 155, 432, 155 + 78, 432 + 97 };
 		RECT rtQuit{ 571, 432, 571 + 78, 432 + 97 };
-		RECT rtQuit2{647, 565, 647 + 140, 565 + 34};
+		RECT rtQuit2{ 647, 565, 647 + 140, 565 + 34 };
 		POINT pos{ LOWORD(lParam),HIWORD(lParam) };
 		if (PtInRect(&rtStart, pos))
 			pressStart = true;
-		else if(PtInRect(&rtQuit, pos))
+		else if (PtInRect(&rtQuit, pos))
 			PostQuitMessage(0);
 
 		if (pressStart)
@@ -348,7 +352,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				ballon.CheckPlayerOut(PLAYERS);
 				ballon.CheckCollision(PLAYERS);
-				ballon.UpdateFrame();		
+				ballon.UpdateFrame();
 			}
 			for (auto& ballon : BALLONS)
 				ballon.Update(BALLONS, WATERSTREAMS, TILES, OBSTACLES, horzBlockCnt, vertBlockCnt);
@@ -376,14 +380,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			for (int i = 0; i < WATERSTREAMS.size(); ++i)
 			{
 				WATERSTREAMS[i].Update();
-			}		
+			}
 			for (int i = 0; i < WATERSTREAMS.size();)
 			{
 				if (WATERSTREAMS[i].GetDead())
 					WATERSTREAMS.erase(WATERSTREAMS.begin() + i);
 				else
 					++i;
-			}			
+			}
 			//물줄기 lateupdate(컨테이너 비우기)
 #pragma endregion
 
@@ -405,119 +409,119 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			InvalidateRect(hWnd, NULL, false);	// 프레임 환기
 			break;
 		}
-		case WM_PAINT:
-		{
-			hdc = BeginPaint(hWnd, &ps);
-			hMemDC = CreateCompatibleDC(hdc);
-			hBit = CreateCompatibleBitmap(hdc, WINCX, WINCY);
-			SelectObject(hMemDC, hBit);
+	case WM_PAINT:
+	{
+		hdc = BeginPaint(hWnd, &ps);
+		hMemDC = CreateCompatibleDC(hdc);
+		hBit = CreateCompatibleBitmap(hdc, WINCX, WINCY);
+		SelectObject(hMemDC, hBit);
 
-			//
+		//
 
-			Rectangle(hMemDC, 0, 0, WINCX, WINCY);
+		Rectangle(hMemDC, 0, 0, WINCX, WINCY);
 
-			//PLAYERS[0].DrawMainFrmUI(hMemDC);
-			UI.DrawMainframeUI(hMemDC);
+		//PLAYERS[0].DrawMainFrmUI(hMemDC);
+		UI.DrawMainframeUI(hMemDC);
 
-			for (auto& Block : TILES)
-				Block.draw(hMemDC);
-			for (auto& Obstacle : OBSTACLES)
-				Obstacle.draw(hMemDC);
+		for (auto& Block : TILES)
+			Block.draw(hMemDC);
+		for (auto& Obstacle : OBSTACLES)
+			Obstacle.draw(hMemDC);
 
-			for (auto& ballon : BALLONS)
-				ballon.Draw(hMemDC);
+		for (auto& ballon : BALLONS)
+			ballon.Draw(hMemDC);
 
-			for (auto& WaterStream : WATERSTREAMS)
-				WaterStream.Draw(hMemDC);
+		for (auto& WaterStream : WATERSTREAMS)
+			WaterStream.Draw(hMemDC);
 
-			for (auto& Item : ITEMS)
-				Item.Draw(hMemDC);
+		for (auto& Item : ITEMS)
+			Item.Draw(hMemDC);
 
-			for (auto& Player : PLAYERS)
-				Player.Draw(hMemDC);
+		for (auto& Player : PLAYERS)
+			Player.Draw(hMemDC);
 
-			//승패조건 코드. 이후에 수정
-			//if (PLAYERS[0].Get_State() == CPlayer::DEAD || PLAYERS[0].Get_State() == CPlayer::DIE)		//0이 죽었으면 0그리고 생존자 그려
-			//{
-			//	PLAYERS[0].Draw(hMemDC);
-			//	PLAYERS[1].Draw(hMemDC);
-			//}
-			//else if (PLAYERS[1].Get_State() == CPlayer::DEAD || PLAYERS[1].Get_State() == CPlayer::DIE)	//1이 죽었으면 1그리고 생존자 그려
-			//{
-			//	PLAYERS[1].Draw(hMemDC);
-			//	PLAYERS[0].Draw(hMemDC);
-			//}
-			//else																					// 둘다 아니면 아무렇게나
-			//{
-			//	if (PLAYERS[0].GetPos().y > PLAYERS[1].GetPos().y)
-			//	{
-			//		PLAYERS[1].Draw(hMemDC);
-			//		PLAYERS[0].Draw(hMemDC);
-			//	}
-			//	else
-			//	{
-			//		PLAYERS[0].Draw(hMemDC);
-			//		PLAYERS[1].Draw(hMemDC);
-			//	}
-			//}
+		//승패조건 코드. 이후에 수정
+		//if (PLAYERS[0].Get_State() == CPlayer::DEAD || PLAYERS[0].Get_State() == CPlayer::DIE)		//0이 죽었으면 0그리고 생존자 그려
+		//{
+		//	PLAYERS[0].Draw(hMemDC);
+		//	PLAYERS[1].Draw(hMemDC);
+		//}
+		//else if (PLAYERS[1].Get_State() == CPlayer::DEAD || PLAYERS[1].Get_State() == CPlayer::DIE)	//1이 죽었으면 1그리고 생존자 그려
+		//{
+		//	PLAYERS[1].Draw(hMemDC);
+		//	PLAYERS[0].Draw(hMemDC);
+		//}
+		//else																					// 둘다 아니면 아무렇게나
+		//{
+		//	if (PLAYERS[0].GetPos().y > PLAYERS[1].GetPos().y)
+		//	{
+		//		PLAYERS[1].Draw(hMemDC);
+		//		PLAYERS[0].Draw(hMemDC);
+		//	}
+		//	else
+		//	{
+		//		PLAYERS[0].Draw(hMemDC);
+		//		PLAYERS[1].Draw(hMemDC);
+		//	}
+		//}
 
-			hMemDCUI = CBmpMgr::Get_Instance()->Find_Image(L"test");
+		hMemDCUI = CBmpMgr::Get_Instance()->Find_Image(L"test");
 
-			GdiTransparentBlt(hMemDC
-				, 0, 0
-				, 800,600
-				, hMemDCUI
-				, 0,0
-				, 800,600
-				, RGB(182, 185, 183));
+		GdiTransparentBlt(hMemDC
+			, 0, 0
+			, 800, 600
+			, hMemDCUI
+			, 0, 0
+			, 800, 600
+			, RGB(182, 185, 183));
 
-			for (auto& player : PLAYERS)
-				player.DrawWinnerUI(hMemDC);
+		for (auto& player : PLAYERS)
+			player.DrawWinnerUI(hMemDC);
 
-			UI.DrawStartUI(hMemDC, pressStart, currentPlayerCnt);
-			UI.DrawLoadingUI(hMemDC, pressStart, currentPlayerCnt);
+		UI.DrawStartUI(hMemDC, pressStart, currentPlayerCnt);
+		UI.DrawLoadingUI(hMemDC, pressStart, currentPlayerCnt);
 
 
-			//if (PLAYERS[0].GetState() == 8 && (PLAYERS[1].GetState() == 8))
-			//	PLAYERS[0].DrawDrawUI(hMemDC);
+		//if (PLAYERS[0].GetState() == 8 && (PLAYERS[1].GetState() == 8))
+		//	PLAYERS[0].DrawDrawUI(hMemDC);
 
-			/*
-			if(currentPlayerCnt >= 4)
-				PLAYERS[myClientID].DrawItem(hMemDC);
-			*/
-			BitBlt(hdc, 0, 0, WINCX, WINCY, hMemDC, 0, 0, SRCCOPY);
-			DeleteDC(hMemDC);
-			DeleteDC(hMemDCUI);
-			EndPaint(hWnd, &ps);
-		}
+		/*
+		if(currentPlayerCnt >= 4)
+			PLAYERS[myClientID].DrawItem(hMemDC);
+		*/
+		BitBlt(hdc, 0, 0, WINCX, WINCY, hMemDC, 0, 0, SRCCOPY);
+		DeleteDC(hMemDC);
+		DeleteDC(hMemDCUI);
+		EndPaint(hWnd, &ps);
+	}
+	break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
 		break;
-		case WM_DESTROY:
-			PostQuitMessage(0);
-			break;
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
-		return 0;
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+	return 0;
 }
 
 // 정보 대화 상자의 메시지 처리기입니다.
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    UNREFERENCED_PARAMETER(lParam);
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        return (INT_PTR)TRUE;
+	UNREFERENCED_PARAMETER(lParam);
+	switch (message)
+	{
+	case WM_INITDIALOG:
+		return (INT_PTR)TRUE;
 
-    case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-        {
-            EndDialog(hDlg, LOWORD(wParam));
-            return (INT_PTR)TRUE;
-        }
-        break;
-    }
-    return (INT_PTR)FALSE;
+	case WM_COMMAND:
+		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+		{
+			EndDialog(hDlg, LOWORD(wParam));
+			return (INT_PTR)TRUE;
+		}
+		break;
+	}
+	return (INT_PTR)FALSE;
 }
 
 void Add_Player(int cnt);
@@ -540,12 +544,12 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
 	//if (retval == SOCKET_ERROR) err_quit("connect()");
 
-	
+
 	retval = recv(sock, buf, sizeof(SC_GAMEINFO), MSG_WAITALL);
 	data = (SC_GAMEINFO*)buf;
 	myClientID = data->ID;
 	currentPlayerCnt = data->currentPlayerCnt;
-	
+
 	// 내 플레이어 생성
 	Add_Player(myClientID);
 
@@ -555,23 +559,28 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		if (data->blockType[i] != -1)
 			OBSTACLES.emplace_back(TILES[i + 30].GetPos(), TILES[i + 30].GetIndex(), TILES, data->blockType[i]);
 	}
-	
+
 	// 서버와 데이터 통신
 	while (1) {
+		if (currentPlayerCnt >= 4)
+			break;
 		retval = recv(sock, buf, sizeof(SC_GAMEINFO), MSG_WAITALL);
 		data = (SC_GAMEINFO*)buf;
 		currentPlayerCnt = data->currentPlayerCnt;
-						// data->blockType[0];		서버의 map_init에서 배열의 첫번째 수를 -1로 하고 값을 받으면 0이 뜸. 현재 배열의 모든값이 0으로 전달되는 상태.
-						 
-		//새로 접속한 플레이어 생성
-		Add_Player(currentPlayerCnt);
+		// data->blockType[0];		서버의 map_init에서 배열의 첫번째 수를 -1로 하고 값을 받으면 0이 뜸. 현재 배열의 모든값이 0으로 전달되는 상태.
 
-		
-		//if (currentPlayerCnt >= 4)
-		//{
-			//for (int i = 30; i < 165; ++i)
-		
-		//}
+//새로 접속한 플레이어 생성
+		Add_Player(data->ID);
+	}
+	while (1)
+	{
+		WaitForSingleObject(SendEvent, INFINITE);
+		event.ID = myClientID;
+		event.Index = PLAYERS[myClientID].GetCurrentIndex(TILES);
+		event.moveType = PLAYERS[myClientID].GetState();
+		retval = send(sock, (char*)&event, sizeof(CS_EVENT), 0);
+		if (retval == SOCKET_ERROR)
+			err_quit("send()");
 
 	}
 
@@ -584,7 +593,7 @@ void Add_Player(int cnt) {
 		PLAYERS.resize(i);
 		if (i == 0)
 			PLAYERS.emplace_back(TILES[0].GetPos());
-		else if(i == 1)
+		else if (i == 1)
 			PLAYERS.emplace_back(TILES[14].GetPos());
 		else if (i == 2)
 			PLAYERS.emplace_back(TILES[180].GetPos());

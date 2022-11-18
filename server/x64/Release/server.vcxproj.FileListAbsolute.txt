@@ -2,3 +2,4 @@ C:\Users\gnslg\OneDrive\바탕 화면\강의 폴더\2022 2학기\2022년 넷겜�
 C:\Users\als63\Desktop\수업\네트워크게임프로그래밍\텀 프로젝트\NetGame\server\server\x64\Release\server.exe
 C:\Users\GIGABYTE\OneDrive - 한국산업기술대학교\바탕 화면\넷겜프 텀프\NetGame\server\x64\Release\server.exe
 C:\Users\als63\Desktop\수업\네트워크게임프로그래밍\텀 프로젝트\NetGame\server\x64\Release\server.exe
+C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\x64\Release\server.exe

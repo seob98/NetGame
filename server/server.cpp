@@ -40,7 +40,7 @@ void Map_Init()
 	for (int i = 0; i < MAX_ITEM_CNT; i++)
 	{
 		player_data.itemType[i].type = rand() % 7;
-		player_data.itemType[i].pos = rand() % (map_range) + INDEX_MAPSTART;
+		player_data.itemType[i].pos = rand() % (map_range)+INDEX_MAPSTART;
 	}
 
 
@@ -64,7 +64,7 @@ unsigned short Player_Create(SOCKET sock)
 {
 	// 게임 접속시 플레이어 상태 대기 상태
 	CPlayer::STATE p_state = CPlayer::STATE::IDLE;
-	POINT pos;
+	POINT pos{};
 	if (cur_player == 0) {
 		pos = map[0].GetPos();
 	}
@@ -84,38 +84,38 @@ unsigned short Player_Create(SOCKET sock)
 	players[cur_player].player.SetPosY(pos.y);
 	cur_player++;
 
-	printf("player id: %d, x: %d, y: %d\n", players[cur_player].ID,
-		pos.x, pos.y);
+	printf("player id: %d, x: %d, y: %d, cur_player: %d\n", players[cur_player - 1].ID,
+		pos.x, pos.y, cur_player);
 
 	return players[cur_player - 1].ID;
-	
+
 }
 
 
 // 클라이언트와 데이터 통신
 DWORD WINAPI RecvThread(LPVOID arg)
 {
-	int retval;
+	int retval{};
 	SOCKET client_sock = (SOCKET)arg;
 	struct sockaddr_in clientaddr;
 	char addr[INET_ADDRSTRLEN];
-	int addrlen;
-	int len;
-	char buf[BUFSIZE + 1];
+	int addrlen{};
+	int len{};
+	char buf[BUFSIZE];
 
 	// 클라이언트 정보 얻기
 	addrlen = sizeof(clientaddr);
 	getpeername(client_sock, (struct sockaddr*)&clientaddr, &addrlen);
 	inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
-	
-	retval = Player_Create(client_sock);
-	if (retval == -1)
+
+	int myID = Player_Create(client_sock);
+	if (myID == -1)
 		printf("생성 실패\n");
 
 	// 클라이언트 초기 정보 보내주기
-	player_data.ID = retval;
+	player_data.ID = myID;
 	player_data.gameStart = 0;
-	player_data.currentPlayerCnt = retval;
+	player_data.currentPlayerCnt = cur_player;
 	if (player_data.ID % 2 == 0)
 		player_data.teamId = BAZZI;
 	else
@@ -136,44 +136,27 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		}
 	}
 
-	//while (1) {
-	//	retval = recv(players[p_data.ID].sock, buf, sizeof(CS_EVENT), MSG_WAITALL);
-	//	if (retval == SOCKET_ERROR) {
-	//		err_display("recv()");
-	//		break;
-	//	}
-	//	switch (KEY_EVENT) {
-	//	case PRESS_LEFT:
-	//		SC_PLAYERUPDATE p_update;
-	//		p_update.ID = players[p_data.ID].ID;
-	//		p_update.pt.x = 
-	//		break;
-	//	case PRESS_RIGHT:
-	//		break;
-	//	case PRESS_UP:
-	//		break;
-	//	case PRESS_DOWN:
-	//		break;
-	//	case PRESS_SPACE:
-	//		break;
-	//	case PRESS_ITEM:
-	//		break;
-	//	default:
-	//		break;
-	//	}
-	//}
+	while (1) {
+		retval = recv(players[myID].sock, buf, sizeof(CS_EVENT), MSG_WAITALL);
+		if (retval == SOCKET_ERROR) {
+			err_display("recv()");
+			break;
+		}
+		CS_EVENT* event = (CS_EVENT*)buf;
+		printf("ID: %d, Index: %d, moveType: %d, setBallon: %d\n", event->ID, event->Index, event->moveType, event->setBallon);
+	}
 	return 0;
 }
 
 DWORD WINAPI UpdateThread(LPVOID arg)
 {
-	int retval;
+	int retval{};
 	SOCKET client_sock = (SOCKET)arg;
 	struct sockaddr_in clientaddr;
 	char addr[INET_ADDRSTRLEN];
-	int addrlen;
-	int len;
-	char buf[BUFSIZE + 1];
+	int addrlen{};
+	int len{};
+	char buf[BUFSIZE]{};
 
 	// 클라이언트 정보 얻기
 	addrlen = sizeof(clientaddr);

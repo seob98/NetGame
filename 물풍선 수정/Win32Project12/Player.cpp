@@ -3,6 +3,9 @@
 #include "Ballon.h"
 #include "Item.h"
 
+extern std::vector<CPlayer> PLAYERS;
+extern int myClientID;
+extern HANDLE SendEvent;
 CPlayer::CPlayer()
 {
 }
@@ -100,7 +103,7 @@ void CPlayer::DrawWinnerUI(HDC hdc)
 				, hMemDC
 				, 0, 0
 				, 260, 90
-				, RGB(100,100, 100));
+				, RGB(100, 100, 100));
 		}
 	}
 }
@@ -180,49 +183,55 @@ void CPlayer::DrawItem(HDC hdc)
 
 void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 {
-	if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState == DIE || eCurState == WIN)
+	if (PLAYERS[myClientID].eCurState == TRAPPED || PLAYERS[myClientID].eCurState == SAVED ||
+		PLAYERS[myClientID].eCurState == DEAD || PLAYERS[myClientID].eCurState == DIE ||
+		PLAYERS[myClientID].eCurState == WIN)
 		return;
 
 	if (playerA)
 	{
 		if (GetAsyncKeyState('W') & 0x8000)
 		{
-			pos.y -= speed;
-			playerDir = 1;
-			eCurState = UP;
-			moving = true;
+			SetEvent(SendEvent);
+			PLAYERS[myClientID].pos.y -= speed;
+			PLAYERS[myClientID].playerDir = 1;
+			PLAYERS[myClientID].eCurState = UP;
+			PLAYERS[myClientID].moving = true;
 		}
 		else if (GetAsyncKeyState('S') & 0x8000)
 		{
-			pos.y += speed;
-			playerDir = 3;
-			eCurState = DOWN;
-			moving = true;
+			SetEvent(SendEvent);
+			PLAYERS[myClientID].pos.y += speed;
+			PLAYERS[myClientID].playerDir = 3;
+			PLAYERS[myClientID].eCurState = DOWN;
+			PLAYERS[myClientID].moving = true;
 		}
 		else if (GetAsyncKeyState('A') & 0x8000)
 		{
-			pos.x -= speed;
-			playerDir = 0;
-			eCurState = LEFT;
-			moving = true;
+			SetEvent(SendEvent);
+			PLAYERS[myClientID].pos.x -= speed;
+			PLAYERS[myClientID].playerDir = 0;
+			PLAYERS[myClientID].eCurState = LEFT;
+			PLAYERS[myClientID].moving = true;
 		}
 		else if (GetAsyncKeyState('D') & 0x8000)
 		{
-			pos.x += speed;
-			playerDir = 2;
-			eCurState = RIGHT;
-			moving = true;
+			SetEvent(SendEvent);
+			PLAYERS[myClientID].pos.x += speed;
+			PLAYERS[myClientID].playerDir = 2;
+			PLAYERS[myClientID].eCurState = RIGHT;
+			PLAYERS[myClientID].moving = true;
 		}
 		else
 		{
-			moving = false;
-			if (eCurState == DOWN || eCurState == IDLE)
+			PLAYERS[myClientID].moving = false;
+			if (PLAYERS[myClientID].eCurState == DOWN || PLAYERS[myClientID].eCurState == IDLE)
 			{
-				moving = true;
-				eCurState = IDLE;
+				PLAYERS[myClientID].moving = true;
+				PLAYERS[myClientID].eCurState = IDLE;
 			}
 			else
-				frame.StartX = 1;
+				PLAYERS[myClientID].frame.StartX = 1;
 		}
 	}
 
@@ -347,7 +356,7 @@ void CPlayer::UpdateRect()
 void CPlayer::CheckCollisionMap(std::vector<CBlock>& map)
 {
 	RECT temp{};
-	for (auto &mapBlock : map)
+	for (auto& mapBlock : map)
 	{
 		if (mapBlock.GetCollisionEnable())
 		{
@@ -416,7 +425,7 @@ void CPlayer::SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballon
 
 	if (ballonCurCnt < ballonMaxCnt)
 	{														//인자 보내봤자 암것도 안함. 지우면 뭔가 에러뜨는거같아서 냅둠.
-		ballons.emplace_back(pos, size, index, ballonLength, player0,  clientNum, this);
+		ballons.emplace_back(pos, size, index, ballonLength, player0, clientNum, this);
 		ballonCurCnt += 1;
 	}
 }
@@ -516,21 +525,21 @@ void CPlayer::STATE_CHECK()
 		case TRAPPED: //trapped,dead,saved는 다른 비트맵 사용
 			frame.StartX = 0;
 			frame.StateY = 0;					// 스프라이트 이미지 세로 수 
-			frame.EndX = 4;						
+			frame.EndX = 4;
 			frame.Time = 0;						// 현재 진행 시간
 			frame.DelayTime = 400;				// 프레임 딜레이 (높을수록 느립니다.)
-			 break;
+			break;
 		case SAVED:
 			frame.StartX = 0;
 			frame.StateY = 1;					// 스프라이트 이미지 세로 수 
-			frame.EndX = 2;					
+			frame.EndX = 2;
 			frame.Time = 0;						// 현재 진행 시간
 			frame.DelayTime = 100;				// 프레임 딜레이 (높을수록 느립니다.)
 			break;
 		case DIE:
 			frame.StartX = 0;
 			frame.StateY = 2;					// 스프라이트 이미지 세로 수 
-			frame.EndX = 6;						
+			frame.EndX = 6;
 			frame.Time = 0;						// 현재 진행 시간
 			frame.DelayTime = 100;				// 프레임 딜레이 (높을수록 느립니다.)
 			break;
@@ -554,7 +563,7 @@ void CPlayer::Update_Frame()
 	if (eCurState == WIN)
 		moving = true;
 
-	if(moving)
+	if (moving)
 		frame.Time += 10.f;
 	if (frame.Time > frame.DelayTime)
 	{

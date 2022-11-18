@@ -1,13 +1,24 @@
-﻿  server.cpp
-C:\Users\als63\Desktop\수업\네트워크게임프로그래밍\텀 프로젝트\NetGame\server\GameUtil\Ballon.h(53,24): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\als63\Desktop\수업\네트워크게임프로그래밍\텀 프로젝트\NetGame\server\server.cpp(104,6): warning C4101: 'len' :참조되지 않은 지역 변수입니다.
-C:\Users\als63\Desktop\수업\네트워크게임프로그래밍\텀 프로젝트\NetGame\server\server.cpp(105,7): warning C4101: 'buf' :참조되지 않은 지역 변수입니다.
-C:\Users\als63\Desktop\수업\네트워크게임프로그래밍\텀 프로젝트\NetGame\server\server.cpp(176,6): warning C4101: 'len' :참조되지 않은 지역 변수입니다.
-C:\Users\als63\Desktop\수업\네트워크게임프로그래밍\텀 프로젝트\NetGame\server\server.cpp(177,7): warning C4101: 'buf' :참조되지 않은 지역 변수입니다.
-C:\Users\als63\Desktop\수업\네트워크게임프로그래밍\텀 프로젝트\NetGame\server\server.cpp(171,6): warning C4101: 'retval' :참조되지 않은 지역 변수입니다.
+﻿  Ballon.cpp
+C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\GameUtil\Ballon.h(53,24): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Block.cpp
+C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\GameUtil\Ballon.h(53,24): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Item.cpp
+C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\GameUtil\Ballon.h(53,24): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Obstacle.cpp
+C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\GameUtil\Ballon.h(53,24): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Player.cpp
+C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\GameUtil\Ballon.h(53,24): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\GameUtil\Player.cpp(12,6): warning C4101: 'hMemDC' :참조되지 않은 지역 변수입니다.
+C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\GameUtil\Player.cpp(495,15): warning C4244: '+=': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  stdafx.cpp
+C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\GameUtil\Ballon.h(53,24): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  WaterStream.cpp
+C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\GameUtil\Ballon.h(53,24): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\GameUtil\WaterStream.cpp(82,17): warning C4244: '-=': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  server.cpp
+C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\GameUtil\Ballon.h(53,24): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   코드를 생성하고 있습니다.
-  0 of 89 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  Previous IPDB was built with incompatible compiler, fall back to full compilation.
+  All 88 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   코드를 생성했습니다.
-  server.vcxproj -> C:\Users\als63\Desktop\수업\네트워크게임프로그래밍\텀 프로젝트\NetGame\server\x64\Release\server.exe
+  server.vcxproj -> C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\x64\Release\server.exe

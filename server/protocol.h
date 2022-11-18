@@ -22,9 +22,9 @@ enum TEAM { DAO, BAZZI };
 
 struct CLIENTINFO
 {
-	SOCKET sock;
-	unsigned short ID;
-	CPlayer player;
+	SOCKET sock{};
+	unsigned short ID = -1;
+	CPlayer player{};
 };
 
 struct ObjectINFO
@@ -37,9 +37,9 @@ struct ObjectINFO
 
 struct SC_GAMEINFO
 {
-	unsigned short ID;
-	int currentPlayerCnt;
-	int gameStart;
+	unsigned short ID = -1;
+	int currentPlayerCnt = -1;
+	int gameStart{};
 	TEAM teamId;
 
 	int blockType[INDEX_MAPEND - INDEX_MAPSTART];
@@ -48,18 +48,20 @@ struct SC_GAMEINFO
 
 struct SC_PLAYERUPDATE
 {
-	unsigned short ID;
+	unsigned short ID = -1;
 	POINT pt;
 	CPlayer::STATE state;
-	int   ballonLength;
+	int   ballonLength = -1;
 	bool keydown;
 };
 
 struct CS_EVENT
 {
-	unsigned short ID;
-	bool keyType[PRESS_END];
-	unsigned short Index;
+	unsigned short ID = -1;
+	int moveType = -1;
+	bool setBallon = false;
+	bool usedNeedle = false;
+	unsigned short Index = -1;
 };
 
 #pragma pack(pop)
