@@ -329,9 +329,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//PLAYERS[1].CheckCollisionWaterStreams(WATERSTREAMS);
 			//PLAYERS[0].STATE_CHECK();
 			//PLAYERS[1].STATE_CHECK();
-			PLAYERS[myClientID].Move(true, TILES);
+			//PLAYERS[myClientID].Move(true, TILES);
 			for (auto& player : PLAYERS)
 			{
+				player.Move(true, TILES);
 				player.MoveTrapped(true, TILES);
 				player.CheckCollisionMap(TILES);
 				player.CheckCollisionWaterStreams(WATERSTREAMS);
@@ -525,6 +526,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 void Add_Player(int cnt);
+void Player_Update(int cnt, int x, int y);
 
 DWORD WINAPI RecvThread(LPVOID arg)
 {
@@ -582,6 +584,12 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		if (retval == SOCKET_ERROR)
 			err_quit("send()");
 
+		SC_PLAYERUPDATE* u_data;
+		retval = recv(sock, buf, sizeof(SC_PLAYERUPDATE), MSG_WAITALL);
+		if (retval == SOCKET_ERROR)
+			err_quit("recv()");
+		u_data = (SC_PLAYERUPDATE*)buf;
+		Player_Update(u_data->ID, u_data->pt.x, u_data->pt.y);
 	}
 
 	return 0;
@@ -606,4 +614,11 @@ void Add_Player(int cnt) {
 			PLAYERS[i].clinetTeam = 0;
 		PLAYERS[i].SetPlayer0();
 	}
+}
+
+// Å×½ºÆ®
+void Player_Update(int cnt, int x, int y)
+{
+	PLAYERS[cnt].SetPosX(x);
+	PLAYERS[cnt].SetPosY(y);
 }

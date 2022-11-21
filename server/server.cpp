@@ -6,10 +6,14 @@
 
 CLIENTINFO players[MAX_PLAYER];
 SC_GAMEINFO player_data{};	// SC_GAMEINFO를 배열에서 단일 변수로 변환
+CS_EVENT event_data{};
+HANDLE recvEvent[4], updateEvent, uThread;
 
 std::vector<CBlock> map;
 
 int cur_player = 0;
+
+DWORD WINAPI UpdateThread(LPVOID arg);
 
 void Map_Init()
 {
@@ -55,8 +59,6 @@ void Map_Init()
 		printf("[%d,%d]\t", a.pos, a.type);
 	// 테스트 전용 코드
 
-
-
 }
 
 
@@ -83,6 +85,13 @@ unsigned short Player_Create(SOCKET sock)
 	players[cur_player].player.SetPosX(pos.x);
 	players[cur_player].player.SetPosY(pos.y);
 	cur_player++;
+
+	if (cur_player == 4) {
+		uThread = CreateThread(NULL, 0, UpdateThread,
+			NULL, 0, NULL);
+		if (uThread == NULL) {}
+		else { CloseHandle(uThread); }
+	}
 
 	printf("player id: %d, x: %d, y: %d, cur_player: %d\n", players[cur_player - 1].ID,
 		pos.x, pos.y, cur_player);
@@ -144,28 +153,58 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		}
 		CS_EVENT* event = (CS_EVENT*)buf;
 		printf("ID: %d, Index: %d, moveType: %d, setBallon: %d\n", event->ID, event->Index, event->moveType, event->setBallon);
+		event_data.ID = event->ID;
+		event_data.Index = event->Index;
+		event_data.moveType = event->moveType;
+
+		SetEvent(recvEvent[myID]);
+		WaitForSingleObject(updateEvent, INFINITE);
 	}
 	return 0;
 }
 
 DWORD WINAPI UpdateThread(LPVOID arg)
 {
-	int retval{};
-	SOCKET client_sock = (SOCKET)arg;
-	struct sockaddr_in clientaddr;
-	char addr[INET_ADDRSTRLEN];
-	int addrlen{};
-	int len{};
-	char buf[BUFSIZE]{};
-
-	// 클라이언트 정보 얻기
-	addrlen = sizeof(clientaddr);
-	getpeername(client_sock, (struct sockaddr*)&clientaddr, &addrlen);
-	inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
-
+	int retval;
 #pragma region 서버객체 업데이트
 	while (1) {
+		WaitForMultipleObjects(4, recvEvent, FALSE, INFINITE);
+		// 객체 저장
+		POINT pos = players[event_data.ID].player.GetPos();
 
+		if (event_data.moveType == 0) {
+			players[event_data.ID].player.SetPosX(pos.x - 3);
+			players[event_data.ID].player.SetPosY(pos.y);
+		}
+		else if (event_data.moveType == 1) {
+			players[event_data.ID].player.SetPosX(pos.x);
+			players[event_data.ID].player.SetPosY(pos.y - 3);
+		}
+		else if (event_data.moveType == 2) {
+			players[event_data.ID].player.SetPosX(pos.x + 3);
+			players[event_data.ID].player.SetPosY(pos.y);
+		}
+		else if (event_data.moveType == 3) {
+			players[event_data.ID].player.SetPosX(pos.x);
+			players[event_data.ID].player.SetPosY(pos.y + 3);
+		}
+
+		// 업데이트 보내기
+		SC_PLAYERUPDATE u_data;
+		pos = players[event_data.ID].player.GetPos();
+		u_data.ID = event_data.ID;
+		u_data.pt = pos;
+
+		for(auto& clients : players)
+		retval = send(clients.sock, (char*)&u_data, sizeof(SC_PLAYERUPDATE), 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			break;
+		}
+
+		printf("ID: %d, x: %d, y: %d\n", u_data.ID, pos.x, pos.y);
+		printf("업데이트 완료\n");
+		SetEvent(updateEvent);
 	}
 #pragma endregion
 
@@ -173,7 +212,7 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 
 
 #pragma endregion
-
+	return NULL;
 }
 
 int main(int argc, char* argv[])
@@ -208,6 +247,10 @@ int main(int argc, char* argv[])
 	int addrlen;
 	HANDLE hThread;
 
+	for (int i = 0; i < 4; i++)
+		recvEvent[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
+	updateEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	
 	Map_Init();
 	while (1) {
 		// accept()
@@ -229,6 +272,7 @@ int main(int argc, char* argv[])
 			(LPVOID)client_sock, 0, NULL);
 		if (hThread == NULL) { closesocket(client_sock); }
 		else { CloseHandle(hThread); }
+
 	}
 
 	// 소켓 닫기
