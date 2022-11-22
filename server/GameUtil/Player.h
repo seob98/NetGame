@@ -55,7 +55,7 @@ public:
 	void DrawDrawUI(HDC hdc);
 	void DrawStartUI(HDC hdc, bool Start);
 	void DrawItem(HDC hdc);
-	void Move(bool playerA, std::vector<CBlock>& map);
+	void Move(std::vector<CBlock>& map, int pressedButton);
 	void MoveTrapped(bool playerA, std::vector<CBlock>& map);
 	void UpdateRect();
 	void CheckCollisionMap(std::vector<CBlock>& map);
@@ -72,7 +72,8 @@ public:
 	int GetState() { return (int)eCurState; }
 	RECT GetRect() { return rt; }
 	POINT GetPos() { return pos; }
-
+	int GetSpeed() { return speed; }
+	bool isMoving() { return moving; }
 public:
 	void SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, std::vector<CPlayer>& players, bool player0);
 	void BallonCntUpdate() { ballonCurCnt -= 1; }

@@ -87,6 +87,8 @@ public:
 	int GetState() { return (int)eCurState; }
 	RECT GetRect() { return rt; }
 	POINT GetPos() { return pos; }
+	int GetSpeed() { return speed; }
+	bool isMoving() { return moving; }
 
 public:
 	void SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, std::vector<CPlayer>& players, bool player0);

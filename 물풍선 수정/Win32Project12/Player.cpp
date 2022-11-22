@@ -192,91 +192,92 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 	{
 		if (GetAsyncKeyState('W') & 0x8000)
 		{
-			SetEvent(SendEvent);
-			PLAYERS[myClientID].pos.y -= 0;
+			//PLAYERS[myClientID].pos.y -= 0;
 			PLAYERS[myClientID].playerDir = 1;
 			PLAYERS[myClientID].eCurState = UP;
 			PLAYERS[myClientID].moving = true;
+			SetEvent(SendEvent);
 		}
 		else if (GetAsyncKeyState('S') & 0x8000)
 		{
-			SetEvent(SendEvent);
-			PLAYERS[myClientID].pos.y += 0;
+			//PLAYERS[myClientID].pos.y += 0;
 			PLAYERS[myClientID].playerDir = 3;
 			PLAYERS[myClientID].eCurState = DOWN;
 			PLAYERS[myClientID].moving = true;
+			SetEvent(SendEvent);
 		}
 		else if (GetAsyncKeyState('A') & 0x8000)
 		{
-			SetEvent(SendEvent);
-			PLAYERS[myClientID].pos.x -= 0;
+			//PLAYERS[myClientID].pos.x -= 0;
 			PLAYERS[myClientID].playerDir = 0;
 			PLAYERS[myClientID].eCurState = LEFT;
 			PLAYERS[myClientID].moving = true;
+			SetEvent(SendEvent);
 		}
 		else if (GetAsyncKeyState('D') & 0x8000)
 		{
-			SetEvent(SendEvent);
-			PLAYERS[myClientID].pos.x += 0;
+			//PLAYERS[myClientID].pos.x += 0;
 			PLAYERS[myClientID].playerDir = 2;
 			PLAYERS[myClientID].eCurState = RIGHT;
 			PLAYERS[myClientID].moving = true;
+			SetEvent(SendEvent);
 		}
 		else
 		{
 			PLAYERS[myClientID].moving = false;
 			if (PLAYERS[myClientID].eCurState == DOWN || PLAYERS[myClientID].eCurState == IDLE)
 			{
-				PLAYERS[myClientID].moving = true;
 				PLAYERS[myClientID].eCurState = IDLE;
+				PLAYERS[myClientID].moving = true;
 			}
 			else
 				PLAYERS[myClientID].frame.StartX = 1;
+			SetEvent(SendEvent);
 		}
 	}
 
-	else
-	{
-		if (GetAsyncKeyState(VK_UP) & 0x8000)
-		{
-			pos.y -= speed;
-			playerDir = 1;
-			eCurState = UP;
-			moving = true;
-		}
-		else if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-		{
-			pos.y += speed;
-			playerDir = 3;
-			eCurState = DOWN;
-			moving = true;
-		}
-		else if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-		{
-			pos.x -= speed;
-			playerDir = 0;
-			eCurState = LEFT;
-			moving = true;
-		}
-		else if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-		{
-			pos.x += speed;
-			playerDir = 2;
-			eCurState = RIGHT;
-			moving = true;
-		}
-		else
-		{
-			moving = false;
-			if (eCurState == DOWN || eCurState == IDLE)
-			{
-				moving = true;
-				eCurState = IDLE;
-			}
-			else
-				frame.StartX = 1;
-		}
-	}
+	//else
+	//{
+	//	if (GetAsyncKeyState(VK_UP) & 0x8000)
+	//	{
+	//		pos.y -= speed;
+	//		playerDir = 1;
+	//		eCurState = UP;
+	//		moving = true;
+	//	}
+	//	else if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+	//	{
+	//		pos.y += speed;
+	//		playerDir = 3;
+	//		eCurState = DOWN;
+	//		moving = true;
+	//	}
+	//	else if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+	//	{
+	//		pos.x -= speed;
+	//		playerDir = 0;
+	//		eCurState = LEFT;
+	//		moving = true;
+	//	}
+	//	else if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+	//	{
+	//		pos.x += speed;
+	//		playerDir = 2;
+	//		eCurState = RIGHT;
+	//		moving = true;
+	//	}
+	//	else
+	//	{
+	//		moving = false;
+	//		if (eCurState == DOWN || eCurState == IDLE)
+	//		{
+	//			moving = true;
+	//			eCurState = IDLE;
+	//		}
+	//		else
+	//			frame.StartX = 1;
+	//	}
+	//}
 
 	UpdateRect();
 	index = GetCurrentIndex(map);

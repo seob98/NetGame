@@ -1,3 +1,4 @@
 C:\Users\PC-2\Desktop\NetGame\물풍선 수정\Win32Project12\x64\Release\Win32Project12.exe
 C:\Users\gnslg\OneDrive\바탕 화면\NetGame\물풍선 수정\Win32Project12\x64\Release\Win32Project12.exe
 C:\Users\als63\Desktop\수업\네트워크게임프로그래밍\텀 프로젝트\깃\NetGame\물풍선 수정\Win32Project12\x64\Release\Win32Project12.exe
+C:\Users\gnslg\OneDrive\바탕 화면\강의 폴더\2022 2학기\2022년 넷겜플\텀\NetGame\물풍선 수정\Win32Project12\x64\Release\Win32Project12.exe

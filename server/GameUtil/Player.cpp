@@ -54,35 +54,39 @@ void CPlayer::DrawItem(HDC hdc)
 {
 }
 
-void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
+void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 {
 	if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState == DIE || eCurState == WIN)
 		return;
 
-	if (playerA)
-	{
-		if (GetAsyncKeyState('W') & 0x8000)
+	//if (playerA)
+	//{
+		//if (GetAsyncKeyState('W') & 0x8000)
+		if (pressedButton == 2)
 		{
 			pos.y -= speed;
 			playerDir = 1;
 			eCurState = UP;
 			moving = true;
 		}
-		else if (GetAsyncKeyState('S') & 0x8000)
+		//else if (GetAsyncKeyState('S') & 0x8000)
+		else if (pressedButton == 1)
 		{
 			pos.y += speed;
 			playerDir = 3;
 			eCurState = DOWN;
 			moving = true;
 		}
-		else if (GetAsyncKeyState('A') & 0x8000)
+		//else if (GetAsyncKeyState('A') & 0x8000)
+		else if (pressedButton == 3)
 		{
 			pos.x -= speed;
 			playerDir = 0;
 			eCurState = LEFT;
 			moving = true;
 		}
-		else if (GetAsyncKeyState('D') & 0x8000)
+		//else if (GetAsyncKeyState('D') & 0x8000)
+		else if (pressedButton == 4)
 		{
 			pos.x += speed;
 			playerDir = 2;
@@ -100,50 +104,6 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 			else
 				frame.StartX = 1;
 		}
-	}
-
-	else
-	{
-		if (GetAsyncKeyState(VK_UP) & 0x8000)
-		{
-			pos.y -= speed;
-			playerDir = 1;
-			eCurState = UP;
-			moving = true;
-		}
-		else if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-		{
-			pos.y += speed;
-			playerDir = 3;
-			eCurState = DOWN;
-			moving = true;
-		}
-		else if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-		{
-			pos.x -= speed;
-			playerDir = 0;
-			eCurState = LEFT;
-			moving = true;
-		}
-		else if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-		{
-			pos.x += speed;
-			playerDir = 2;
-			eCurState = RIGHT;
-			moving = true;
-		}
-		else
-		{
-			moving = false;
-			if (eCurState == DOWN || eCurState == IDLE)
-			{
-				moving = true;
-				eCurState = IDLE;
-			}
-			else
-				frame.StartX = 1;
-		}
-	}
 
 	UpdateRect();
 	index = GetCurrentIndex(map);
@@ -258,12 +218,20 @@ void CPlayer::CheckCollisionMap(std::vector<CBlock>& map)
 void CPlayer::SetPosX(int x)
 {
 	pos.x = x;
+	if (pos.x <= 40)
+		pos.x = 40;
+	if (pos.x >= 600)
+		pos.x = 600;
 	UpdateRect();
 }
 
 void CPlayer::SetPosY(int y)
 {
 	pos.y = y;
+	if (pos.y <= 60)
+		pos.y = 60;
+	if (pos.y >= 540)
+		pos.y = 540;
 	UpdateRect();
 }
 

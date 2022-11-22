@@ -58,7 +58,8 @@ struct SC_PLAYERUPDATE
 struct CS_EVENT
 {
 	unsigned short ID = -1;
-	int moveType = -1;
+	int State = -1;
+	bool moving = false;
 	bool setBallon = false;
 	bool usedNeedle = false;
 	unsigned short Index = -1;

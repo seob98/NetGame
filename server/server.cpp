@@ -6,11 +6,10 @@
 
 CLIENTINFO players[MAX_PLAYER];
 SC_GAMEINFO player_data{};	// SC_GAMEINFO를 배열에서 단일 변수로 변환
-CS_EVENT event_data{};
+CS_EVENT event_data[4]{};
 HANDLE recvEvent[4], updateEvent, uThread;
-
 std::vector<CBlock> map;
-
+CRITICAL_SECTION cs;
 int cur_player = 0;
 
 DWORD WINAPI UpdateThread(LPVOID arg);
@@ -47,18 +46,6 @@ void Map_Init()
 		player_data.itemType[i].pos = rand() % (map_range)+INDEX_MAPSTART;
 	}
 
-
-	// 테스트 용도 : 첫번째 블럭을 -1 (설치 안함)
-	player_data.blockType[0] = -1;
-
-	// 테스트 전용 코드
-	for (int a : player_data.blockType)
-		printf("[%d]\t", a);
-	printf("\n");
-	for (auto a : player_data.itemType)
-		printf("[%d,%d]\t", a.pos, a.type);
-	// 테스트 전용 코드
-
 }
 
 
@@ -93,8 +80,8 @@ unsigned short Player_Create(SOCKET sock)
 		else { CloseHandle(uThread); }
 	}
 
-	printf("player id: %d, x: %d, y: %d, cur_player: %d\n", players[cur_player - 1].ID,
-		pos.x, pos.y, cur_player);
+	//printf("player id: %d, x: %d, y: %d, cur_player: %d\n", players[cur_player - 1].ID,
+	//	pos.x, pos.y, cur_player);
 
 	return players[cur_player - 1].ID;
 
@@ -152,59 +139,61 @@ DWORD WINAPI RecvThread(LPVOID arg)
 			break;
 		}
 		CS_EVENT* event = (CS_EVENT*)buf;
-		printf("ID: %d, Index: %d, moveType: %d, setBallon: %d\n", event->ID, event->Index, event->moveType, event->setBallon);
-		event_data.ID = event->ID;
-		event_data.Index = event->Index;
-		event_data.moveType = event->moveType;
+		EnterCriticalSection(&cs);
+		
 
+		//event_data[myID].ID = event->ID;
+		event_data[myID].Index = event->Index;
+		event_data[myID].moving = event->moving;
+		event_data[myID].State = event->State;
+
+		if (event->setBallon)
+			printf("ID: %d, Index: (%d, %d), State: %d, setBallon: %d\n", event->ID,
+				players[myID].player.GetPos().x, players[myID].player.GetPos().y,
+				event->State, event->setBallon);
 		SetEvent(recvEvent[myID]);
-		WaitForSingleObject(updateEvent, INFINITE);
+		LeaveCriticalSection(&cs);
+		//WaitForSingleObject(updateEvent, INFINITE);
 	}
 	return 0;
 }
 
+void PlayerMove()
+{
+	for (int i = 0; i < MAX_PLAYER; i++) 
+	{
+		if (event_data[i].moving)
+		{
+			players[i].player.Move(map, event_data[i].State);
+		}
+	}
+}
 DWORD WINAPI UpdateThread(LPVOID arg)
 {
 	int retval;
 #pragma region 서버객체 업데이트
 	while (1) {
-		WaitForMultipleObjects(4, recvEvent, FALSE, INFINITE);
-		// 객체 저장
-		POINT pos = players[event_data.ID].player.GetPos();
+		WaitForMultipleObjects(4, recvEvent, TRUE, 33);
 
-		if (event_data.moveType == 0) {
-			players[event_data.ID].player.SetPosX(pos.x - 3);
-			players[event_data.ID].player.SetPosY(pos.y);
-		}
-		else if (event_data.moveType == 1) {
-			players[event_data.ID].player.SetPosX(pos.x);
-			players[event_data.ID].player.SetPosY(pos.y - 3);
-		}
-		else if (event_data.moveType == 2) {
-			players[event_data.ID].player.SetPosX(pos.x + 3);
-			players[event_data.ID].player.SetPosY(pos.y);
-		}
-		else if (event_data.moveType == 3) {
-			players[event_data.ID].player.SetPosX(pos.x);
-			players[event_data.ID].player.SetPosY(pos.y + 3);
-		}
+		PlayerMove();
+	
 
-		// 업데이트 보내기
-		SC_PLAYERUPDATE u_data;
-		pos = players[event_data.ID].player.GetPos();
-		u_data.ID = event_data.ID;
-		u_data.pt = pos;
+		//// 업데이트 보내기
+		//SC_PLAYERUPDATE u_data;
+		//pos = players[event_data.ID].player.GetPos();
+		//u_data.ID = event_data.ID;
+		//u_data.pt = pos;
 
-		for(auto& clients : players)
-		retval = send(clients.sock, (char*)&u_data, sizeof(SC_PLAYERUPDATE), 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			break;
-		}
+		//for(auto& clients : players)
+		//retval = send(clients.sock, (char*)&u_data, sizeof(SC_PLAYERUPDATE), 0);
+		//if (retval == SOCKET_ERROR) {
+		//	err_display("send()");
+		//	break;
+		//}
 
-		printf("ID: %d, x: %d, y: %d\n", u_data.ID, pos.x, pos.y);
-		printf("업데이트 완료\n");
-		SetEvent(updateEvent);
+		//printf("ID: %d, x: %d, y: %d\n", event_data.ID, pos.x, pos.y);
+		//printf("%d ID 업데이트 완료\n", event_data.ID);
+		//SetEvent(updateEvent);
 	}
 #pragma endregion
 
@@ -241,14 +230,17 @@ int main(int argc, char* argv[])
 	retval = listen(listen_sock, SOMAXCONN);
 	if (retval == SOCKET_ERROR) err_quit("listen()");
 
+	InitializeCriticalSection(&cs);
 	// 데이터 통신에 사용할 변수
 	SOCKET client_sock;
 	struct sockaddr_in clientaddr;
 	int addrlen;
 	HANDLE hThread;
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++) {
 		recvEvent[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
+		event_data[i].ID = i;
+	}
 	updateEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	
 	Map_Init();
@@ -277,7 +269,7 @@ int main(int argc, char* argv[])
 
 	// 소켓 닫기
 	closesocket(listen_sock);
-
+	DeleteCriticalSection(&cs);
 	// 윈속 종료
 	WSACleanup();
 	return 0;

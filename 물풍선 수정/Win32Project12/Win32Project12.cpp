@@ -579,17 +579,18 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		WaitForSingleObject(SendEvent, INFINITE);
 		event.ID = myClientID;
 		event.Index = PLAYERS[myClientID].GetCurrentIndex(TILES);
-		event.moveType = PLAYERS[myClientID].GetState();
+		event.State = PLAYERS[myClientID].GetState();
+		event.moving = PLAYERS[myClientID].isMoving();
 		retval = send(sock, (char*)&event, sizeof(CS_EVENT), 0);
-		if (retval == SOCKET_ERROR)
-			err_quit("send()");
+		if (retval == SOCKET_ERROR) err_quit("send()");
+		event.setBallon = false;
 
-		SC_PLAYERUPDATE* u_data;
-		retval = recv(sock, buf, sizeof(SC_PLAYERUPDATE), MSG_WAITALL);
-		if (retval == SOCKET_ERROR)
-			err_quit("recv()");
-		u_data = (SC_PLAYERUPDATE*)buf;
-		Player_Update(u_data->ID, u_data->pt.x, u_data->pt.y);
+		//SC_PLAYERUPDATE* u_data;
+		//retval = recv(sock, buf, sizeof(SC_PLAYERUPDATE), MSG_WAITALL);
+		//if (retval == SOCKET_ERROR)
+		//	err_quit("recv()");
+		//u_data = (SC_PLAYERUPDATE*)buf;
+		//Player_Update(u_data->ID, u_data->pt.x, u_data->pt.y);
 	}
 
 	return 0;
