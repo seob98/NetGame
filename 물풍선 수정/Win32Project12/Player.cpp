@@ -188,8 +188,11 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 		PLAYERS[myClientID].eCurState == WIN)
 		return;
 
-	if (playerA)
-	{
+	if (!GetActiveWindow())
+		return;
+
+	//if (playerA)
+	//{
 		if (GetAsyncKeyState('W') & 0x8000)
 		{
 			//PLAYERS[myClientID].pos.y -= 0;
@@ -234,7 +237,7 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 				PLAYERS[myClientID].frame.StartX = 1;
 			SetEvent(SendEvent);
 		}
-	}
+	//}
 
 	//else
 	//{
@@ -289,12 +292,13 @@ void CPlayer::MoveTrapped(bool playerA, std::vector<CBlock>& map)
 	if (eCurState == WIN)
 		return;
 
-
+	if (!GetActiveWindow())
+		return;
 
 	if (eCurState == TRAPPED)
 	{
-		if (playerA)
-		{
+		//if (playerA)
+		//{
 			if (GetAsyncKeyState('W') & 0x8000)
 			{
 				pos.y -= trappedSpeed;
@@ -315,31 +319,30 @@ void CPlayer::MoveTrapped(bool playerA, std::vector<CBlock>& map)
 				pos.x += trappedSpeed;
 				playerDir = 2;
 			}
-		}
-
-		else
-		{
-			if (GetAsyncKeyState(VK_UP) & 0x8000)
-			{
-				pos.y -= trappedSpeed;
-				playerDir = 1;
-			}
-			else if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-			{
-				pos.y += trappedSpeed;
-				playerDir = 3;
-			}
-			else if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-			{
-				pos.x -= trappedSpeed;
-				playerDir = 0;
-			}
-			else if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-			{
-				pos.x += trappedSpeed;
-				playerDir = 2;
-			}
-		}
+		//}
+		//else
+		//{
+		//	if (GetAsyncKeyState(VK_UP) & 0x8000)
+		//	{
+		//		pos.y -= trappedSpeed;
+		//		playerDir = 1;
+		//	}
+		//	else if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+		//	{
+		//		pos.y += trappedSpeed;
+		//		playerDir = 3;
+		//	}
+		//	else if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+		//	{
+		//		pos.x -= trappedSpeed;
+		//		playerDir = 0;
+		//	}
+		//	else if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+		//	{
+		//		pos.x += trappedSpeed;
+		//		playerDir = 2;
+		//	}
+		//}
 
 		UpdateRect();
 		index = GetCurrentIndex(map);
