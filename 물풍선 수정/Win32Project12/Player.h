@@ -83,12 +83,16 @@ public:
 public:
 	int GetCurrentIndex(std::vector<CBlock>& map);
 	int GetDir() { return playerDir; }
+	void SetDir(int in) { playerDir = in; }
 	int GetSize() { return size; }
 	int GetState() { return (int)eCurState; }
+	void SetState(STATE in) { eCurState = in; }
+
 	RECT GetRect() { return rt; }
 	POINT GetPos() { return pos; }
 	int GetSpeed() { return speed; }
 	bool isMoving() { return moving; }
+	void SetMoving(bool in) { moving = in; }
 
 public:
 	void SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, std::vector<CPlayer>& players, bool player0);

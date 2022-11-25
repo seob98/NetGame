@@ -62,7 +62,7 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 	//if (playerA)
 	//{
 		//if (GetAsyncKeyState('W') & 0x8000)
-		if (pressedButton == 2)
+		if (pressedButton == 1)
 		{
 			pos.y -= speed;
 			playerDir = 1;
@@ -70,7 +70,7 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 			moving = true;
 		}
 		//else if (GetAsyncKeyState('S') & 0x8000)
-		else if (pressedButton == 1)
+		else if (pressedButton == 2)
 		{
 			pos.y += speed;
 			playerDir = 3;

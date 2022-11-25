@@ -42,6 +42,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 
 HANDLE SendEvent;
 DWORD WINAPI RecvThread(LPVOID arg);
+DWORD WINAPI SendThread(LPVOID arg);
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -526,7 +527,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 void Add_Player(int cnt);
-void Player_Update(int cnt, int x, int y);
+void Player_Update(SC_PLAYERUPDATE* in);
 
 DWORD WINAPI RecvThread(LPVOID arg)
 {
@@ -574,6 +575,22 @@ DWORD WINAPI RecvThread(LPVOID arg)
 //새로 접속한 플레이어 생성
 		Add_Player(data->ID);
 	}
+	CreateThread(NULL, 0, SendThread, NULL, 0, NULL);
+	while (1)
+	{
+		//SC_PLAYERUPDATE* u_data;
+		retval = recv(sock, buf, sizeof(SC_PLAYERUPDATE) * 4, MSG_WAITALL);
+		if (retval == SOCKET_ERROR)
+			err_quit("recv()");
+		Player_Update((SC_PLAYERUPDATE*)buf);
+	}
+
+	return 0;
+}
+
+DWORD WINAPI SendThread(LPVOID arg)
+{
+	int retval;
 	while (1)
 	{
 		WaitForSingleObject(SendEvent, INFINITE);
@@ -584,16 +601,7 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		retval = send(sock, (char*)&event, sizeof(CS_EVENT), 0);
 		if (retval == SOCKET_ERROR) err_quit("send()");
 		event.setBallon = false;
-
-		//SC_PLAYERUPDATE* u_data;
-		//retval = recv(sock, buf, sizeof(SC_PLAYERUPDATE), MSG_WAITALL);
-		//if (retval == SOCKET_ERROR)
-		//	err_quit("recv()");
-		//u_data = (SC_PLAYERUPDATE*)buf;
-		//Player_Update(u_data->ID, u_data->pt.x, u_data->pt.y);
 	}
-
-	return 0;
 }
 
 void Add_Player(int cnt) {
@@ -618,8 +626,15 @@ void Add_Player(int cnt) {
 }
 
 // 테스트
-void Player_Update(int cnt, int x, int y)
+void Player_Update(SC_PLAYERUPDATE* in)
 {
-	PLAYERS[cnt].SetPosX(x);
-	PLAYERS[cnt].SetPosY(y);
+	for (int i = 0; i < 4; i++) 
+	{
+		int ID = in[i].ID;
+		PLAYERS[ID].SetDir(in[i].playerDir);
+		PLAYERS[ID].SetPosX(in[i].pt.x);
+		PLAYERS[ID].SetPosY(in[i].pt.y);
+		PLAYERS[ID].SetMoving(in[i].moving);
+		PLAYERS[ID].SetState(in[i].state);
+	}
 }
