@@ -74,6 +74,7 @@ public:
 	POINT GetPos() { return pos; }
 	int GetSpeed() { return speed; }
 	bool isMoving() { return moving; }
+	void SetMoving(bool in) { moving = in; }
 public:
 	void SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, std::vector<CPlayer>& players, bool player0);
 	void BallonCntUpdate() { ballonCurCnt -= 1; }

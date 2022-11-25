@@ -162,6 +162,8 @@ void PlayerMove()
 		{
 			players[i].player.Move(map, event_data[i].State);
 		}
+		else
+			players[i].player.SetMoving(false);
 	}
 }
 
