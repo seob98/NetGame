@@ -7,6 +7,7 @@
 CLIENTINFO players[MAX_PLAYER];
 SC_GAMEINFO player_data{};	// SC_GAMEINFO를 배열에서 단일 변수로 변환
 CS_EVENT event_data[4]{};
+SC_PLAYERUPDATE update_data[4]{};
 HANDLE recvEvent[4], updateEvent, uThread;
 std::vector<CBlock> map;
 CRITICAL_SECTION cs;
@@ -80,13 +81,9 @@ unsigned short Player_Create(SOCKET sock)
 		else { CloseHandle(uThread); }
 	}
 
-	//printf("player id: %d, x: %d, y: %d, cur_player: %d\n", players[cur_player - 1].ID,
-	//	pos.x, pos.y, cur_player);
-
 	return players[cur_player - 1].ID;
 
 }
-
 
 // 클라이언트와 데이터 통신
 DWORD WINAPI RecvThread(LPVOID arg)
@@ -142,15 +139,14 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		EnterCriticalSection(&cs);
 		
 
-		//event_data[myID].ID = event->ID;
 		event_data[myID].Index = event->Index;
 		event_data[myID].moving = event->moving;
 		event_data[myID].State = event->State;
 
-		if (event->setBallon)
-			printf("ID: %d, Index: (%d, %d), State: %d, setBallon: %d\n", event->ID,
-				players[myID].player.GetPos().x, players[myID].player.GetPos().y,
-				event->State, event->setBallon);
+		//if (event->setBallon)
+		//	printf("ID: %d, Index: (%d, %d), State: %d, setBallon: %d\n", event->ID,
+		//		players[myID].player.GetPos().x, players[myID].player.GetPos().y,
+		//		event->State, event->setBallon);
 		SetEvent(recvEvent[myID]);
 		LeaveCriticalSection(&cs);
 		//WaitForSingleObject(updateEvent, INFINITE);
@@ -166,8 +162,11 @@ void PlayerMove()
 		{
 			players[i].player.Move(map, event_data[i].State);
 		}
+		else
+			players[i].player.SetMoving(false);
 	}
 }
+
 DWORD WINAPI UpdateThread(LPVOID arg)
 {
 	int retval;
@@ -178,21 +177,21 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 		PlayerMove();
 	
 
-		//// 업데이트 보내기
-		//SC_PLAYERUPDATE u_data;
-		//pos = players[event_data.ID].player.GetPos();
-		//u_data.ID = event_data.ID;
-		//u_data.pt = pos;
+		// 업데이트 보내기
+		for (int i = 0; i < 4; i++) {
+			update_data[i].moving = players[i].player.isMoving();
+			update_data[i].playerDir = players[i].player.GetDir();
+			update_data[i].state = players[i].player.Get_State();
+			update_data[i].pt = players[i].player.GetPos();
+		}
 
-		//for(auto& clients : players)
-		//retval = send(clients.sock, (char*)&u_data, sizeof(SC_PLAYERUPDATE), 0);
-		//if (retval == SOCKET_ERROR) {
-		//	err_display("send()");
-		//	break;
-		//}
+		for(auto& clients : players)
+		retval = send(clients.sock, (char*)&update_data, sizeof(SC_PLAYERUPDATE) * 4, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			break;
+		}
 
-		//printf("ID: %d, x: %d, y: %d\n", event_data.ID, pos.x, pos.y);
-		//printf("%d ID 업데이트 완료\n", event_data.ID);
 		//SetEvent(updateEvent);
 	}
 #pragma endregion
@@ -240,6 +239,7 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < 4; i++) {
 		recvEvent[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
 		event_data[i].ID = i;
+		update_data[i].ID = i;
 	}
 	updateEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	

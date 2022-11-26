@@ -1,1 +1,23 @@
-﻿  Win32Project12.vcxproj -> C:\Users\gnslg\OneDrive\바탕 화면\강의 폴더\2022 2학기\2022년 넷겜플\텀\NetGame\물풍선 수정\Win32Project12\x64\Release\Win32Project12.exe
+﻿  stdafx.cpp
+C:\Users\gnslg\OneDrive\바탕 화면\강의 폴더\2022 2학기\2022년 넷겜플\텀\NetGame\물풍선 수정\Win32Project12\Ballon.h(53,24): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Ballon.cpp
+C:\Users\gnslg\OneDrive\바탕 화면\강의 폴더\2022 2학기\2022년 넷겜플\텀\NetGame\물풍선 수정\Win32Project12\Ballon.h(53,24): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  BitMap.cpp
+  Block.cpp
+  BmpMgr.cpp
+  Common.cpp
+  Item.cpp
+C:\Users\gnslg\OneDrive\바탕 화면\강의 폴더\2022 2학기\2022년 넷겜플\텀\NetGame\물풍선 수정\Win32Project12\Item.cpp(28,19): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Obstacle.cpp
+  Player.cpp
+C:\Users\gnslg\OneDrive\바탕 화면\강의 폴더\2022 2학기\2022년 넷겜플\텀\NetGame\물풍선 수정\Win32Project12\Player.cpp(578,15): warning C4244: '+=': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  UI.cpp
+  WaterStream.cpp
+C:\Users\gnslg\OneDrive\바탕 화면\강의 폴더\2022 2학기\2022년 넷겜플\텀\NetGame\물풍선 수정\Win32Project12\WaterStream.cpp(114,17): warning C4244: '-=': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Win32Project12.cpp
+  코드를 생성하고 있습니다.
+  Previous IPDB not found, fall back to full compilation.
+C:\Users\gnslg\OneDrive\바탕 화면\강의 폴더\2022 2학기\2022년 넷겜플\텀\NetGame\물풍선 수정\Win32Project12\Player.cpp(371): warning C4715: 'CPlayer::GetCurrentIndex': 모든 제어 경로에서 값을 반환하지는 않습니다.
+  All 542 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  코드를 생성했습니다.
+  Win32Project12.vcxproj -> C:\Users\gnslg\OneDrive\바탕 화면\강의 폴더\2022 2학기\2022년 넷겜플\텀\NetGame\물풍선 수정\Win32Project12\x64\Release\Win32Project12.exe

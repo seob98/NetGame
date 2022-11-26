@@ -52,6 +52,8 @@ struct SC_PLAYERUPDATE
 	CPlayer::STATE state;
 	int   ballonLength = -1;
 	bool keydown;
+	bool moving;
+	unsigned short playerDir = -1;
 };
 
 struct CS_EVENT
