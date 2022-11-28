@@ -30,6 +30,7 @@ vector<CWaterStream>	WATERSTREAMS{};
 vector<CItem>			ITEMS{};
 CUI						UI{};
 
+int pressSpace = true;
 
 
 #define MAX_LOADSTRING 100
@@ -245,12 +246,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 		if (wParam == VK_SPACE)
 		{
-			//PLAYERS[0].SetupBallon(TILES, BALLONS, PLAYERS, true);
-			event.setBallon = true;
+			pressSpace = true;
+			SetEvent(SendEvent);
 		}
-		if (wParam == VK_SHIFT)
+		else
 		{
-			PLAYERS[1].SetupBallon(TILES, BALLONS, PLAYERS, false);
+			//pressSpace = false;
 		}
 
 		if (wParam == 'Q')
@@ -335,7 +336,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				player.Move(true, TILES);
 				player.MoveTrapped(true, TILES);
-				player.CheckCollisionMap(TILES);
+				//player.CheckCollisionMap(TILES);
 				player.CheckCollisionWaterStreams(WATERSTREAMS);
 				player.STATE_CHECK();
 				//player.CheckCollisionWaterStreams(waterstreams);
@@ -598,9 +599,9 @@ DWORD WINAPI SendThread(LPVOID arg)
 		event.Index = PLAYERS[myClientID].GetCurrentIndex(TILES);
 		event.State = PLAYERS[myClientID].GetState();
 		event.moving = PLAYERS[myClientID].isMoving();
+		event.setBallon = true;
 		retval = send(sock, (char*)&event, sizeof(CS_EVENT), 0);
 		if (retval == SOCKET_ERROR) err_quit("send()");
-		event.setBallon = false;
 	}
 }
 

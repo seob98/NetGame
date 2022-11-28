@@ -2,6 +2,8 @@
 #include "Player.h"
 #include "Ballon.h"
 #include "Item.h"
+#include <iostream>
+using namespace std;
 
 CPlayer::CPlayer()
 {
@@ -68,6 +70,9 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 			playerDir = 1;
 			eCurState = UP;
 			moving = true;
+
+			if (clientNum == 0)
+				cout << "moving :"  << "posX : "<< pos.x << "\t posY : " << pos.y << endl;
 		}
 		//else if (GetAsyncKeyState('S') & 0x8000)
 		else if (pressedButton == 2)
@@ -76,6 +81,9 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 			playerDir = 3;
 			eCurState = DOWN;
 			moving = true;
+
+			if (clientNum == 0)
+				cout << "moving :" << "posX : " << pos.x << "\t posY : " << pos.y << endl;
 		}
 		//else if (GetAsyncKeyState('A') & 0x8000)
 		else if (pressedButton == 3)
@@ -84,6 +92,9 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 			playerDir = 0;
 			eCurState = LEFT;
 			moving = true;
+
+			if (clientNum == 0)
+				cout << "moving :" << "posX : " << pos.x << "\t posY : " << pos.y << endl;
 		}
 		//else if (GetAsyncKeyState('D') & 0x8000)
 		else if (pressedButton == 4)
@@ -92,6 +103,9 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 			playerDir = 2;
 			eCurState = RIGHT;
 			moving = true;
+
+			if (clientNum == 0)
+				cout << "moving :" << "posX : " << pos.x << "\t posY : " << pos.y << endl;
 		}
 		else
 		{
@@ -255,16 +269,16 @@ int CPlayer::GetCurrentIndex(std::vector<CBlock>& map)
 	return -1;
 }
 
-void CPlayer::SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, std::vector<CPlayer>& players, bool player0)
+bool CPlayer::SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, /*std::vector<CPlayer>& players,*/ bool player0)
 {
 	if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState == DIE)
-		return;
+		return false;						//물풍선 설치 실패
 
 	int index = GetCurrentIndex(map);
 	for (auto ballon : ballons)
 	{
 		if (ballon.GetIndex() == index)
-			return;
+			return false;					//물풍선 설치 실패
 	}
 	POINT pos = map[index].GetPos();
 	int size = map[index].GetSize();
@@ -273,7 +287,11 @@ void CPlayer::SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballon
 	{														//인자 보내봤자 암것도 안함. 지우면 뭔가 에러뜨는거같아서 냅둠.
 		ballons.emplace_back(pos, size, index, ballonLength, player0,  clientNum, this);
 		ballonCurCnt += 1;
+		cout << index << "번 타일에 물풍선 설치" << endl;
+		return true;
 	}
+
+	return false;
 }
 
 void CPlayer::useNeedle()

@@ -10,6 +10,9 @@ CS_EVENT event_data[4]{};
 SC_PLAYERUPDATE update_data[4]{};
 HANDLE recvEvent[4], updateEvent, uThread;
 std::vector<CBlock> map;
+std::vector<CObstacle> obstacles;
+std::vector<CBallon> ballons{};
+
 CRITICAL_SECTION cs;
 int cur_player = 0;
 
@@ -33,9 +36,15 @@ void Map_Init()
 		if (rand() % 10 <= 7)	// 70% 확률로 벽, 30%확률로 공간
 		{
 			if (rand() % 10 <= 3)
+			{
 				player_data.blockType[i] = 1;		//돌
+				obstacles.emplace_back(map[i + 30].GetPos(), map[i + 30].GetIndex(), map, true);
+			}
 			else
+			{
 				player_data.blockType[i] = 0;		//나무블럭
+				obstacles.emplace_back(map[i + 30].GetPos(), map[i + 30].GetIndex(), map, false);
+			}
 		}
 		else
 			player_data.blockType[i] = -1;
@@ -167,6 +176,36 @@ void PlayerMove()
 	}
 }
 
+void PlayerMapCollisionCheck(/*std::vector<CBlock>& TILES*/)
+{
+	for (int i = 0; i < MAX_PLAYER; i++)
+	{
+		if (event_data[i].moving)
+		{
+			players[i].player.CheckCollisionMap(map);
+		}
+	}
+}
+
+void PlaceBallon()
+{
+	//for (int i = 0; i < MAX_PLAYER; i++)
+	//{
+	//	if (event_data[i].setBallon == true)
+	//	{
+	//		std::cout << "eventData.setBallon값 true를 수신" << std::endl;
+	//		int placed = players[i].player.SetupBallon(map, ballons, true);
+
+	//		if (placed)
+	//		{
+	//			update_data[i].setBallon;
+	//			std::cout << i << "번 updateData.setballon에 true값을 지정" << std::endl;
+	//		}
+
+	//	}
+	//}
+}
+
 DWORD WINAPI UpdateThread(LPVOID arg)
 {
 	int retval;
@@ -174,8 +213,15 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 	while (1) {
 		WaitForMultipleObjects(4, recvEvent, TRUE, 33);
 
+		for (int i = 0; i < 4; ++i)
+		{
+			if (event_data[i].setBallon)
+				std::cout << i << "번 클라의 setBallon은 true" << std::endl;
+		}
+
 		PlayerMove();
-	
+		PlayerMapCollisionCheck();
+		PlaceBallon();
 
 		// 업데이트 보내기
 		for (int i = 0; i < 4; i++) {

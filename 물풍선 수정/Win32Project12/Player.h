@@ -30,7 +30,6 @@ private:
 	bool moving{};
 	int DeadTime{};
 	bool needle{ false };
-
 private:
 	STATE ePreState{ IDLE };
 	STATE eCurState{ IDLE };

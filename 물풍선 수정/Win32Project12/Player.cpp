@@ -226,6 +226,7 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 	else
 	{
 		PLAYERS[myClientID].moving = false;
+
 		if (PLAYERS[myClientID].eCurState == DOWN || PLAYERS[myClientID].eCurState == IDLE)
 		{
 			PLAYERS[myClientID].eCurState = IDLE;

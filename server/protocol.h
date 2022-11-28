@@ -2,6 +2,8 @@
 #include "Common.h"
 #include "GameUtil/Player.h"
 
+#include <iostream>
+
 #pragma once
 
 #define MAX_ITEM_CNT		15
@@ -55,6 +57,10 @@ struct SC_PLAYERUPDATE
 	bool keydown;
 	bool moving;
 	unsigned short playerDir = -1;
+
+	//서버에서 물풍선을 관리. 물풍선 설치 여부를 알려주는 bool변수 추가.
+	//플레이어가 물풍선 설치를 성공하는 경우만 체크한다.
+	bool setBallon = false;
 };
 
 struct CS_EVENT

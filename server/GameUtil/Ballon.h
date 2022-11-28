@@ -10,6 +10,7 @@ public:
 	CBallon(POINT Pos, int Size, int Number, int _explosionLength, bool _player0, int _summonerClientNum, CPlayer* _summoner);
 
 private:
+	int id;
 	POINT pos{};
 	int size{};
 	RECT rt{};

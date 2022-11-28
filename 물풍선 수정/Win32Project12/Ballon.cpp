@@ -7,6 +7,10 @@
 CBallon::CBallon(POINT Pos, int Size, int Number, int _explosionLength, bool _player0, int _summonerClientNum, CPlayer* _summoner)
 	: pos(Pos), size(Size), index(Number), explosionLength(_explosionLength), summonerClientNum(_summonerClientNum), summoner(_summoner)/*, player0(_player0)*/
 {
+	static int order{};
+	id = order;
+	++order;
+
 	rt.left = Pos.x - Size;
 	rt.top = Pos.y - Size;
 	rt.right = Pos.x + Size;
