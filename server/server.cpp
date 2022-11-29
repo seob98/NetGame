@@ -7,11 +7,15 @@
 int horzBlockCnt = 15;
 int vertBlockCnt = 13;
 int ballonID{};
+int explodedBallon[30]{};
 
 CLIENTINFO players[MAX_PLAYER];
 SC_GAMEINFO player_data{};	// SC_GAMEINFO를 배열에서 단일 변수로 변환
 CS_EVENT event_data[4]{};
 SC_PLAYERUPDATE update_data[4]{};
+
+SC_BALLONBOMBEVENT update_ballondata{};
+
 HANDLE recvEvent[4], updateEvent, uThread;
 std::vector<CBlock> map;
 std::vector<CObstacle> obstacles;
@@ -210,18 +214,38 @@ void PlayerBallonCollisionCheck()
 
 void BallonUpdate()
 {
+	//memset(explodedBallon, -1, sizeof(int) * 30);
+	memset(update_ballondata.explodedBomb, -1, sizeof(int) * 30);
+
 	for (auto& ballon : ballons)
 		ballon.Update(ballons, waterstreams, map, obstacles, horzBlockCnt, vertBlockCnt);
+
+	int cnt{};
 
 	for (int i = 0; i < ballons.size();)
 	{
 		if (ballons[i].getExplode())
 		{
-			std::cout << "ID : " << ballons[i].GetID() << "풍선 터짐" << std::endl;
+			//explodedBallon[cnt] = ballons[i].GetID();
+			update_ballondata.explodedBomb[cnt] = ballons[i].GetID();
+			++cnt;
+
+			//std::cout << "ID : " << ballons[i].GetID() << "풍선 터짐" << std::endl;
+
 			ballons.erase(ballons.begin() + i);
 		}
 		else
 			++i;
+	}
+
+	if (cnt > 0)
+	{
+		std::cout << "배열값" << std::endl;
+		//for (auto t : explodedBallon)
+		for (auto t : update_ballondata.explodedBomb)
+		{
+			std::cout << "ID : " << t << "풍선 터짐" << std::endl;
+		}
 	}
 }
 
@@ -236,10 +260,8 @@ void PlaceBallon()
 
 			if (placed)
 			{
-				++ballonID;
 				update_data[i].setBallon;
 				std::cout << i << "번 updateData.setballon에 true값을 지정" << std::endl;
-				std::cout << "현재 벌룬 ID 갱신값 : " << ballonID << std::endl;
 			}
 
 		}
@@ -260,8 +282,25 @@ void WaterStreamUpdate()
 		else
 			++i;
 	}
-	//물줄기 lateupdate(컨테이너 비우기)
 }
+
+void ObstacleUpdate()
+{
+	//장애물 처리 (컨테이너 비우기)
+	for (int i = 0; i < obstacles.size(); ++i)
+	{
+		obstacles[i].CheckExplosionRange(map);
+		//obstacles[i].makeItem(ITEMS);
+	}
+	for (int i = 0; i < obstacles.size();)
+	{
+		if (obstacles[i].GetDead())
+			obstacles.erase(obstacles.begin() + i);
+		else
+			++i;
+	}
+}
+
 
 DWORD WINAPI UpdateThread(LPVOID arg)
 {
@@ -280,10 +319,11 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 		PlayerMapCollisionCheck();
 		PlayerBallonCollisionCheck();
 		BallonUpdate();
+		WaterStreamUpdate();
 
 		PlaceBallon();
 
-
+		ObstacleUpdate();
 
 		WaterStreamUpdate();
 
@@ -298,12 +338,25 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 			//	std::cout << i << "번 클라의 setBallon = true를 베포" << std::endl;
 		}
 
-		for(auto& clients : players)
-		retval = send(clients.sock, (char*)&update_data, sizeof(SC_PLAYERUPDATE) * 4, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			break;
+		for (auto& clients : players)
+		{
+			retval = send(clients.sock, (char*)&update_data, sizeof(SC_PLAYERUPDATE) * 4, 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
+			}
+
+
+			retval = send(clients.sock, (char*)&update_ballondata, sizeof(SC_BALLONBOMBEVENT), 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
+			}
 		}
+
+		//memset(explodedBallon, -1, sizeof(int) * 30);
+
+
 
 		//SetEvent(updateEvent);
 	}

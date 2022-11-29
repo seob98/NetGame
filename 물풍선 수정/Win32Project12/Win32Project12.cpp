@@ -526,11 +526,13 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void Add_Player(int cnt);
 void Player_Update(SC_PLAYERUPDATE* in);
+void Waterbomb_Update(SC_BALLONBOMBEVENT* in);
 
 DWORD WINAPI RecvThread(LPVOID arg)
 {
 	int retval;
 	char buf[1024];
+	char buf2[1024];
 	SC_GAMEINFO* data;
 
 	// 家南 积己
@@ -581,6 +583,13 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		if (retval == SOCKET_ERROR)
 			err_quit("recv()");
 		Player_Update((SC_PLAYERUPDATE*)buf);
+
+		///================================================================================================================================
+		retval = recv(sock, buf2, sizeof(SC_BALLONBOMBEVENT), MSG_WAITALL);
+		if (retval == SOCKET_ERROR)
+			err_quit("recv()");
+		Waterbomb_Update((SC_BALLONBOMBEVENT*)buf2);
+
 	}
 
 	return 0;
@@ -644,6 +653,21 @@ void Player_Update(SC_PLAYERUPDATE* in)
 				//std::cout << "ballonID : " << ballonID << std::endl;
 				++ballonID;
 			}
+		}
+	}
+}
+
+void Waterbomb_Update(SC_BALLONBOMBEVENT* in)
+{
+	for (auto i : in->explodedBomb)
+	{
+		if (i == -1)
+			continue;
+
+		for (auto& b : BALLONS)
+		{
+			if (b.GetID() == i)
+				b.SetRemainingTimeToZero();
 		}
 	}
 }

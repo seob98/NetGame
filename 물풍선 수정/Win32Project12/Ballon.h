@@ -74,5 +74,9 @@ public:
 															// 메인에서 물줄기 생성 후 블럭 삭제 시간 체크 -> 블럭 삭제 시간 줄여 -> 블럭 삭제시간이 될 경우 삭제.
 	void CheckChainExplosion(std::vector<CBallon>& ballons, std::vector<CWaterStream>& waterStreams, std::vector<CBlock>& blocks, std::vector<CObstacle>& obstacles, int horzBlockCnt, int vertBlockCnt);
 															// 윗함수로 영역 체크후 waterstream 생성
+
+
+public:
+	void SetRemainingTimeToZero() { explosionTime = 0; };
 };
 

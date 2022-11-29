@@ -70,4 +70,13 @@ struct CS_EVENT
 	unsigned short Index = -1;
 };
 
+
+
+//물풍선 폭발 정보를 넘기기 위한 구조체. 
+//후에 아이템 관련 정보를 담을때도 사용 가능.
+struct SC_BALLONBOMBEVENT
+{
+	int explodedBomb[30]{};
+};
+
 #pragma pack(pop)

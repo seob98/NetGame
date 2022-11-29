@@ -1,6 +1,8 @@
 ﻿  server.cpp
 C:\Users\PC-2\Desktop\NetGame\server\GameUtil\Ballon.h(54,24): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\PC-2\Desktop\NetGame\server\server.cpp(216,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\PC-2\Desktop\NetGame\server\server.cpp(252,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\PC-2\Desktop\NetGame\server\server.cpp(256,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\PC-2\Desktop\NetGame\server\server.cpp(225,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\PC-2\Desktop\NetGame\server\server.cpp(274,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\PC-2\Desktop\NetGame\server\server.cpp(278,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\PC-2\Desktop\NetGame\server\server.cpp(290,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\PC-2\Desktop\NetGame\server\server.cpp(295,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   server.vcxproj -> C:\Users\PC-2\Desktop\NetGame\server\Debug\server.exe
