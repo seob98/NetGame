@@ -63,9 +63,6 @@
     <ClInclude Include="Block.h">
       <Filter>소스 파일\Block</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>소스 파일\Player</Filter>
-    </ClInclude>
     <ClInclude Include="BmpMgr.h">
       <Filter>소스 파일\BmpMgr</Filter>
     </ClInclude>
@@ -104,6 +101,9 @@
     </ClInclude>
     <ClInclude Include="UI.h">
       <Filter>소스 파일\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>소스 파일\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

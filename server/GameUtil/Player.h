@@ -28,6 +28,9 @@ private:
 
 	bool player0{};
 	bool moving{};
+
+	bool pressSpace{};
+
 	int DeadTime{};
 	bool needle{ false };
 
@@ -74,9 +77,13 @@ public:
 	POINT GetPos() { return pos; }
 	int GetSpeed() { return speed; }
 	bool isMoving() { return moving; }
+	
+	bool spaceButton() { return pressSpace; }
+	void setSpaceButton(bool space) { pressSpace = space; }
+
 	void SetMoving(bool in) { moving = in; }
 public:
-	bool SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, /*std::vector<CPlayer>& players,*/ bool player0);
+	bool SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, /*std::vector<CPlayer>& players,*/ bool player0, int ballonID);
 	void BallonCntUpdate() { ballonCurCnt -= 1; }
 
 	void useNeedle();

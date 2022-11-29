@@ -4,9 +4,10 @@
 #include "Block.h"
 #include "WaterStream.h"
 
-CBallon::CBallon(POINT Pos, int Size, int Number, int _explosionLength, bool _player0, int _summonerClientNum, CPlayer* _summoner)
+CBallon::CBallon(POINT Pos, int Size, int Number, int _explosionLength, bool _player0, int _summonerClientNum, CPlayer* _summoner, int _ballonID)
 	: pos(Pos), size(Size), index(Number), explosionLength(_explosionLength), summonerClientNum(_summonerClientNum), summoner(_summoner)/*, player0(_player0)*/
 {
+	//id = _ballonID;
 	static int order{};
 	id = order;
 	++order;
@@ -44,6 +45,7 @@ void CBallon::Draw(HDC hdc)
 {
 }
 
+/*
 void CBallon::CheckPlayerOut(std::vector<CPlayer>& players)
 {
 	RECT temp{};
@@ -87,6 +89,53 @@ void CBallon::CheckCollision(std::vector<CPlayer>& players)
 		}
 	}
 }
+*/
+
+
+void CBallon::CheckPlayerOut(std::vector<CPlayer*> players)
+{
+	RECT temp{};
+
+	for (int i = 0; i < MAX_PLAYER_CNT; ++i)
+	{
+		if (listOfIntersected[i] < 0)
+			continue;
+
+		RECT temp2 = players[listOfIntersected[i]]->GetRect();
+		if (!IntersectRect(&temp, &rt, &temp2))
+			listOfIntersected[i] = -1;
+	}
+}
+
+void CBallon::CheckCollision(std::vector<CPlayer*> players)
+{
+	RECT temp{};
+
+	for (int i = 0; i < MAX_PLAYER_CNT; ++i)
+	{
+		if (listOfIntersected[i] != -1)								//아직 겹치는 영역 살아있으면 충돌패스
+			continue;
+		else
+		{
+			RECT temp2 = players[i]->GetRect();
+			if (IntersectRect(&temp, &temp2, &rt))
+			{
+				int playerDir = players[i]->GetDir();
+				int playerSize = players[i]->GetSize();
+
+				if (playerDir == 0)		//플레이어가 왼쪽방향
+					players[i]->SetPosX(rt.right + playerSize);
+				if (playerDir == 2)		//플레이어가 오른쪽방향
+					players[i]->SetPosX(rt.left - playerSize);
+				if (playerDir == 1)		//플레이어가 위쪽방향
+					players[i]->SetPosY(rt.bottom + playerSize);
+				if (playerDir == 3)		//플레이어가 아래방향
+					players[i]->SetPosY(rt.top - playerSize);
+			}
+		}
+	}
+}
+
 
 void CBallon::UpdateFrame()
 {

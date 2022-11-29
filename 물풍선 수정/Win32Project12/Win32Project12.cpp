@@ -13,6 +13,8 @@ int horzBlockCnt = 15;
 int vertBlockCnt = 13;
 int blockSize = 20;
 
+int ballonID{};
+
 SOCKET sock;
 int myClientID{ -1 };
 int currentPlayerCnt{ 0 };
@@ -30,7 +32,6 @@ vector<CWaterStream>	WATERSTREAMS{};
 vector<CItem>			ITEMS{};
 CUI						UI{};
 
-int pressSpace = true;
 
 
 #define MAX_LOADSTRING 100
@@ -244,15 +245,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_KEYDOWN:
-		if (wParam == VK_SPACE)
-		{
-			pressSpace = true;
-			SetEvent(SendEvent);
-		}
-		else
-		{
-			//pressSpace = false;
-		}
+		//if (wParam == VK_SPACE)
+		//{
+		//	event.setBallon = true;
+		//	SetEvent(SendEvent);
+		//}
 
 		if (wParam == 'Q')
 		{
@@ -353,8 +350,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			// ballon충돌처리
 			for (auto& ballon : BALLONS)
 			{
-				ballon.CheckPlayerOut(PLAYERS);
-				ballon.CheckCollision(PLAYERS);
+				//ballon.CheckPlayerOut(PLAYERS);
+				//ballon.CheckCollision(PLAYERS);
 				ballon.UpdateFrame();
 			}
 			for (auto& ballon : BALLONS)
@@ -599,7 +596,8 @@ DWORD WINAPI SendThread(LPVOID arg)
 		event.Index = PLAYERS[myClientID].GetCurrentIndex(TILES);
 		event.State = PLAYERS[myClientID].GetState();
 		event.moving = PLAYERS[myClientID].isMoving();
-		event.setBallon = true;
+		event.setBallon = PLAYERS[myClientID].spaceButton();
+
 		retval = send(sock, (char*)&event, sizeof(CS_EVENT), 0);
 		if (retval == SOCKET_ERROR) err_quit("send()");
 	}
@@ -629,6 +627,7 @@ void Add_Player(int cnt) {
 // 테스트
 void Player_Update(SC_PLAYERUPDATE* in)
 {
+	int placed{};
 	for (int i = 0; i < 4; i++) 
 	{
 		int ID = in[i].ID;
@@ -637,5 +636,14 @@ void Player_Update(SC_PLAYERUPDATE* in)
 		PLAYERS[ID].SetPosY(in[i].pt.y);
 		PLAYERS[ID].SetMoving(in[i].moving);
 		PLAYERS[ID].SetState(in[i].state);
+		if (in[i].setBallon)
+		{
+			placed = PLAYERS[ID].SetupBallon(TILES, BALLONS, PLAYERS, true, ballonID);
+			if (placed)
+			{
+				//std::cout << "ballonID : " << ballonID << std::endl;
+				++ballonID;
+			}
+		}
 	}
 }

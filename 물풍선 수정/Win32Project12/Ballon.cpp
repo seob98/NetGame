@@ -4,7 +4,7 @@
 #include "Block.h"
 #include "WaterStream.h"
 
-CBallon::CBallon(POINT Pos, int Size, int Number, int _explosionLength, bool _player0, int _summonerClientNum, CPlayer* _summoner)
+CBallon::CBallon(POINT Pos, int Size, int Number, int _explosionLength, bool _player0, int _summonerClientNum, CPlayer* _summoner, int _ballonID)
 	: pos(Pos), size(Size), index(Number), explosionLength(_explosionLength), summonerClientNum(_summonerClientNum), summoner(_summoner)/*, player0(_player0)*/
 {
 	static int order{};
@@ -112,7 +112,7 @@ void CBallon::UpdateFrame()
 
 void CBallon::Update(std::vector<CBallon>& ballons, std::vector<CWaterStream>& waterStreams, std::vector<CBlock>& blocks, std::vector<CObstacle>& obstacles, int horzBlockCnt, int vertBlockCnt)
 {
-	BallonTimeCheck();
+	//BallonTimeCheck();
 	if(explosionTime <= 0)
 		CheckChainExplosion(ballons, waterStreams, blocks, obstacles, horzBlockCnt, vertBlockCnt);
 }

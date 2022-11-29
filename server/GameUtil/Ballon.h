@@ -7,7 +7,7 @@ class CWaterStream;
 class CBallon
 {
 public:
-	CBallon(POINT Pos, int Size, int Number, int _explosionLength, bool _player0, int _summonerClientNum, CPlayer* _summoner);
+	CBallon(POINT Pos, int Size, int Number, int _explosionLength, bool _player0, int _summonerClientNum, CPlayer* _summoner, int _ballonID);
 
 private:
 	int id;
@@ -56,10 +56,14 @@ private:
 public:
 	int GetIndex() { return index; }
 	bool GetPlayer0() { return player0; }
+
+	int GetID() { return id; }
 public:
 	void Draw(HDC hdc);
-	void CheckPlayerOut(std::vector<CPlayer>& players);	//폭탄 설치후 밖에 나온적 있는 지 확인
-	void CheckCollision(std::vector<CPlayer>& players);
+	//void CheckPlayerOut(std::vector<CPlayer>& players);	//폭탄 설치후 밖에 나온적 있는 지 확인
+	//void CheckCollision(std::vector<CPlayer>& players);
+	void CheckPlayerOut(std::vector<CPlayer*> players);
+	void CheckCollision(std::vector<CPlayer*> players);
 
 	void UpdateFrame();
 	bool getExplode() { return exploded; }

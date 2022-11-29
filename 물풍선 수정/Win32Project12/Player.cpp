@@ -6,6 +6,7 @@
 extern std::vector<CPlayer> PLAYERS;
 extern int myClientID;
 extern HANDLE SendEvent;
+
 CPlayer::CPlayer()
 {
 }
@@ -191,6 +192,13 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 	if (!GetActiveWindow())
 		return;
 
+	if (GetAsyncKeyState(VK_SPACE))
+	{
+		PLAYERS[myClientID].pressSpace = true;
+	}
+	else
+		PLAYERS[myClientID].pressSpace = false;
+
 	if (GetAsyncKeyState('W') & 0x8000)
 	{
 		//PLAYERS[myClientID].pos.y -= 0;
@@ -371,25 +379,28 @@ int CPlayer::GetCurrentIndex(std::vector<CBlock>& map)
 		}
 }
 
-void CPlayer::SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, std::vector<CPlayer>& players, bool player0)
+bool CPlayer::SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, std::vector<CPlayer>& players, bool player0, int ballonID)
 {
 	if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState == DIE)
-		return;
+		return false;						//물풍선 설치 실패
 
 	int index = GetCurrentIndex(map);
 	for (auto ballon : ballons)
 	{
 		if (ballon.GetIndex() == index)
-			return;
+			return false;					//물풍선 설치 실패
 	}
 	POINT pos = map[index].GetPos();
 	int size = map[index].GetSize();
 
 	if (ballonCurCnt < ballonMaxCnt)
 	{														//인자 보내봤자 암것도 안함. 지우면 뭔가 에러뜨는거같아서 냅둠.
-		ballons.emplace_back(pos, size, index, ballonLength, player0, clientNum, this);
+		ballons.emplace_back(pos, size, index, ballonLength, player0, clientNum, this, ballonID);
 		ballonCurCnt += 1;
+		return true;
 	}
+
+	return false;
 }
 
 void CPlayer::useNeedle()

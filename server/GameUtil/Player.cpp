@@ -269,7 +269,7 @@ int CPlayer::GetCurrentIndex(std::vector<CBlock>& map)
 	return -1;
 }
 
-bool CPlayer::SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, /*std::vector<CPlayer>& players,*/ bool player0)
+bool CPlayer::SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, /*std::vector<CPlayer>& players,*/ bool player0, int ballonID)
 {
 	if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState == DIE)
 		return false;						//물풍선 설치 실패
@@ -285,7 +285,7 @@ bool CPlayer::SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballon
 
 	if (ballonCurCnt < ballonMaxCnt)
 	{														//인자 보내봤자 암것도 안함. 지우면 뭔가 에러뜨는거같아서 냅둠.
-		ballons.emplace_back(pos, size, index, ballonLength, player0,  clientNum, this);
+		ballons.emplace_back(pos, size, index, ballonLength, player0,  clientNum, this, ballonID);
 		ballonCurCnt += 1;
 		cout << index << "번 타일에 물풍선 설치" << endl;
 		return true;
