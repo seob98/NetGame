@@ -307,7 +307,8 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 	int retval;
 #pragma region 서버객체 업데이트
 	while (1) {
-		WaitForMultipleObjects(4, recvEvent, TRUE, 33);
+		//WaitForMultipleObjects(4, recvEvent, TRUE, 33);
+		WaitForMultipleObjects(4, recvEvent, FALSE, INFINITE);
 
 		//for (int i = 0; i < 4; ++i)
 		//{
@@ -325,7 +326,7 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 
 		ObstacleUpdate();
 
-		WaterStreamUpdate();
+		//WaterStreamUpdate();
 
 		// 업데이트 보내기
 		for (int i = 0; i < 4; i++) {

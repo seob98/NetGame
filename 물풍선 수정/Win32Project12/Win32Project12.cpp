@@ -329,20 +329,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//PLAYERS[0].STATE_CHECK();
 			//PLAYERS[1].STATE_CHECK();
 			//PLAYERS[myClientID].Move(true, TILES);
+
 			for (auto& player : PLAYERS)
 			{
-				player.Move(true, TILES);
-				player.MoveTrapped(true, TILES);
+				player.Move(true, TILES);								//플레이어 애니메이션 + 키보드 정보 서버로 전달.
+				player.MoveTrapped(true, TILES);						//11/30 수정 예정. Move()와 크게 다르지 않다.
 				//player.CheckCollisionMap(TILES);
-				player.CheckCollisionWaterStreams(WATERSTREAMS);
-				player.STATE_CHECK();
+				player.CheckCollisionWaterStreams(WATERSTREAMS);		//물줄기 클라 처리
+				player.STATE_CHECK();									//물풍선이 클라,서버에서 동시에 터진다. 
 				//player.CheckCollisionWaterStreams(waterstreams);
 				//player.STATE_CHECK();
-				player.Update_Frame();
-				player.Update_Frame_Once();
-				player.CheckCollisionPlayers(PLAYERS);
-				player.Update_DeadTime(PLAYERS);
+
+				player.Update_Frame();									//렌더링 관련
+
+				player.Update_Frame_Once();								// (서버에서 적용할 함수. 클라에서 삭제 예정.)
+
+
+				player.CheckCollisionPlayers(PLAYERS);					//상대방 pos를 받은 시점에서 클라에서 안할 이유가 없음
+
+				player.Update_DeadTime(PLAYERS);						// (플레이어가 죽은 후 시간을 측정하는 함수. 서버로 옮길 예정.)
 			}
+
 			//players[1].Update_Frame_Once();
 #pragma endregion
 
@@ -352,25 +359,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				//ballon.CheckPlayerOut(PLAYERS);
 				//ballon.CheckCollision(PLAYERS);
-				ballon.UpdateFrame();
+				ballon.UpdateFrame();																//애니메이션
 			}
 			for (auto& ballon : BALLONS)
-				ballon.Update(BALLONS, WATERSTREAMS, TILES, OBSTACLES, horzBlockCnt, vertBlockCnt);
+				ballon.Update(BALLONS, WATERSTREAMS, TILES, OBSTACLES, horzBlockCnt, vertBlockCnt);	//서버는 물풍선의 deadTime만 알려준다. 물풍선 관련 함수는 클라에서 필요.
+																									//다만 클라의 ballon.Update()는 충돌판정을 계산하지 않는다.
 			for (int i = 0; i < BALLONS.size();)
 			{
 				if (BALLONS[i].getExplode())
-					BALLONS.erase(BALLONS.begin() + i);
+					BALLONS.erase(BALLONS.begin() + i);												//객체 삭제처리
 				else
 					++i;
 			}
-			// ballon 삭제처리 및 연산처리
 #pragma endregion
 
-#pragma region item
+#pragma region item	
+			//서버의 init함수에서 이미 아이템 위치, 종류는 정해졌다. 플레이어들의 포지션을 받아오고 있는 이상 서버에서 해야할 이유가 없음.
 			for (auto& Item : ITEMS)
 			{
-				Item.CheckCollisionPlayers(PLAYERS);
-				Item.CheckCollisionWaterStreams(WATERSTREAMS);
+				Item.CheckCollisionPlayers(PLAYERS);							//플레이어의 아이템 획득여부 체크
+				Item.CheckCollisionWaterStreams(WATERSTREAMS);					//물줄기에 의해 피격당할시 아이템 맵에서 삭제.
 
 			}
 #pragma endregion
@@ -395,13 +403,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//장애물 처리 (컨테이너 비우기)
 			for (int i = 0; i < OBSTACLES.size(); ++i)
 			{
-				OBSTACLES[i].CheckExplosionRange(TILES);
-				OBSTACLES[i].makeItem(ITEMS);
+				OBSTACLES[i].CheckExplosionRange(TILES);		//물줄기에 대한 피격여부 판정
+				OBSTACLES[i].makeItem(ITEMS);					//블럭이 부서졌으면 아이템 생성
 			}
 			for (int i = 0; i < OBSTACLES.size();)
 			{
 				if (OBSTACLES[i].GetDead())
-					OBSTACLES.erase(OBSTACLES.begin() + i);
+					OBSTACLES.erase(OBSTACLES.begin() + i);		//객체 삭제 처리
 				else
 					++i;
 			}

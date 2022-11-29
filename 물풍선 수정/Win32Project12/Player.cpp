@@ -262,53 +262,26 @@ void CPlayer::MoveTrapped(bool playerA, std::vector<CBlock>& map)
 
 	if (eCurState == TRAPPED)
 	{
-		if (playerA)
-		{
 			if (GetAsyncKeyState('W') & 0x8000)
 			{
-				pos.y -= trappedSpeed;
+				//pos.y -= trappedSpeed;
 				playerDir = 1;
 			}
 			else if (GetAsyncKeyState('S') & 0x8000)
 			{
-				pos.y += trappedSpeed;
+				//pos.y += trappedSpeed;
 				playerDir = 3;
 			}
 			else if (GetAsyncKeyState('A') & 0x8000)
 			{
-				pos.x -= trappedSpeed;
+				//pos.x -= trappedSpeed;
 				playerDir = 0;
 			}
 			else if (GetAsyncKeyState('D') & 0x8000)
 			{
-				pos.x += trappedSpeed;
+				//pos.x += trappedSpeed;
 				playerDir = 2;
 			}
-		}
-
-		else
-		{
-			if (GetAsyncKeyState(VK_UP) & 0x8000)
-			{
-				pos.y -= trappedSpeed;
-				playerDir = 1;
-			}
-			else if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-			{
-				pos.y += trappedSpeed;
-				playerDir = 3;
-			}
-			else if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-			{
-				pos.x -= trappedSpeed;
-				playerDir = 0;
-			}
-			else if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-			{
-				pos.x += trappedSpeed;
-				playerDir = 2;
-			}
-		}
 
 		UpdateRect();
 		index = GetCurrentIndex(map);

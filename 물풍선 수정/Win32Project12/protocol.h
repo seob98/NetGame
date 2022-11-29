@@ -22,21 +22,21 @@ enum TEAM { DAO, BAZZI };
 struct CLIENTINFO
 {
 	SOCKET sock{};
-	unsigned short ID = -1;
+	short ID = -1;
 	CPlayer player{};
 };
 
 struct ObjectINFO
 {
-	unsigned short pos;
-	unsigned short type;
+	short pos;
+	short type;
 };
 #pragma pack(push, 1)
 
 
 struct SC_GAMEINFO
 {
-	unsigned short ID = -1;
+	short ID = -1;
 	int currentPlayerCnt = -1;
 	int gameStart{};
 	TEAM teamId;
@@ -47,13 +47,13 @@ struct SC_GAMEINFO
 
 struct SC_PLAYERUPDATE
 {
-	unsigned short ID = -1;
+	short ID = -1;
 	POINT pt;
 	CPlayer::STATE state;
 	int   ballonLength = -1;
 	bool keydown;
 	bool moving;
-	unsigned short playerDir = -1;
+	short playerDir = -1;
 
 	//서버에서 물풍선을 관리. 물풍선 설치 여부를 알려주는 bool변수 추가.
 	//플레이어가 물풍선 설치를 성공하는 경우만 체크한다.
@@ -62,7 +62,7 @@ struct SC_PLAYERUPDATE
 
 struct CS_EVENT
 {
-	unsigned short ID = -1;
+	short ID = -1;
 	int State = -1;
 	bool moving = false;
 	bool setBallon = false;
