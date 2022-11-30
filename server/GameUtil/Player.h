@@ -58,8 +58,12 @@ public:
 	void DrawDrawUI(HDC hdc);
 	void DrawStartUI(HDC hdc, bool Start);
 	void DrawItem(HDC hdc);
+
+
 	void Move(std::vector<CBlock>& map, int pressedButton);
-	void MoveTrapped(bool playerA, std::vector<CBlock>& map);
+	void MoveTrapped(std::vector<CBlock>& map, int pressedButton);
+	void StatusElse();
+
 	void UpdateRect();
 	void CheckCollisionMap(std::vector<CBlock>& map);
 

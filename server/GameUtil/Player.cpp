@@ -58,12 +58,13 @@ void CPlayer::DrawItem(HDC hdc)
 
 void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 {
-	if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState == DIE || eCurState == WIN)
+	//if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState == DIE || eCurState == WIN)
+	//	return;
+
+	if (eCurState != IDLE && eCurState != LEFT &&
+		eCurState != UP && eCurState != RIGHT && eCurState != DOWN)
 		return;
 
-	//if (playerA)
-	//{
-		//if (GetAsyncKeyState('W') & 0x8000)
 		if (pressedButton == 1)
 		{
 			pos.y -= speed;
@@ -74,7 +75,6 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 			if (clientNum == 0)
 				cout << "moving :"  << "posX : "<< pos.x << "\t posY : " << pos.y << endl;
 		}
-		//else if (GetAsyncKeyState('S') & 0x8000)
 		else if (pressedButton == 2)
 		{
 			pos.y += speed;
@@ -85,7 +85,6 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 			if (clientNum == 0)
 				cout << "moving :" << "posX : " << pos.x << "\t posY : " << pos.y << endl;
 		}
-		//else if (GetAsyncKeyState('A') & 0x8000)
 		else if (pressedButton == 3)
 		{
 			pos.x -= speed;
@@ -96,7 +95,6 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 			if (clientNum == 0)
 				cout << "moving :" << "posX : " << pos.x << "\t posY : " << pos.y << endl;
 		}
-		//else if (GetAsyncKeyState('D') & 0x8000)
 		else if (pressedButton == 4)
 		{
 			pos.x += speed;
@@ -123,67 +121,52 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 	index = GetCurrentIndex(map);
 }
 
-void CPlayer::MoveTrapped(bool playerA, std::vector<CBlock>& map)
+void CPlayer::MoveTrapped( std::vector<CBlock>& map, int pressedButton)
 {
 	int trappedSpeed = 1;
-	if (eCurState == WIN)
+	//if (eCurState == WIN)
+	//	return;
+
+	if (eCurState != TRAPPED)
 		return;
 
-
-
-	if (eCurState == TRAPPED)
+	//if (eCurState == TRAPPED)
+	//{
+	if (pressedButton == 1)
 	{
-		if (playerA)
-		{
-			if (GetAsyncKeyState('W') & 0x8000)
-			{
-				pos.y -= trappedSpeed;
-				playerDir = 1;
-			}
-			else if (GetAsyncKeyState('S') & 0x8000)
-			{
-				pos.y += trappedSpeed;
-				playerDir = 3;
-			}
-			else if (GetAsyncKeyState('A') & 0x8000)
-			{
-				pos.x -= trappedSpeed;
-				playerDir = 0;
-			}
-			else if (GetAsyncKeyState('D') & 0x8000)
-			{
-				pos.x += trappedSpeed;
-				playerDir = 2;
-			}
-		}
-
-		else
-		{
-			if (GetAsyncKeyState(VK_UP) & 0x8000)
-			{
-				pos.y -= trappedSpeed;
-				playerDir = 1;
-			}
-			else if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-			{
-				pos.y += trappedSpeed;
-				playerDir = 3;
-			}
-			else if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-			{
-				pos.x -= trappedSpeed;
-				playerDir = 0;
-			}
-			else if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-			{
-				pos.x += trappedSpeed;
-				playerDir = 2;
-			}
-		}
-
-		UpdateRect();
-		index = GetCurrentIndex(map);
+		pos.y -= trappedSpeed;
+		playerDir = 1;
 	}
+	else if (pressedButton == 2)
+	{
+		pos.y += speed;
+		playerDir = 3;
+
+	}
+	else if (pressedButton == 3)
+	{
+		pos.x -= speed;
+		playerDir = 0;
+	}
+	else if (pressedButton == 4)
+	{
+		pos.x += speed;
+		playerDir = 2;
+	}
+
+	UpdateRect();
+	index = GetCurrentIndex(map);
+	//}
+}
+
+void CPlayer::StatusElse()
+{
+	if (eCurState != SAVED && eCurState != DIE &&
+		eCurState != DEAD && eCurState != WIN)
+		return;
+
+	moving = false;
+	// 클라이언트와 다르게 딱히 할 일은 없다.
 }
 
 void CPlayer::UpdateRect()
@@ -401,6 +384,7 @@ void CPlayer::STATE_CHECK()
 			frame.DelayTime = 100;				// 프레임 딜레이 (높을수록 느립니다.)
 			break;
 		case DIE:
+			cout << "frame 정보 Dead로 변경" << endl;
 			frame.StartX = 0;
 			frame.StateY = 2;					// 스프라이트 이미지 세로 수 
 			frame.EndX = 6;						
@@ -444,9 +428,10 @@ void CPlayer::Update_Frame_Once()
 	if (eCurState == WIN)
 		return;
 
+
 	if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DIE)
 	{
-		frame.Time += 1.f;
+		frame.Time += 10.f;
 		if (frame.Time > frame.DelayTime)
 		{
 			frame.Time = 0.f;
@@ -456,16 +441,25 @@ void CPlayer::Update_Frame_Once()
 		if (frame.StartX >= frame.EndX)
 		{
 			if (eCurState == TRAPPED)
+			{
 				eCurState = DIE;			//너무 오래 갖혀있으면 죽고
+			}
 
 			else if (eCurState == SAVED)
 				eCurState = IDLE;			//탈출 애니메이션 끝나면 IDLE로
 
 			else if (eCurState == DIE)
+			{
+				cout << "frame.Time : " << frame.Time << endl;
+				cout << "frame.DelayTime : " << frame.DelayTime << endl;
+				cout << "frame.startX" << frame.StartX << endl;
+				cout << "frame.endX" << frame.EndX << endl;
 				eCurState = DEAD;			//죽는 애니메이션 끝나면 시체
+			}
 
 			frame.StartX = 0;
 		}
+
 	}
 
 	if (eCurState == DEAD)

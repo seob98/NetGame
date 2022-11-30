@@ -35,7 +35,7 @@ void CPlayer::Draw(HDC hdc)
 
 	else
 	{
-		if (clientNum == 0 || clientNum == 1)
+		if (clinetTeam == 0)
 			hMemDC = CBmpMgr::Get_Instance()->Find_Image(L"daodead");
 		else
 			hMemDC = CBmpMgr::Get_Instance()->Find_Image(L"bazzidead");
@@ -184,9 +184,13 @@ void CPlayer::DrawItem(HDC hdc)
 
 void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 {
-	if (PLAYERS[myClientID].eCurState == TRAPPED || PLAYERS[myClientID].eCurState == SAVED ||
-		PLAYERS[myClientID].eCurState == DEAD || PLAYERS[myClientID].eCurState == DIE ||
-		PLAYERS[myClientID].eCurState == WIN)
+	//if (PLAYERS[myClientID].eCurState == TRAPPED || PLAYERS[myClientID].eCurState == SAVED ||
+	//	PLAYERS[myClientID].eCurState == DEAD || PLAYERS[myClientID].eCurState == DIE ||
+	//	PLAYERS[myClientID].eCurState == WIN)
+	//	return;
+
+	if (PLAYERS[myClientID].eCurState != IDLE && PLAYERS[myClientID].eCurState != LEFT &&
+		PLAYERS[myClientID].eCurState != UP && PLAYERS[myClientID].eCurState != RIGHT && PLAYERS[myClientID].eCurState != DOWN)
 		return;
 
 	if (!GetActiveWindow())
@@ -255,38 +259,59 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 void CPlayer::MoveTrapped(bool playerA, std::vector<CBlock>& map)
 {
 	int trappedSpeed = 1;
-	if (eCurState == WIN)
+	if (eCurState != TRAPPED)
+		return;
+
+	if (!GetActiveWindow())
+		return;
+
+	PLAYERS[myClientID].eCurState = TRAPPED;
+	PLAYERS[myClientID].moving = false;
+
+	if (GetAsyncKeyState('W') & 0x8000)
+	{
+		PLAYERS[myClientID].playerDir = 1;
+	}
+	else if (GetAsyncKeyState('S') & 0x8000)
+	{
+		PLAYERS[myClientID].playerDir = 3;
+	}
+	else if (GetAsyncKeyState('A') & 0x8000)
+	{
+		PLAYERS[myClientID].playerDir = 0;
+	}
+	else if (GetAsyncKeyState('D') & 0x8000)
+	{
+		PLAYERS[myClientID].playerDir = 2;
+	}
+	else
+	{
+		PLAYERS[myClientID].playerDir = playerDir;
+	}
+
+	SetEvent(SendEvent);
+
+	UpdateRect();
+	index = GetCurrentIndex(map);
+
+}
+
+void CPlayer::StatusElse()
+{
+	//move, moveTrapped제외의 상태에는 상시로 해당 함수를 호출한다.
+	//서버의 업데이트를 위해서는 클라이언트가 계속 메시지를 보내고 있어야한다.
+	if (eCurState != SAVED && eCurState != DIE &&
+		eCurState != DEAD && eCurState != WIN)
 		return;
 
 
-
-	if (eCurState == TRAPPED)
-	{
-			if (GetAsyncKeyState('W') & 0x8000)
-			{
-				//pos.y -= trappedSpeed;
-				playerDir = 1;
-			}
-			else if (GetAsyncKeyState('S') & 0x8000)
-			{
-				//pos.y += trappedSpeed;
-				playerDir = 3;
-			}
-			else if (GetAsyncKeyState('A') & 0x8000)
-			{
-				//pos.x -= trappedSpeed;
-				playerDir = 0;
-			}
-			else if (GetAsyncKeyState('D') & 0x8000)
-			{
-				//pos.x += trappedSpeed;
-				playerDir = 2;
-			}
-
-		UpdateRect();
-		index = GetCurrentIndex(map);
-	}
+	PLAYERS[myClientID].moving = eCurState;
+	PLAYERS[myClientID].moving = false;
+	PLAYERS[myClientID].playerDir = 3;	//승리포즈, 탈출모션, 죽는 모션, 시체 모션 등..
+	SetEvent(SendEvent);
 }
+
+
 
 void CPlayer::UpdateRect()
 {
@@ -547,17 +572,21 @@ void CPlayer::Update_Frame_Once()
 
 		if (frame.StartX >= frame.EndX)
 		{
-			if (eCurState == TRAPPED)
-				eCurState = DIE;			//너무 오래 갖혀있으면 죽고
-
-			else if (eCurState == SAVED)
-				eCurState = IDLE;			//탈출 애니메이션 끝나면 IDLE로
-
-			else if (eCurState == DIE)
-				eCurState = DEAD;			//죽는 애니메이션 끝나면 시체
-
-			frame.StartX = 0;
+			frame.StartX = frame.EndX;
 		}
+		//if (frame.StartX >= frame.EndX)
+		//{
+		//	if (eCurState == TRAPPED)
+		//		eCurState = DIE;			//너무 오래 갖혀있으면 죽고
+
+		//	else if (eCurState == SAVED)
+		//		eCurState = IDLE;			//탈출 애니메이션 끝나면 IDLE로
+
+		//	else if (eCurState == DIE)
+		//		eCurState = DEAD;			//죽는 애니메이션 끝나면 시체
+
+		//	frame.StartX = 0;
+		//}
 	}
 
 	if (eCurState == DEAD)
@@ -574,22 +603,22 @@ void CPlayer::Update_DeadTime(std::vector<CPlayer>& _players)
 	else
 		return;
 
-	if (DeadTime > 1000)
-	{
-		if (player0)				//죽은놈이 0이고 1이 생존해있다면 승리
-		{
-			STATE opponentState = _players[1].Get_State();
-			if (opponentState != DEAD && opponentState != SAVED && opponentState != TRAPPED && opponentState != DIE)
-				_players[1].Set_Winner();
-		}
+	//if (DeadTime > 1000)
+	//{
+	//	if (player0)				//죽은놈이 0이고 1이 생존해있다면 승리
+	//	{
+	//		STATE opponentState = _players[1].Get_State();
+	//		if (opponentState != DEAD && opponentState != SAVED && opponentState != TRAPPED && opponentState != DIE)
+	//			_players[1].Set_Winner();
+	//	}
 
-		else						//죽은놈이 1이고 0이 생존해있다면 승리
-		{
-			STATE opponentState = _players[0].Get_State();
-			if (opponentState != DEAD && opponentState != SAVED && opponentState != TRAPPED && opponentState != DIE)
-				_players[0].Set_Winner();
-		}
-	}
+	//	else						//죽은놈이 1이고 0이 생존해있다면 승리
+	//	{
+	//		STATE opponentState = _players[0].Get_State();
+	//		if (opponentState != DEAD && opponentState != SAVED && opponentState != TRAPPED && opponentState != DIE)
+	//			_players[0].Set_Winner();
+	//	}
+	//}
 }
 
 void CPlayer::CheckCollisionWaterStreams(std::vector<CWaterStream>& _waterstreams)

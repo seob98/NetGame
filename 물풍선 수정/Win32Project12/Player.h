@@ -75,6 +75,8 @@ public:
 	void DrawItem(HDC hdc);
 	void Move(bool playerA, std::vector<CBlock>& map);
 	void MoveTrapped(bool playerA, std::vector<CBlock>& map);
+	void StatusElse();
+
 	void UpdateRect();
 	void CheckCollisionMap(std::vector<CBlock>& map);
 

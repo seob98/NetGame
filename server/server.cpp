@@ -181,6 +181,7 @@ void PlayerMove()
 		if (event_data[i].moving)
 		{
 			players[i].player.Move(map, event_data[i].State);
+			players[i].player.MoveTrapped(map, event_data[i].State);
 		}
 		else
 			players[i].player.SetMoving(false);
@@ -214,25 +215,25 @@ void PlayerBallonCollisionCheck()
 
 void PlayerUpdateFrameOnce()	// 1회만 재생되는 애니메이션 (물풍선 갇힘 -> 죽음/부활모션->IDLE)
 {
-	std::vector<CPlayer*> ptPlayers;
-	for (auto& p : players)
-		ptPlayers.emplace_back(&(p.player));
-
-	for(auto p : ptPlayers)
+	for (int i = 0; i < MAX_PLAYER; ++i)
 	{
-		p->Update_Frame_Once();
+		players[i].player.Update_Frame_Once();
+	}
+}
+
+void PlayerStateCheck()	// 1회만 재생되는 애니메이션 (물풍선 갇힘 -> 죽음/부활모션->IDLE)
+{
+	for (int i = 0; i < MAX_PLAYER; ++i)
+	{
+		players[i].player.STATE_CHECK();
 	}
 }
 
 void PlayerWaterstreamCollisionCheck()
 {
-	std::vector<CPlayer*> ptPlayers;
-	for (auto& p : players)
-		ptPlayers.emplace_back(&(p.player));
-	
-	for(auto& p : ptPlayers)
+	for (int i = 0; i < MAX_PLAYER; ++i)
 	{
-		p->CheckCollisionWaterStreams(waterstreams);
+		players[i].player.CheckCollisionWaterStreams(waterstreams);
 	}
 }
 
@@ -341,7 +342,11 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 		//}
 
 		PlayerMove();
+		PlayerStateCheck();
 		PlayerUpdateFrameOnce();
+
+		
+
 		PlayerWaterstreamCollisionCheck();
 		PlayerMapCollisionCheck();
 		PlayerBallonCollisionCheck();

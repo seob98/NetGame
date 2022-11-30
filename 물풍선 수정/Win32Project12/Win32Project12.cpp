@@ -332,17 +332,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			for (auto& player : PLAYERS)
 			{
-				player.Move(true, TILES);								//플레이어 애니메이션 + 키보드 정보 서버로 전달.
-				player.MoveTrapped(true, TILES);						//11/30 수정 예정. Move()와 크게 다르지 않다.
+				//플레이어 상태, 방향, 누르는 키를 서버에 전달.
+				player.Move(true, TILES);							//STATE = IDLE, LEFT,RIGHT,UP,DOWN			
+				player.MoveTrapped(true, TILES);					//STATE = TRAPPED	
+				player.StatusElse();								//STATE = SAVED, DIE, DEAD, WIN
+				//
+
 				//player.CheckCollisionMap(TILES);
 				//player.CheckCollisionWaterStreams(WATERSTREAMS);		//물줄기 클라 처리
 				player.STATE_CHECK();									//물풍선이 클라,서버에서 동시에 터진다. 
-				//player.CheckCollisionWaterStreams(waterstreams);
 				//player.STATE_CHECK();
 
 				player.Update_Frame();									//렌더링 관련
 
-				//player.Update_Frame_Once();								// (서버에서 적용할 함수. 클라에서 삭제 예정.)
+				player.Update_Frame_Once();								// (서버에서 적용할 함수. 클라에서 삭제 예정.)
 
 
 				player.CheckCollisionPlayers(PLAYERS);					//상대방 pos를 받은 시점에서 클라에서 안할 이유가 없음
@@ -483,8 +486,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			, 800, 600
 			, RGB(182, 185, 183));
 
-		for (auto& player : PLAYERS)
-			player.DrawWinnerUI(hMemDC);
+		//for (auto& player : PLAYERS)
+		//	player.DrawWinnerUI(hMemDC);
 
 		UI.DrawStartUI(hMemDC, pressStart, currentPlayerCnt);
 		UI.DrawLoadingUI(hMemDC, pressStart, currentPlayerCnt);
