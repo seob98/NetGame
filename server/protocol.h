@@ -79,7 +79,7 @@ struct CS_EVENT
 
 struct SC_BALLONBOMBEVENT
 {
-	int explodedBomb[30]{};
+	int explodedBomb[20]{};
 };
 
 #pragma pack(pop)

@@ -67,7 +67,7 @@ struct CS_EVENT
 	bool moving = false;
 	bool setBallon = false;
 	bool usedNeedle = false;
-	unsigned short Index = -1;
+	short Index = -1;
 };
 
 
@@ -76,7 +76,7 @@ struct CS_EVENT
 //후에 아이템 관련 정보를 담을때도 사용 가능.
 struct SC_BALLONBOMBEVENT
 {
-	int explodedBomb[30]{};
+	int explodedBomb[20]{};
 };
 
 #pragma pack(pop)
