@@ -70,6 +70,7 @@ struct CS_EVENT
 	bool moving = false;
 	bool setBallon = false;
 	bool usedNeedle = false;
+	short Dir = -1;
 	short Index = -1;
 };
 

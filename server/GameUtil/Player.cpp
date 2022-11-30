@@ -58,12 +58,11 @@ void CPlayer::DrawItem(HDC hdc)
 
 void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 {
+	int trappedSpeed = 1;
 	//if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState == DIE || eCurState == WIN)
 	//	return;
 
-	if (eCurState != IDLE && eCurState != LEFT &&
-		eCurState != UP && eCurState != RIGHT && eCurState != DOWN)
-		return;
+	if (eCurState == IDLE || eCurState == LEFT || eCurState == UP || eCurState == RIGHT || eCurState == DOWN) {
 
 		if (pressedButton == 1)
 		{
@@ -72,21 +71,21 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 			eCurState = UP;
 			moving = true;
 		}
-		else if (pressedButton == 2)
+		else if (pressedButton == 3)
 		{
 			pos.y += speed;
 			playerDir = 3;
 			eCurState = DOWN;
 			moving = true;
 		}
-		else if (pressedButton == 3)
+		else if (pressedButton == 0)
 		{
 			pos.x -= speed;
 			playerDir = 0;
 			eCurState = LEFT;
 			moving = true;
 		}
-		else if (pressedButton == 4)
+		else if (pressedButton == 2)
 		{
 			pos.x += speed;
 			playerDir = 2;
@@ -104,6 +103,42 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 			else
 				frame.StartX = 1;
 		}
+	}
+	else if (eCurState == TRAPPED)
+	{
+		if (pressedButton == 1)
+		{
+			printf("TRAPPED1\n");
+			pos.y -= trappedSpeed;
+			eCurState = TRAPPED;
+			playerDir = 1;
+			moving = true;
+		}
+		else if (pressedButton == 3)
+		{
+			printf("TRAPPED2\n");
+			pos.y += trappedSpeed;
+			eCurState = TRAPPED;
+			playerDir = 3;
+			moving = true;
+		}
+		else if (pressedButton == 0)
+		{
+			printf("TRAPPED3\n");
+			pos.x -= trappedSpeed;
+			eCurState = TRAPPED;
+			playerDir = 0;
+			moving = true;
+		}
+		else if (pressedButton == 2)
+		{
+			printf("TRAPPED4\n");
+			pos.x += trappedSpeed;
+			eCurState = TRAPPED;
+			playerDir = 2;
+			moving = true;
+		}
+	}
 
 	UpdateRect();
 	index = GetCurrentIndex(map);
@@ -115,25 +150,30 @@ void CPlayer::MoveTrapped( std::vector<CBlock>& map, int pressedButton)
 
 	if (eCurState != TRAPPED)
 		return;
+
 	if (pressedButton == 1)
 	{
+		printf("TRAPPED1\n");
 		pos.y -= trappedSpeed;
 		playerDir = 1;
 	}
 	else if (pressedButton == 2)
 	{
-		pos.y += speed;
+		printf("TRAPPED2\n");
+		pos.y += trappedSpeed;
 		playerDir = 3;
 
 	}
 	else if (pressedButton == 3)
 	{
-		pos.x -= speed;
+		printf("TRAPPED3\n");
+		pos.x -= trappedSpeed;
 		playerDir = 0;
 	}
 	else if (pressedButton == 4)
 	{
-		pos.x += speed;
+		printf("TRAPPED4\n");
+		pos.x += trappedSpeed;
 		playerDir = 2;
 	}
 

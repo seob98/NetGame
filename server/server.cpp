@@ -164,6 +164,7 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		event_data[myID].moving = event->moving;
 		event_data[myID].State = event->State;
 		event_data[myID].setBallon = event->setBallon;
+		event_data[myID].Dir = event->Dir;
 		SetEvent(recvEvent[myID]);
 		LeaveCriticalSection(&cs);
 		//WaitForSingleObject(updateEvent, INFINITE);
@@ -177,7 +178,7 @@ void PlayerMove()
 	{
 		if (event_data[i].moving)
 		{
-			players[i].player.Move(map, event_data[i].State);
+			players[i].player.Move(map, event_data[i].Dir);
 			//players[i].player.MoveTrapped(map, event_data[i].State);
 		}
 		else
@@ -315,12 +316,13 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 	int retval;
 #pragma region 서버객체 업데이트
 	while (1) {
-		WaitForMultipleObjects(cur_player, recvEvent, TRUE, 20);
+		WaitForMultipleObjects(cur_player, recvEvent, TRUE, 15);
 		//WaitForMultipleObjects(4, recvEvent, FALSE, INFINITE);
 		BallonUpdate();
 		WaterStreamUpdate();
 		ObstacleUpdate();
 		PlaceBallon();
+
 
 		PlayerMove();
 		PlayerStateCheck();

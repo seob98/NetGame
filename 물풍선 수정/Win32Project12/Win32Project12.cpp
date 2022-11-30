@@ -264,8 +264,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			for (auto& player : PLAYERS)
 			{
 				//플레이어 상태, 방향, 누르는 키를 서버에 전달.
+				//player.MoveTrapped(true, TILES);					//STATE = TRAPPED	
 				player.Move(true, TILES);							//STATE = IDLE, LEFT,RIGHT,UP,DOWN			
-				player.MoveTrapped(true, TILES);					//STATE = TRAPPED	
+				
 				//player.StatusElse();								//STATE = SAVED, DIE, DEAD, WIN
 				//
 
@@ -542,6 +543,7 @@ DWORD WINAPI SendThread(LPVOID arg)
 		event.Index = PLAYERS[myClientID].GetCurrentIndex(TILES);
 		event.State = PLAYERS[myClientID].GetState();
 		event.moving = PLAYERS[myClientID].isMoving();
+		event.Dir = PLAYERS[myClientID].GetDir();
 		event.setBallon = PLAYERS[myClientID].spaceButton();
 
 		retval = send(sock, (char*)&event, sizeof(CS_EVENT), 0);
