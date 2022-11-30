@@ -335,7 +335,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				player.Move(true, TILES);								//플레이어 애니메이션 + 키보드 정보 서버로 전달.
 				player.MoveTrapped(true, TILES);						//11/30 수정 예정. Move()와 크게 다르지 않다.
 				//player.CheckCollisionMap(TILES);
-				player.CheckCollisionWaterStreams(WATERSTREAMS);		//물줄기 클라 처리
+				//player.CheckCollisionWaterStreams(WATERSTREAMS);		//물줄기 클라 처리
 				player.STATE_CHECK();									//물풍선이 클라,서버에서 동시에 터진다. 
 				//player.CheckCollisionWaterStreams(waterstreams);
 				//player.STATE_CHECK();

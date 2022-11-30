@@ -212,6 +212,18 @@ void PlayerBallonCollisionCheck()
 	}
 }
 
+void PlayerWaterstreamCollisionCheck()
+{
+	std::vector<CPlayer*> ptPlayers;
+	for (auto& p : players)
+		ptPlayers.emplace_back(&(p.player));
+	
+	for(auto& p : ptPlayers)
+	{
+		p->CheckCollisionWaterStreams(waterstreams);
+	}
+}
+
 void BallonUpdate()
 {
 	//memset(explodedBallon, -1, sizeof(int) * 30);
@@ -317,8 +329,10 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 		//}
 
 		PlayerMove();
+		PlayerWaterstreamCollisionCheck();
 		PlayerMapCollisionCheck();
 		PlayerBallonCollisionCheck();
+
 		BallonUpdate();
 		WaterStreamUpdate();
 
