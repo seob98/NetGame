@@ -212,6 +212,18 @@ void PlayerBallonCollisionCheck()
 	}
 }
 
+void PlayerUpdateFrameOnce()	// 1회만 재생되는 애니메이션 (물풍선 갇힘 -> 죽음/부활모션->IDLE)
+{
+	std::vector<CPlayer*> ptPlayers;
+	for (auto& p : players)
+		ptPlayers.emplace_back(&(p.player));
+
+	for(auto p : ptPlayers)
+	{
+		p->Update_Frame_Once();
+	}
+}
+
 void PlayerWaterstreamCollisionCheck()
 {
 	std::vector<CPlayer*> ptPlayers;
@@ -329,6 +341,7 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 		//}
 
 		PlayerMove();
+		PlayerUpdateFrameOnce();
 		PlayerWaterstreamCollisionCheck();
 		PlayerMapCollisionCheck();
 		PlayerBallonCollisionCheck();

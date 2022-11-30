@@ -342,7 +342,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				player.Update_Frame();									//렌더링 관련
 
-				player.Update_Frame_Once();								// (서버에서 적용할 함수. 클라에서 삭제 예정.)
+				//player.Update_Frame_Once();								// (서버에서 적용할 함수. 클라에서 삭제 예정.)
 
 
 				player.CheckCollisionPlayers(PLAYERS);					//상대방 pos를 받은 시점에서 클라에서 안할 이유가 없음
@@ -653,6 +653,7 @@ void Player_Update(SC_PLAYERUPDATE* in)
 		PLAYERS[ID].SetPosY(in[i].pt.y);
 		PLAYERS[ID].SetMoving(in[i].moving);
 		PLAYERS[ID].SetState(in[i].state);
+		PLAYERS[ID].CheckAnimationFrame1();
 		if (in[i].setBallon)
 		{
 			placed = PLAYERS[ID].SetupBallon(TILES, BALLONS, PLAYERS, true, ballonID);

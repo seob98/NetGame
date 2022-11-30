@@ -446,7 +446,7 @@ void CPlayer::Update_Frame_Once()
 
 	if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DIE)
 	{
-		frame.Time += 10.f;
+		frame.Time += 1.f;
 		if (frame.Time > frame.DelayTime)
 		{
 			frame.Time = 0.f;

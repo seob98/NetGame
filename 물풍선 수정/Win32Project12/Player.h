@@ -89,6 +89,7 @@ public:
 	int GetSize() { return size; }
 	int GetState() { return (int)eCurState; }
 	void SetState(STATE in) { eCurState = in; }
+	void CheckAnimationFrame1();
 
 	RECT GetRect() { return rt; }
 	POINT GetPos() { return pos; }

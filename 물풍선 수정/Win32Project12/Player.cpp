@@ -352,6 +352,16 @@ int CPlayer::GetCurrentIndex(std::vector<CBlock>& map)
 		}
 }
 
+void CPlayer::CheckAnimationFrame1()
+{
+	//if(eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState)
+	if (eCurState == LEFT || eCurState == RIGHT || eCurState == UP)
+	{
+		if (!moving)
+			frame.StartX = 1;
+	}
+}
+
 bool CPlayer::SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, std::vector<CPlayer>& players, bool player0, int ballonID)
 {
 	if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState == DIE)
