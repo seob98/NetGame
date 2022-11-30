@@ -188,65 +188,100 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 	//	PLAYERS[myClientID].eCurState == DEAD || PLAYERS[myClientID].eCurState == DIE ||
 	//	PLAYERS[myClientID].eCurState == WIN)
 	//	return;
+	int trappedSpeed = 1;
+	
 
-	if (PLAYERS[myClientID].eCurState != IDLE && PLAYERS[myClientID].eCurState != LEFT &&
-		PLAYERS[myClientID].eCurState != UP && PLAYERS[myClientID].eCurState != RIGHT && PLAYERS[myClientID].eCurState != DOWN)
-		return;
 
-	if (!GetActiveWindow())
-		return;
 
-	if (GetAsyncKeyState(VK_SPACE))
+	if (PLAYERS[myClientID].eCurState == IDLE || PLAYERS[myClientID].eCurState == LEFT ||
+		PLAYERS[myClientID].eCurState == UP || PLAYERS[myClientID].eCurState == RIGHT || PLAYERS[myClientID].eCurState == DOWN)
 	{
-		PLAYERS[myClientID].pressSpace = true;
-	}
-	else
-		PLAYERS[myClientID].pressSpace = false;
+		if (!GetActiveWindow())
+			return;
 
-	if (GetAsyncKeyState('W') & 0x8000)
-	{
-		//PLAYERS[myClientID].pos.y -= 0;
-		PLAYERS[myClientID].playerDir = 1;
-		PLAYERS[myClientID].eCurState = UP;
-		PLAYERS[myClientID].moving = true;
-		SetEvent(SendEvent);
-	}
-	else if (GetAsyncKeyState('S') & 0x8000)
-	{
-		//PLAYERS[myClientID].pos.y += 0;
-		PLAYERS[myClientID].playerDir = 3;
-		PLAYERS[myClientID].eCurState = DOWN;
-		PLAYERS[myClientID].moving = true;
-		SetEvent(SendEvent);
-	}
-	else if (GetAsyncKeyState('A') & 0x8000)
-	{
-		//PLAYERS[myClientID].pos.x -= 0;
-		PLAYERS[myClientID].playerDir = 0;
-		PLAYERS[myClientID].eCurState = LEFT;
-		PLAYERS[myClientID].moving = true;
-		SetEvent(SendEvent);
-	}
-	else if (GetAsyncKeyState('D') & 0x8000)
-	{
-		//PLAYERS[myClientID].pos.x += 0;
-		PLAYERS[myClientID].playerDir = 2;
-		PLAYERS[myClientID].eCurState = RIGHT;
-		PLAYERS[myClientID].moving = true;
-		SetEvent(SendEvent);
-	}
-	else
-	{
-		PLAYERS[myClientID].moving = false;
-
-		if (PLAYERS[myClientID].eCurState == DOWN || PLAYERS[myClientID].eCurState == IDLE)
+		if (GetAsyncKeyState(VK_SPACE))
 		{
-			PLAYERS[myClientID].eCurState = IDLE;
-			PLAYERS[myClientID].moving = true;
+			PLAYERS[myClientID].pressSpace = true;
 		}
 		else
-			PLAYERS[myClientID].frame.StartX = 1;
-		SetEvent(SendEvent);
+			PLAYERS[myClientID].pressSpace = false;
+
+		if (GetAsyncKeyState('W') & 0x8000)
+		{
+			PLAYERS[myClientID].playerDir = 1;
+			PLAYERS[myClientID].eCurState = UP;
+			PLAYERS[myClientID].moving = true;
+			SetEvent(SendEvent);
+		}
+		else if (GetAsyncKeyState('S') & 0x8000)
+		{
+			PLAYERS[myClientID].playerDir = 3;
+			PLAYERS[myClientID].eCurState = DOWN;
+			PLAYERS[myClientID].moving = true;
+			SetEvent(SendEvent);
+		}
+		else if (GetAsyncKeyState('A') & 0x8000)
+		{
+			PLAYERS[myClientID].playerDir = 0;
+			PLAYERS[myClientID].eCurState = LEFT;
+			PLAYERS[myClientID].moving = true;
+			SetEvent(SendEvent);
+		}
+		else if (GetAsyncKeyState('D') & 0x8000)
+		{
+			PLAYERS[myClientID].playerDir = 2;
+			PLAYERS[myClientID].eCurState = RIGHT;
+			PLAYERS[myClientID].moving = true;
+			SetEvent(SendEvent);
+		}
+		else
+		{
+			PLAYERS[myClientID].moving = false;
+
+			if (PLAYERS[myClientID].eCurState == DOWN || PLAYERS[myClientID].eCurState == IDLE)
+			{
+				PLAYERS[myClientID].eCurState = IDLE;
+				PLAYERS[myClientID].moving = false;
+			}
+			else
+				PLAYERS[myClientID].frame.StartX = 1;
+			SetEvent(SendEvent);
+		}
+	}
+	else if (PLAYERS[myClientID].eCurState == TRAPPED)
+	{
+		if (!GetActiveWindow())
+			return;
+
+		if (GetAsyncKeyState('W') & 0x8000)
+		{
+			PLAYERS[myClientID].playerDir = 1;
+			moving = true;
+			SetEvent(SendEvent);
+		}
+		else if (GetAsyncKeyState('S') & 0x8000)
+		{
+			PLAYERS[myClientID].playerDir = 3;
+			moving = true;
+			SetEvent(SendEvent);
+		}
+		else if (GetAsyncKeyState('A') & 0x8000)
+		{
+			PLAYERS[myClientID].playerDir = 0;
+			moving = true;
+			SetEvent(SendEvent);
+		}
+		else if (GetAsyncKeyState('D') & 0x8000)
+		{
+			PLAYERS[myClientID].playerDir = 2;
+			moving = true;
+			SetEvent(SendEvent);
+		}
+		else {
+			PLAYERS[myClientID].playerDir = -1;
+			moving = false;
+			SetEvent(SendEvent);
+		}
 	}
 
 	UpdateRect();
@@ -255,7 +290,7 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 
 
 
-
+/*
 void CPlayer::MoveTrapped(bool playerA, std::vector<CBlock>& map)
 {
 	int trappedSpeed = 1;
@@ -265,36 +300,32 @@ void CPlayer::MoveTrapped(bool playerA, std::vector<CBlock>& map)
 	if (!GetActiveWindow())
 		return;
 
-	PLAYERS[myClientID].eCurState = TRAPPED;
-	PLAYERS[myClientID].moving = false;
-
 	if (GetAsyncKeyState('W') & 0x8000)
 	{
 		PLAYERS[myClientID].playerDir = 1;
+		SetEvent(SendEvent);
 	}
 	else if (GetAsyncKeyState('S') & 0x8000)
 	{
 		PLAYERS[myClientID].playerDir = 3;
+		SetEvent(SendEvent);
 	}
 	else if (GetAsyncKeyState('A') & 0x8000)
 	{
 		PLAYERS[myClientID].playerDir = 0;
+		SetEvent(SendEvent);
 	}
 	else if (GetAsyncKeyState('D') & 0x8000)
 	{
 		PLAYERS[myClientID].playerDir = 2;
+		SetEvent(SendEvent);
 	}
-	else
-	{
-		PLAYERS[myClientID].playerDir = playerDir;
-	}
-
-	SetEvent(SendEvent);
 
 	UpdateRect();
 	index = GetCurrentIndex(map);
 
 }
+*/
 
 void CPlayer::StatusElse()
 {
@@ -304,9 +335,6 @@ void CPlayer::StatusElse()
 		eCurState != DEAD && eCurState != WIN)
 		return;
 
-
-	PLAYERS[myClientID].moving = eCurState;
-	PLAYERS[myClientID].moving = false;
 	PLAYERS[myClientID].playerDir = 3;	//승리포즈, 탈출모션, 죽는 모션, 시체 모션 등..
 	SetEvent(SendEvent);
 }
@@ -571,22 +599,10 @@ void CPlayer::Update_Frame_Once()
 		}
 
 		if (frame.StartX >= frame.EndX)
+		if (frame.StartX >= frame.EndX)
 		{
 			frame.StartX = frame.EndX;
 		}
-		//if (frame.StartX >= frame.EndX)
-		//{
-		//	if (eCurState == TRAPPED)
-		//		eCurState = DIE;			//너무 오래 갖혀있으면 죽고
-
-		//	else if (eCurState == SAVED)
-		//		eCurState = IDLE;			//탈출 애니메이션 끝나면 IDLE로
-
-		//	else if (eCurState == DIE)
-		//		eCurState = DEAD;			//죽는 애니메이션 끝나면 시체
-
-		//	frame.StartX = 0;
-		//}
 	}
 
 	if (eCurState == DEAD)
