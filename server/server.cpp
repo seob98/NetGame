@@ -91,6 +91,7 @@ unsigned short Player_Create(SOCKET sock)
 	players[cur_player].ID = cur_player;
 	players[cur_player].player.SetPosX(pos.x);
 	players[cur_player].player.SetPosY(pos.y);
+	players[cur_player].player.SetMoving(false);
 	cur_player++;
 
 	if (cur_player == 4) {

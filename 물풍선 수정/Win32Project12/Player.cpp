@@ -241,7 +241,7 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 			if (PLAYERS[myClientID].eCurState == DOWN || PLAYERS[myClientID].eCurState == IDLE)
 			{
 				PLAYERS[myClientID].eCurState = IDLE;
-				PLAYERS[myClientID].moving = true;
+				PLAYERS[myClientID].moving = false;
 			}
 			else
 				PLAYERS[myClientID].frame.StartX = 1;
@@ -256,30 +256,30 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 		if (GetAsyncKeyState('W') & 0x8000)
 		{
 			PLAYERS[myClientID].playerDir = 1;
-
+			moving = true;
 			SetEvent(SendEvent);
 		}
 		else if (GetAsyncKeyState('S') & 0x8000)
 		{
 			PLAYERS[myClientID].playerDir = 3;
-
+			moving = true;
 			SetEvent(SendEvent);
 		}
 		else if (GetAsyncKeyState('A') & 0x8000)
 		{
 			PLAYERS[myClientID].playerDir = 0;
-
+			moving = true;
 			SetEvent(SendEvent);
 		}
 		else if (GetAsyncKeyState('D') & 0x8000)
 		{
 			PLAYERS[myClientID].playerDir = 2;
-
+			moving = true;
 			SetEvent(SendEvent);
 		}
 		else {
 			PLAYERS[myClientID].playerDir = -1;
-
+			moving = false;
 			SetEvent(SendEvent);
 		}
 	}
@@ -290,7 +290,7 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 
 
 
-
+/*
 void CPlayer::MoveTrapped(bool playerA, std::vector<CBlock>& map)
 {
 	int trappedSpeed = 1;
@@ -325,6 +325,7 @@ void CPlayer::MoveTrapped(bool playerA, std::vector<CBlock>& map)
 	index = GetCurrentIndex(map);
 
 }
+*/
 
 void CPlayer::StatusElse()
 {
