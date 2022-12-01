@@ -71,15 +71,19 @@ public:
 	void SetPosX(int x);
 	void SetPosY(int y);
 	void SetState(STATE eCurState);
-
+	void setStat(int _speed, int _ballonlength, int _ballonMaxCnt, bool _needle);
 public:
 	int GetCurrentIndex(std::vector<CBlock>& map);
 	int GetDir() { return playerDir; }
 	int GetSize() { return size; }
 	int GetState() { return (int)eCurState; }
+	int GetSpeed() { return speed; }
+	int GetBallonLength() { return ballonLength; }
+	int GetBallonMaxCnt() { return ballonMaxCnt; }
+	bool GetNeedle() { return needle; }
+
 	RECT GetRect() { return rt; }
 	POINT GetPos() { return pos; }
-	int GetSpeed() { return speed; }
 	bool isMoving() { return moving; }
 	
 	bool spaceButton() { return pressSpace; }

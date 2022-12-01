@@ -108,7 +108,6 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 	{
 		if (pressedButton == 1)
 		{
-			printf("TRAPPED1\n");
 			pos.y -= trappedSpeed;
 			eCurState = TRAPPED;
 			playerDir = 1;
@@ -116,7 +115,6 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 		}
 		else if (pressedButton == 3)
 		{
-			printf("TRAPPED2\n");
 			pos.y += trappedSpeed;
 			eCurState = TRAPPED;
 			playerDir = 3;
@@ -124,7 +122,6 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 		}
 		else if (pressedButton == 0)
 		{
-			printf("TRAPPED3\n");
 			pos.x -= trappedSpeed;
 			eCurState = TRAPPED;
 			playerDir = 0;
@@ -132,7 +129,6 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 		}
 		else if (pressedButton == 2)
 		{
-			printf("TRAPPED4\n");
 			pos.x += trappedSpeed;
 			eCurState = TRAPPED;
 			playerDir = 2;
@@ -260,6 +256,14 @@ void CPlayer::SetState(STATE State)
 	eCurState = State;
 }
 
+void CPlayer::setStat(int _speed, int _ballonlength, int _ballonMaxCnt, bool _needle)
+{
+	speed = _speed;
+	ballonLength = _ballonlength;
+	ballonMaxCnt = _ballonMaxCnt;
+	needle = _needle;
+}
+
 int CPlayer::GetCurrentIndex(std::vector<CBlock>& map)
 {
 	for (auto& block : map)
@@ -321,23 +325,28 @@ void CPlayer::AcquireItem(int _eType)
 		ballonMaxCnt += 1;
 		if (ballonMaxCnt > 7)
 			ballonMaxCnt = 7;
+		printf("player[%d] ballonlength : %d\n", clientNum, ballonMaxCnt);
 		break;
 	case  1:
 		needle = true;
+		printf("player[%d] needle : %d\n", clientNum, needle);
 		break;
 	case  2:
 		speed += 1;
 		if (speed > maxSpeed)
 			speed = maxSpeed;
+		printf("player[%d] speed : %d\n", clientNum, speed);
 		break;
 
 	case 3:
 		ballonLength += 1;
 		if (ballonLength > maxBallonLength)
 			ballonLength = maxBallonLength;
+		printf("player[%d] ballonLength : %d\n", clientNum, ballonLength);
 		break;
 	case 4:
 		ballonLength = maxBallonLength;
+		printf("player[%d] ballonLength : %d\n", clientNum, ballonLength);
 		break;
 	}
 }

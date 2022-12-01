@@ -2,7 +2,7 @@
 #include "Item.h"
 
 
-CItem::CItem(POINT _pos, int _size, int _index)
+CItem::CItem(POINT _pos, int _size, int _index, int type)
 	: pos(_pos), size(_size), index(_index)
 {
 	rt.left = pos.x - size;
@@ -10,7 +10,7 @@ CItem::CItem(POINT _pos, int _size, int _index)
 	rt.right = pos.x + size;
 	rt.bottom = pos.y + size;
 
-	eType = (ItemType)(rand() % 5);
+	eType = (ItemType)type;
 }
 
 void CItem::Draw(HDC hdc)
@@ -32,6 +32,7 @@ void CItem::CheckCollisionPlayers(std::vector<CPlayer>& _players)
 			if (IntersectRect(&temp, &rt, &temp2))
 			{
 				player.AcquireItem((int)(eType));
+				printf("palyer[%d] 아이템 충돌\n", player.clientNum);
 				taken = true;
 			}
 		}

@@ -20,6 +20,7 @@ HANDLE recvEvent[4], updateEvent, uThread;
 std::vector<CBlock> map;
 std::vector<CObstacle> obstacles;
 std::vector<CBallon> ballons{};
+std::vector<CItem> items{};
 std::vector<CWaterStream> waterstreams{};
 
 
@@ -30,6 +31,8 @@ DWORD WINAPI UpdateThread(LPVOID arg);
 
 void Map_Init()
 {
+	int itemtype;
+	srand((unsigned int)time(NULL));
 	// 맵 바닥 설치 ( 포지션 계산을 위해 )
 	for (int i = 0; i < 13; ++i)
 	{
@@ -42,29 +45,32 @@ void Map_Init()
 	// player_data의 itemtype과 blocktype의 값을 채우는 함수
 
 	int map_range = INDEX_MAPEND - INDEX_MAPSTART;
-	for (int i = 0; i < map_range; i++) {
+	for (int i = 0; i < map_range; i++) 
+	{
 		if (rand() % 10 <= 7)	// 70% 확률로 벽, 30%확률로 공간
 		{
 			if (rand() % 10 <= 3)
 			{
-				player_data.blockType[i] = 1;		//돌
-				obstacles.emplace_back(map[i + 30].GetPos(), map[i + 30].GetIndex(), map, true);
+				player_data.Blockinfo[i].blocktype = 1;		//돌
+				obstacles.emplace_back(map[i + 30].GetPos(), map[i + 30].GetIndex(), map, true, -1);
 			}
 			else
 			{
-				player_data.blockType[i] = 0;		//나무블럭
-				obstacles.emplace_back(map[i + 30].GetPos(), map[i + 30].GetIndex(), map, false);
+				player_data.Blockinfo[i].itemtype = rand() % 5 - 1;	// 나무블럭에만 아이템타입 연산 수행
+				itemtype = player_data.Blockinfo[i].itemtype;
+				player_data.Blockinfo[i].blocktype = 0;		//나무블럭
+				obstacles.emplace_back(map[i + 30].GetPos(), map[i + 30].GetIndex(), map, false, itemtype);
 			}
 		}
 		else
-			player_data.blockType[i] = -1;
+			player_data.Blockinfo[i].blocktype = -1;
 	}
 
-	for (int i = 0; i < MAX_ITEM_CNT; i++)
-	{
-		player_data.itemType[i].type = rand() % 7;
-		player_data.itemType[i].pos = rand() % (map_range)+INDEX_MAPSTART;
-	}
+	//for (int i = 0; i < MAX_ITEM_CNT; i++)
+	//{
+	//	player_data.itemType[i].type = rand() % 7;
+	//	player_data.itemType[i].pos = rand() % (map_range)+INDEX_MAPSTART;
+	//}
 
 }
 
@@ -92,6 +98,7 @@ unsigned short Player_Create(SOCKET sock)
 	players[cur_player].player.SetPosX(pos.x);
 	players[cur_player].player.SetPosY(pos.y);
 	players[cur_player].player.SetMoving(false);
+	players[cur_player].player.clientNum = cur_player;
 	cur_player++;
 
 	if (cur_player == 4) {
@@ -180,6 +187,7 @@ void PlayerMove()
 		if (event_data[i].moving)
 		{
 			players[i].player.Move(map, event_data[i].Dir);
+			printf("player[%d] speed : %d\n", i, players[i].player.GetSpeed());
 			//players[i].player.MoveTrapped(map, event_data[i].State);
 		}
 		else
@@ -300,7 +308,7 @@ void ObstacleUpdate()
 	for (int i = 0; i < obstacles.size(); ++i)
 	{
 		obstacles[i].CheckExplosionRange(map);
-		//obstacles[i].makeItem(ITEMS);
+		obstacles[i].makeItem(items);
 	}
 	for (int i = 0; i < obstacles.size();)
 	{
@@ -311,6 +319,30 @@ void ObstacleUpdate()
 	}
 }
 
+void ItemCollisionCheck()
+{
+	std::vector<CPlayer> playerlist;
+	for (int i = 0; i < 4; i++)
+	{
+		playerlist.emplace_back(players[i].player);
+	}
+
+	for (auto& item : items)
+	{
+		item.CheckCollisionPlayers(playerlist);
+		item.CheckCollisionWaterStreams(waterstreams);
+	}
+	int speed, length, maxCnt;
+	bool needle;
+	for (int i = 0; i < 4; i++)
+	{
+		speed = playerlist[i].GetSpeed();
+		length = playerlist[i].GetBallonLength();
+		maxCnt = playerlist[i].GetBallonMaxCnt();
+		needle = playerlist[i].GetNeedle();
+		players[i].player.setStat(speed, length, maxCnt, needle);
+	}
+}
 
 DWORD WINAPI UpdateThread(LPVOID arg)
 {
@@ -331,8 +363,7 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 		PlayerMapCollisionCheck();
 		PlayerBallonCollisionCheck();
 		PlayerWaterstreamCollisionCheck();
-
-
+		ItemCollisionCheck();	// 플레이어 아이템 충돌 처리
 
 
 

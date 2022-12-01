@@ -5,7 +5,7 @@
 
 
 
-CObstacle::CObstacle(POINT Pos, int Number, std::vector<CBlock>& blocks, bool _invincible)
+CObstacle::CObstacle(POINT Pos, int Number, std::vector<CBlock>& blocks, bool _invincible, int _itemtype)
 {
 	pos = Pos;
 	index = Number;
@@ -14,6 +14,7 @@ CObstacle::CObstacle(POINT Pos, int Number, std::vector<CBlock>& blocks, bool _i
 	inExplosionRange = false;
 
 	Invincible = _invincible;
+	itemtype = _itemtype;
 }
 
 void CObstacle::CheckExplosionRange(std::vector<CBlock>& _blocks)
@@ -37,9 +38,10 @@ void CObstacle::makeItem(std::vector<CItem>& _items)
 	if (!dead || madeItem)
 		return;
 
-	int randNum = rand() % 10;
-	if (randNum < 7)
-		_items.emplace_back(pos, 19, index);
+	//int randNum = rand() % 10;
+	//if (randNum < 7)
+
+	_items.emplace_back(pos, 19, index,itemtype);
 	madeItem = true;
 }
 

@@ -2,7 +2,7 @@
 #include "Item.h"
 
 
-CItem::CItem(POINT _pos, int _size, int _index)
+CItem::CItem(POINT _pos, int _size, int _index, int type)
 	: pos(_pos), size(_size), index(_index)
 {
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Item/ballon4.bmp", L"ballon3");
@@ -16,7 +16,7 @@ CItem::CItem(POINT _pos, int _size, int _index)
 	rt.right = pos.x + size;
 	rt.bottom = pos.y + size;
 
-	eType = (ItemType)(rand() % 5);
+	eType = (ItemType)type;
 }
 
 void CItem::Draw(HDC hdc)

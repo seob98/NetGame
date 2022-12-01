@@ -7,7 +7,7 @@ class CObstacle
 public:
 	enum Type { Type1, Type2 };
 public:
-	CObstacle(POINT Pos, int Number, std::vector<CBlock>& _blocks, bool _invincible);
+	CObstacle(POINT Pos, int Number, std::vector<CBlock>& _blocks, bool _invincible, int item_type);
 
 private:
 	Type eType = Type1;
@@ -16,7 +16,7 @@ private:
 	bool inExplosionRange{};
 	bool dead{};
 	bool Invincible{};
-
+	int itemtype{};	// 서버에서 받아서 저장하는 블럭의 아이템타입
 public:
 	//POINT GetPos() { return pos; }
 	const int GetIndex() { return index; }

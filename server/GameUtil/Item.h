@@ -8,7 +8,7 @@ class CItem
 public:
 	enum ItemType {ballon, needle, skate, wave, maxwave};
 
-	CItem(POINT _pos, int _size, int _index);
+	CItem(POINT _pos, int _size, int _index, int type);
 private:
 	POINT pos;
 	int size;

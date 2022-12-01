@@ -495,10 +495,11 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	Add_Player(myClientID);
 
 	//맵 설치
-	for (int i = 0; i < 135; ++i)
+	for (int i = 0; i < INDEX_MAPEND - INDEX_MAPSTART; ++i)
 	{
-		if (data->blockType[i] != -1)
-			OBSTACLES.emplace_back(TILES[i + 30].GetPos(), TILES[i + 30].GetIndex(), TILES, data->blockType[i]);
+		if (data->Blockinfo[i].blocktype != -1)		// Obstacle 생성자 수정 -> itemtype도 생성 인자로 받음
+			OBSTACLES.emplace_back(TILES[i + 30].GetPos(), TILES[i + 30].GetIndex(), TILES, 
+				data->Blockinfo[i].blocktype, data->Blockinfo[i].itemtype);
 	}
 
 	// 서버와 데이터 통신
@@ -563,7 +564,7 @@ void Add_Player(int cnt) {
 			PLAYERS.emplace_back(TILES[180].GetPos());
 		else if (i == 3)
 			PLAYERS.emplace_back(TILES[194].GetPos());
-		PLAYERS[i].clientNum = 0;
+		PLAYERS[i].clientNum = i;
 		if (i % 2 == 0)
 			PLAYERS[i].clinetTeam = 1;
 		else
