@@ -33,6 +33,7 @@ private:
 
 	int DeadTime{};
 	bool needle{ false };
+	bool userNeedle{ false };
 
 private:
 	STATE ePreState{ IDLE };
@@ -80,7 +81,7 @@ public:
 	int GetSpeed() { return speed; }
 	int GetBallonLength() { return ballonLength; }
 	int GetBallonMaxCnt() { return ballonMaxCnt; }
-	bool GetNeedle() { return needle; }
+	bool GetNeedle() { return userNeedle; }
 
 	RECT GetRect() { return rt; }
 	POINT GetPos() { return pos; }

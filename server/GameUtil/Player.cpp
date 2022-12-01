@@ -310,7 +310,7 @@ void CPlayer::useNeedle()
 		if (eCurState == TRAPPED)
 		{
 			needle = false;
-
+			userNeedle = true;
 			eCurState = SAVED;
 			frame.StartX = 0;
 		}

@@ -33,6 +33,7 @@ private:
 
 	int DeadTime{};
 	bool needle{ false };
+	bool userneedle{ false };
 private:
 	STATE ePreState{ IDLE };
 	STATE eCurState{ IDLE };
@@ -91,6 +92,7 @@ public:
 	int GetSize() { return size; }
 	int GetState() { return (int)eCurState; }
 	void SetState(STATE in) { eCurState = in; }
+	bool GetNeedle() { return userneedle; }
 	void CheckAnimationFrame1();
 
 	RECT GetRect() { return rt; }

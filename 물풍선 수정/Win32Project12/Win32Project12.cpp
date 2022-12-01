@@ -210,11 +210,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 		if (wParam == 'Q')
 		{
-			PLAYERS[0].useNeedle();
+			PLAYERS[myClientID].useNeedle();
+			//PLAYERS[0].useNeedle();
 		}
 		if (wParam == 'P')
 		{
-			PLAYERS[1].useNeedle();
+			//PLAYERS[1].useNeedle();
 		}
 	case WM_LBUTTONDOWN:
 	{
@@ -546,6 +547,7 @@ DWORD WINAPI SendThread(LPVOID arg)
 		event.moving = PLAYERS[myClientID].isMoving();
 		event.Dir = PLAYERS[myClientID].GetDir();
 		event.setBallon = PLAYERS[myClientID].spaceButton();
+		event.usedNeedle = PLAYERS[myClientID].GetNeedle();
 
 		retval = send(sock, (char*)&event, sizeof(CS_EVENT), 0);
 		//if (retval == SOCKET_ERROR) err_quit("send()");

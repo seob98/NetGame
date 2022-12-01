@@ -173,6 +173,7 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		event_data[myID].State = event->State;
 		event_data[myID].setBallon = event->setBallon;
 		event_data[myID].Dir = event->Dir;
+		event_data[myID].usedNeedle = event->usedNeedle;
 		SetEvent(recvEvent[myID]);
 		LeaveCriticalSection(&cs);
 		//WaitForSingleObject(updateEvent, INFINITE);
@@ -187,11 +188,19 @@ void PlayerMove()
 		if (event_data[i].moving)
 		{
 			players[i].player.Move(map, event_data[i].Dir);
-			printf("player[%d] speed : %d\n", i, players[i].player.GetSpeed());
+			//printf("player[%d] speed : %d\n", i, players[i].player.GetSpeed());
 			//players[i].player.MoveTrapped(map, event_data[i].State);
 		}
 		else
 			players[i].player.SetMoving(false);
+	}
+}
+
+void PlayerUpdateState()
+{
+	for (int i = 0; i < 4; i++)
+	{
+		players[i].player.SetState((CPlayer::STATE)event_data[i].State);
 	}
 }
 
@@ -206,16 +215,34 @@ void PlayerMapCollisionCheck(/*std::vector<CBlock>& TILES*/)
 	}
 }
 
-void PlayerBallonCollisionCheck()
+void PlayerCollisionCheck()
 {
 	std::vector<CPlayer*> ptPlayers;
 	for (auto& p : players)
 		ptPlayers.emplace_back(&(p.player));
 
+	// 물풍선 충돌 처리
 	for (auto& ballon : ballons)
 	{
 		ballon.CheckPlayerOut(ptPlayers);
 		ballon.CheckCollision(ptPlayers);
+	}
+	// 아이템 충돌 처리
+	for (auto& item : items)
+	{
+		item.CheckCollisionPlayers(ptPlayers);
+		item.CheckCollisionWaterStreams(waterstreams);
+	}
+	// 상태 변화 없데이트
+	int speed, length, maxCnt;
+	bool needle;
+	for (int i = 0; i < 4; i++)
+	{
+		speed = ptPlayers[i]->GetSpeed();
+		length = ptPlayers[i]->GetBallonLength();
+		maxCnt = ptPlayers[i]->GetBallonMaxCnt();
+		needle = ptPlayers[i]->GetNeedle();
+		players[i].player.setStat(speed, length, maxCnt, needle);
 	}
 }
 
@@ -319,31 +346,6 @@ void ObstacleUpdate()
 	}
 }
 
-void ItemCollisionCheck()
-{
-	std::vector<CPlayer> playerlist;
-	for (int i = 0; i < 4; i++)
-	{
-		playerlist.emplace_back(players[i].player);
-	}
-
-	for (auto& item : items)
-	{
-		item.CheckCollisionPlayers(playerlist);
-		item.CheckCollisionWaterStreams(waterstreams);
-	}
-	int speed, length, maxCnt;
-	bool needle;
-	for (int i = 0; i < 4; i++)
-	{
-		speed = playerlist[i].GetSpeed();
-		length = playerlist[i].GetBallonLength();
-		maxCnt = playerlist[i].GetBallonMaxCnt();
-		needle = playerlist[i].GetNeedle();
-		players[i].player.setStat(speed, length, maxCnt, needle);
-	}
-}
-
 DWORD WINAPI UpdateThread(LPVOID arg)
 {
 	int retval;
@@ -361,9 +363,8 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 		PlayerStateCheck();
 		PlayerUpdateFrameOnce();
 		PlayerMapCollisionCheck();
-		PlayerBallonCollisionCheck();
+		PlayerCollisionCheck();
 		PlayerWaterstreamCollisionCheck();
-		ItemCollisionCheck();	// 플레이어 아이템 충돌 처리
 
 
 

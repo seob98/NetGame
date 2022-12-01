@@ -18,7 +18,7 @@ void CItem::Draw(HDC hdc)
 
 }
 
-void CItem::CheckCollisionPlayers(std::vector<CPlayer>& _players)
+void CItem::CheckCollisionPlayers(std::vector<CPlayer*> _players)
 {
 	if (taken)
 		return;
@@ -26,13 +26,13 @@ void CItem::CheckCollisionPlayers(std::vector<CPlayer>& _players)
 	
 	for (auto& player : _players)
 	{
-		if (player.GetState() <=4)
+		if (player->GetState() <=4)
 		{
-			RECT temp2 = player.GetRect();
+			RECT temp2 = player->GetRect();
 			if (IntersectRect(&temp, &rt, &temp2))
 			{
-				player.AcquireItem((int)(eType));
-				printf("palyer[%d] 아이템 충돌\n", player.clientNum);
+				player->AcquireItem((int)(eType));
+				printf("palyer[%d] 아이템 충돌\n", player->clientNum);
 				taken = true;
 			}
 		}
