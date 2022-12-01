@@ -70,6 +70,7 @@ struct CS_EVENT
 	bool moving = false;
 	bool setBallon = false;
 	bool usedNeedle = false;
+	short Dir = -1;
 	short Index = -1;
 };
 
@@ -79,7 +80,7 @@ struct CS_EVENT
 
 struct SC_BALLONBOMBEVENT
 {
-	int explodedBomb[30]{};
+	int explodedBomb[20]{};
 };
 
 #pragma pack(pop)

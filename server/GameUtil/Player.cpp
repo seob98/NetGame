@@ -58,12 +58,11 @@ void CPlayer::DrawItem(HDC hdc)
 
 void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 {
+	int trappedSpeed = 1;
 	//if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState == DIE || eCurState == WIN)
 	//	return;
 
-	if (eCurState != IDLE && eCurState != LEFT &&
-		eCurState != UP && eCurState != RIGHT && eCurState != DOWN)
-		return;
+	if (eCurState == IDLE || eCurState == LEFT || eCurState == UP || eCurState == RIGHT || eCurState == DOWN) {
 
 		if (pressedButton == 1)
 		{
@@ -71,39 +70,27 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 			playerDir = 1;
 			eCurState = UP;
 			moving = true;
-
-			if (clientNum == 0)
-				cout << "moving :"  << "posX : "<< pos.x << "\t posY : " << pos.y << endl;
 		}
-		else if (pressedButton == 2)
+		else if (pressedButton == 3)
 		{
 			pos.y += speed;
 			playerDir = 3;
 			eCurState = DOWN;
 			moving = true;
-
-			if (clientNum == 0)
-				cout << "moving :" << "posX : " << pos.x << "\t posY : " << pos.y << endl;
 		}
-		else if (pressedButton == 3)
+		else if (pressedButton == 0)
 		{
 			pos.x -= speed;
 			playerDir = 0;
 			eCurState = LEFT;
 			moving = true;
-
-			if (clientNum == 0)
-				cout << "moving :" << "posX : " << pos.x << "\t posY : " << pos.y << endl;
 		}
-		else if (pressedButton == 4)
+		else if (pressedButton == 2)
 		{
 			pos.x += speed;
 			playerDir = 2;
 			eCurState = RIGHT;
 			moving = true;
-
-			if (clientNum == 0)
-				cout << "moving :" << "posX : " << pos.x << "\t posY : " << pos.y << endl;
 		}
 		else
 		{
@@ -116,6 +103,42 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 			else
 				frame.StartX = 1;
 		}
+	}
+	else if (eCurState == TRAPPED)
+	{
+		if (pressedButton == 1)
+		{
+			printf("TRAPPED1\n");
+			pos.y -= trappedSpeed;
+			eCurState = TRAPPED;
+			playerDir = 1;
+			moving = true;
+		}
+		else if (pressedButton == 3)
+		{
+			printf("TRAPPED2\n");
+			pos.y += trappedSpeed;
+			eCurState = TRAPPED;
+			playerDir = 3;
+			moving = true;
+		}
+		else if (pressedButton == 0)
+		{
+			printf("TRAPPED3\n");
+			pos.x -= trappedSpeed;
+			eCurState = TRAPPED;
+			playerDir = 0;
+			moving = true;
+		}
+		else if (pressedButton == 2)
+		{
+			printf("TRAPPED4\n");
+			pos.x += trappedSpeed;
+			eCurState = TRAPPED;
+			playerDir = 2;
+			moving = true;
+		}
+	}
 
 	UpdateRect();
 	index = GetCurrentIndex(map);
@@ -124,33 +147,33 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 void CPlayer::MoveTrapped( std::vector<CBlock>& map, int pressedButton)
 {
 	int trappedSpeed = 1;
-	//if (eCurState == WIN)
-	//	return;
 
 	if (eCurState != TRAPPED)
 		return;
 
-	//if (eCurState == TRAPPED)
-	//{
 	if (pressedButton == 1)
 	{
+		printf("TRAPPED1\n");
 		pos.y -= trappedSpeed;
 		playerDir = 1;
 	}
 	else if (pressedButton == 2)
 	{
-		pos.y += speed;
+		printf("TRAPPED2\n");
+		pos.y += trappedSpeed;
 		playerDir = 3;
 
 	}
 	else if (pressedButton == 3)
 	{
-		pos.x -= speed;
+		printf("TRAPPED3\n");
+		pos.x -= trappedSpeed;
 		playerDir = 0;
 	}
 	else if (pressedButton == 4)
 	{
-		pos.x += speed;
+		printf("TRAPPED4\n");
+		pos.x += trappedSpeed;
 		playerDir = 2;
 	}
 
@@ -270,7 +293,6 @@ bool CPlayer::SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballon
 	{														//인자 보내봤자 암것도 안함. 지우면 뭔가 에러뜨는거같아서 냅둠.
 		ballons.emplace_back(pos, size, index, ballonLength, player0,  clientNum, this, ballonID);
 		ballonCurCnt += 1;
-		cout << index << "번 타일에 물풍선 설치" << endl;
 		return true;
 	}
 
@@ -431,7 +453,7 @@ void CPlayer::Update_Frame_Once()
 
 	if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DIE)
 	{
-		frame.Time += 10.f;
+		frame.Time += 15.f;
 		if (frame.Time > frame.DelayTime)
 		{
 			frame.Time = 0.f;

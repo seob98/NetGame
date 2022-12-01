@@ -182,21 +182,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 			return 1;
 
-		//	// connect() 호출에 사용할 변수
-		//	struct sockaddr_in serveraddr;
-		//	memset(&serveraddr, 0, sizeof(serveraddr));
-		//	serveraddr.sin_family = AF_INET;
-		//	inet_pton(AF_INET, SERVERIP, &serveraddr.sin_addr);
-		//	serveraddr.sin_port = htons(SERVERPORT);
-
-		//	// 소켓 생성
-		//	SOCKET sockConnect = socket(AF_INET, SOCK_STREAM, 0);
-		//	if (sockConnect == INVALID_SOCKET) err_quit("socket()");
-
-		//	// connect()
-		//	retval = connect(sockConnect, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
-		//	if (retval == SOCKET_ERROR) err_quit("connect()");
-
 		connection = true;
 	}
 
@@ -220,37 +205,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 
-		// 부딪히는 블럭 설치
-		//for (int i = 30; i < 165; ++i)
-		//{
-		//	//80%로 깐다.
-		//	if (rand() % 10 <= 7)
-		//	{
-		//		if(rand()%10 <=1)
-		//			OBSTACLES.emplace_back(TILES[i].GetPos(), TILES[i].GetIndex(), TILES, true);
-		//		else
-		//			OBSTACLES.emplace_back(TILES[i].GetPos(), TILES[i].GetIndex(), TILES, false);
-		//	}
-		//}
-
-		// 플레이어 추가
-		//PLAYERS.emplace_back(TILES[170].GetPos());
-		//PLAYERS[0].clientNum = 0;
-		//PLAYERS[0].clinetTeam = 0;
-		//PLAYERS[0].SetPlayer0();
-		//PLAYERS.emplace_back(TILES[170].GetPos());
-		//PLAYERS[1].clientNum = 1;
-		//PLAYERS[1].clinetTeam = 1;
-
 		break;
 
 	case WM_KEYDOWN:
-		//if (wParam == VK_SPACE)
-		//{
-		//	event.setBallon = true;
-		//	SetEvent(SendEvent);
-		//}
-
 		if (wParam == 'Q')
 		{
 			PLAYERS[0].useNeedle();
@@ -302,46 +259,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (!pressStart)
 				break;
 
-			//static bool Once = true;
-			//static bool Once2 = true;
-			//if (Once)
-			//{
-			//	Once = false;
-			//}
-			//if (Once2)
-			//{
-			//	if (PLAYERS[0].GetState() == 9 || PLAYERS[1].GetState() == 9 || (PLAYERS[0].GetState() == 8 && (PLAYERS[1].GetState() == 8)))
-			//	{
-			//		Once2 = false;
-			//	}
-			//}
-
 
 #pragma region player
-			//PLAYERS[0].Move(true, TILES);
-			//PLAYERS[0].MoveTrapped(true, TILES);
-			//PLAYERS[0].CheckCollisionMap(TILES);
-			//PLAYERS[1].Move(false, TILES);
-			//PLAYERS[1].MoveTrapped(false, TILES);
-			//PLAYERS[1].CheckCollisionMap(TILES);
-			//PLAYERS[0].CheckCollisionWaterStreams(WATERSTREAMS);
-			//PLAYERS[1].CheckCollisionWaterStreams(WATERSTREAMS);
-			//PLAYERS[0].STATE_CHECK();
-			//PLAYERS[1].STATE_CHECK();
-			//PLAYERS[myClientID].Move(true, TILES);
-
 			for (auto& player : PLAYERS)
 			{
 				//플레이어 상태, 방향, 누르는 키를 서버에 전달.
+				//player.MoveTrapped(true, TILES);					//STATE = TRAPPED	
 				player.Move(true, TILES);							//STATE = IDLE, LEFT,RIGHT,UP,DOWN			
-				player.MoveTrapped(true, TILES);					//STATE = TRAPPED	
-				player.StatusElse();								//STATE = SAVED, DIE, DEAD, WIN
+				
+				//player.StatusElse();								//STATE = SAVED, DIE, DEAD, WIN
 				//
 
 				//player.CheckCollisionMap(TILES);
 				//player.CheckCollisionWaterStreams(WATERSTREAMS);		//물줄기 클라 처리
 				player.STATE_CHECK();									//물풍선이 클라,서버에서 동시에 터진다. 
-				//player.STATE_CHECK();
 
 				player.Update_Frame();									//렌더링 관련
 
@@ -353,15 +284,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				player.Update_DeadTime(PLAYERS);						// (플레이어가 죽은 후 시간을 측정하는 함수. 서버로 옮길 예정.)
 			}
 
-			//players[1].Update_Frame_Once();
 #pragma endregion
 
 #pragma region ballon
 			// ballon충돌처리
 			for (auto& ballon : BALLONS)
 			{
-				//ballon.CheckPlayerOut(PLAYERS);
-				//ballon.CheckCollision(PLAYERS);
 				ballon.UpdateFrame();																//애니메이션
 			}
 			for (auto& ballon : BALLONS)
@@ -543,7 +471,6 @@ DWORD WINAPI RecvThread(LPVOID arg)
 {
 	int retval;
 	char buf[1024];
-	char buf2[1024];
 	SC_GAMEINFO* data;
 
 	// 소켓 생성
@@ -591,15 +518,15 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	{
 		//SC_PLAYERUPDATE* u_data;
 		retval = recv(sock, buf, sizeof(SC_PLAYERUPDATE) * 4, MSG_WAITALL);
-		if (retval == SOCKET_ERROR)
-			err_quit("recv()");
+		//if (retval == SOCKET_ERROR)
+		//	err_quit("recv()");
 		Player_Update((SC_PLAYERUPDATE*)buf);
 
 		///================================================================================================================================
-		retval = recv(sock, buf2, sizeof(SC_BALLONBOMBEVENT), MSG_WAITALL);
-		if (retval == SOCKET_ERROR)
-			err_quit("recv()");
-		Waterbomb_Update((SC_BALLONBOMBEVENT*)buf2);
+		retval = recv(sock, buf, sizeof(SC_BALLONBOMBEVENT), MSG_WAITALL);
+		//if (retval == SOCKET_ERROR)
+		//	err_quit("recv()");
+		Waterbomb_Update((SC_BALLONBOMBEVENT*)buf);
 
 	}
 
@@ -616,10 +543,11 @@ DWORD WINAPI SendThread(LPVOID arg)
 		event.Index = PLAYERS[myClientID].GetCurrentIndex(TILES);
 		event.State = PLAYERS[myClientID].GetState();
 		event.moving = PLAYERS[myClientID].isMoving();
+		event.Dir = PLAYERS[myClientID].GetDir();
 		event.setBallon = PLAYERS[myClientID].spaceButton();
 
 		retval = send(sock, (char*)&event, sizeof(CS_EVENT), 0);
-		if (retval == SOCKET_ERROR) err_quit("send()");
+		//if (retval == SOCKET_ERROR) err_quit("send()");
 	}
 }
 
@@ -662,7 +590,6 @@ void Player_Update(SC_PLAYERUPDATE* in)
 			placed = PLAYERS[ID].SetupBallon(TILES, BALLONS, PLAYERS, true, ballonID);
 			if (placed)
 			{
-				//std::cout << "ballonID : " << ballonID << std::endl;
 				++ballonID;
 			}
 		}

@@ -91,6 +91,7 @@ unsigned short Player_Create(SOCKET sock)
 	players[cur_player].ID = cur_player;
 	players[cur_player].player.SetPosX(pos.x);
 	players[cur_player].player.SetPosY(pos.y);
+	players[cur_player].player.SetMoving(false);
 	cur_player++;
 
 	if (cur_player == 4) {
@@ -149,11 +150,13 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	}
 
 	while (1) {
-		retval = recv(players[myID].sock, buf, sizeof(CS_EVENT), MSG_WAITALL);
-		if (retval == SOCKET_ERROR) {
-			err_display("recv()");
+		if (players[myID].player.GetState() >= 8)
 			break;
-		}
+		retval = recv(players[myID].sock, buf, sizeof(CS_EVENT), MSG_WAITALL);
+		//if (retval == SOCKET_ERROR) {
+		//	err_display("recv()");
+		//	break;
+		//}
 		CS_EVENT* event = (CS_EVENT*)buf;
 		EnterCriticalSection(&cs);
 		
@@ -162,11 +165,7 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		event_data[myID].moving = event->moving;
 		event_data[myID].State = event->State;
 		event_data[myID].setBallon = event->setBallon;
-
-		//if (event->setBallon)
-		//	printf("ID: %d, Index: (%d, %d), State: %d, setBallon: %d\n", event->ID,
-		//		players[myID].player.GetPos().x, players[myID].player.GetPos().y,
-		//		event->State, event->setBallon);
+		event_data[myID].Dir = event->Dir;
 		SetEvent(recvEvent[myID]);
 		LeaveCriticalSection(&cs);
 		//WaitForSingleObject(updateEvent, INFINITE);
@@ -180,8 +179,8 @@ void PlayerMove()
 	{
 		if (event_data[i].moving)
 		{
-			players[i].player.Move(map, event_data[i].State);
-			players[i].player.MoveTrapped(map, event_data[i].State);
+			players[i].player.Move(map, event_data[i].Dir);
+			//players[i].player.MoveTrapped(map, event_data[i].State);
 		}
 		else
 			players[i].player.SetMoving(false);
@@ -209,7 +208,6 @@ void PlayerBallonCollisionCheck()
 	{
 		ballon.CheckPlayerOut(ptPlayers);
 		ballon.CheckCollision(ptPlayers);
-		//ballon.UpdateFrame();
 	}
 }
 
@@ -240,7 +238,7 @@ void PlayerWaterstreamCollisionCheck()
 void BallonUpdate()
 {
 	//memset(explodedBallon, -1, sizeof(int) * 30);
-	memset(update_ballondata.explodedBomb, -1, sizeof(int) * 30);
+	memset(update_ballondata.explodedBomb, -1, sizeof(int) * 20);
 
 	for (auto& ballon : ballons)
 		ballon.Update(ballons, waterstreams, map, obstacles, horzBlockCnt, vertBlockCnt);
@@ -255,22 +253,10 @@ void BallonUpdate()
 			update_ballondata.explodedBomb[cnt] = ballons[i].GetID();
 			++cnt;
 
-			//std::cout << "ID : " << ballons[i].GetID() << "풍선 터짐" << std::endl;
-
 			ballons.erase(ballons.begin() + i);
 		}
 		else
 			++i;
-	}
-
-	if (cnt > 0)
-	{
-		std::cout << "배열값" << std::endl;
-		//for (auto t : explodedBallon)
-		for (auto t : update_ballondata.explodedBomb)
-		{
-			std::cout << "ID : " << t << "풍선 터짐" << std::endl;
-		}
 	}
 }
 
@@ -286,7 +272,6 @@ void PlaceBallon()
 			if (placed)
 			{
 				update_data[i].setBallon;
-				std::cout << i << "번 updateData.setballon에 true값을 지정" << std::endl;
 			}
 
 		}
@@ -332,66 +317,52 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 	int retval;
 #pragma region 서버객체 업데이트
 	while (1) {
-		//WaitForMultipleObjects(4, recvEvent, TRUE, 33);
-		WaitForMultipleObjects(4, recvEvent, FALSE, INFINITE);
+		WaitForMultipleObjects(cur_player, recvEvent, TRUE, 15);
+		//WaitForMultipleObjects(4, recvEvent, FALSE, INFINITE);
+		BallonUpdate();
+		WaterStreamUpdate();
+		ObstacleUpdate();
+		PlaceBallon();
 
-		//for (int i = 0; i < 4; ++i)
-		//{
-		//	if (event_data[i].setBallon)
-		//		std::cout << i << "번 클라의 setBallon은 true" << std::endl;
-		//}
 
 		PlayerMove();
 		PlayerStateCheck();
 		PlayerUpdateFrameOnce();
-
-		
-
-		PlayerWaterstreamCollisionCheck();
 		PlayerMapCollisionCheck();
 		PlayerBallonCollisionCheck();
+		PlayerWaterstreamCollisionCheck();
 
-		BallonUpdate();
-		WaterStreamUpdate();
 
-		PlaceBallon();
 
-		ObstacleUpdate();
 
-		//WaterStreamUpdate();
+
 
 		// 업데이트 보내기
 		for (int i = 0; i < 4; i++) {
+			
 			update_data[i].moving = players[i].player.isMoving();
 			update_data[i].playerDir = players[i].player.GetDir();
 			update_data[i].state = players[i].player.Get_State();
 			update_data[i].pt = players[i].player.GetPos();
 			update_data[i].setBallon = players[i].player.spaceButton();
-			//if (update_data[i].setBallon)
-			//	std::cout << i << "번 클라의 setBallon = true를 베포" << std::endl;
+
 		}
 
 		for (auto& clients : players)
 		{
 			retval = send(clients.sock, (char*)&update_data, sizeof(SC_PLAYERUPDATE) * 4, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+			//if (retval == SOCKET_ERROR) {
+			//	err_display("send()");
+			//	break;
+			//}
 
 
 			retval = send(clients.sock, (char*)&update_ballondata, sizeof(SC_BALLONBOMBEVENT), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+			//if (retval == SOCKET_ERROR) {
+			//	err_display("send()");
+			//	break;
+			//}
 		}
-
-		//memset(explodedBallon, -1, sizeof(int) * 30);
-
-
-
-		//SetEvent(updateEvent);
 	}
 #pragma endregion
 
