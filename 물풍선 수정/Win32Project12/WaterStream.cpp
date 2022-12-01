@@ -110,10 +110,6 @@ void CWaterStream::Update()
 
 void CWaterStream::UpdateSummonTime()
 {
-	int frameSpeed = 70.f;
-	if (frame.StartX >= 4)
-		frameSpeed = 100.f;
-
 	if (summonTime > 0)
 		summonTime -= 0.1f;
 
@@ -122,9 +118,9 @@ void CWaterStream::UpdateSummonTime()
 	else
 	{
 		if (dir == 4)
-			frame.Time += frameSpeed;//50.f;
+			frame.Time += 50.f;
 		else
-			frame.Time += frameSpeed;//50.f;
+			frame.Time += 50.f;
 		if (frame.Time > frame.DelayTime)
 		{
 			frame.Time = 0.f;

@@ -656,6 +656,7 @@ void Player_Update(SC_PLAYERUPDATE* in)
 		PLAYERS[ID].SetPosY(in[i].pt.y);
 		PLAYERS[ID].SetMoving(in[i].moving);
 		PLAYERS[ID].SetState(in[i].state);
+		PLAYERS[ID].CheckAnimationFrame1();
 		if (in[i].setBallon)
 		{
 			placed = PLAYERS[ID].SetupBallon(TILES, BALLONS, PLAYERS, true, ballonID);

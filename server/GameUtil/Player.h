@@ -82,9 +82,6 @@ public:
 	int GetSpeed() { return speed; }
 	bool isMoving() { return moving; }
 	
-	void SetClientNum(int num) { clientNum = num; }
-	int GetClientNum(){ return clientNum; }
-
 	bool spaceButton() { return pressSpace; }
 	void setSpaceButton(bool space) { pressSpace = space; }
 

@@ -259,7 +259,7 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 void CPlayer::MoveTrapped(bool playerA, std::vector<CBlock>& map)
 {
 	int trappedSpeed = 1;
-	if (PLAYERS[myClientID].eCurState != TRAPPED)
+	if (eCurState != TRAPPED)
 		return;
 
 	if (!GetActiveWindow())
@@ -300,8 +300,8 @@ void CPlayer::StatusElse()
 {
 	//move, moveTrapped제외의 상태에는 상시로 해당 함수를 호출한다.
 	//서버의 업데이트를 위해서는 클라이언트가 계속 메시지를 보내고 있어야한다.
-	if (PLAYERS[myClientID].eCurState != SAVED && PLAYERS[myClientID].eCurState != DIE &&
-		PLAYERS[myClientID].eCurState != DEAD && PLAYERS[myClientID].eCurState != WIN)
+	if (eCurState != SAVED && eCurState != DIE &&
+		eCurState != DEAD && eCurState != WIN)
 		return;
 
 
@@ -375,6 +375,16 @@ int CPlayer::GetCurrentIndex(std::vector<CBlock>& map)
 			index = block.GetIndex();
 			return index;
 		}
+}
+
+void CPlayer::CheckAnimationFrame1()
+{
+	//if(eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState)
+	if (eCurState == LEFT || eCurState == RIGHT || eCurState == UP)
+	{
+		if (!moving)
+			frame.StartX = 1;
+	}
 }
 
 bool CPlayer::SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, std::vector<CPlayer>& players, bool player0, int ballonID)
@@ -455,35 +465,35 @@ void CPlayer::STATE_CHECK()
 			frame.StateY = 0;					// 스프라이트 이미지 세로 수 
 			frame.EndX = 4;						// 스프라이트 이미지 가로 수 
 			frame.Time = 0;						// 현재 진행 시간
-			frame.DelayTime = 100;				// 프레임 딜레이 (높을수록 느립니다.)
+			frame.DelayTime = 400;				// 프레임 딜레이 (높을수록 느립니다.)
 			break;
 		case UP:
 			frame.StartX = 0;
 			frame.StateY = 1;					// 스프라이트 이미지 세로 수 
 			frame.EndX = 4;						// 스프라이트 이미지 가로 수 
 			frame.Time = 0;						// 현재 진행 시간
-			frame.DelayTime = 55;// 100;				// 프레임 딜레이 (높을수록 느립니다.)
+			frame.DelayTime = 100;				// 프레임 딜레이 (높을수록 느립니다.)
 			break;
 		case DOWN:
 			frame.StartX = 0;
 			frame.StateY = 2;					// 스프라이트 이미지 세로 수 
 			frame.EndX = 4;						// 스프라이트 이미지 가로 수 
 			frame.Time = 0;						// 현재 진행 시간
-			frame.DelayTime = 55; //100;				// 프레임 딜레이 (높을수록 느립니다.)
+			frame.DelayTime = 100;				// 프레임 딜레이 (높을수록 느립니다.)
 			break;
 		case LEFT:
 			frame.StartX = 0;
 			frame.StateY = 3;					// 스프라이트 이미지 세로 수 
 			frame.EndX = 4;						// 스프라이트 이미지 가로 수 
 			frame.Time = 0;						// 현재 진행 시간
-			frame.DelayTime = 55; //100;				// 프레임 딜레이 (높을수록 느립니다.)
+			frame.DelayTime = 100;				// 프레임 딜레이 (높을수록 느립니다.)
 			break;
 		case RIGHT:
 			frame.StartX = 0;
 			frame.StateY = 4;					// 스프라이트 이미지 세로 수 
 			frame.EndX = 4;						// 스프라이트 이미지 가로 수 
 			frame.Time = 0;						// 현재 진행 시간
-			frame.DelayTime = 55; //100;				// 프레임 딜레이 (높을수록 느립니다.)
+			frame.DelayTime = 100;				// 프레임 딜레이 (높을수록 느립니다.)
 			break;
 		case WIN:
 			frame.StartX = 0;
@@ -512,7 +522,7 @@ void CPlayer::STATE_CHECK()
 			frame.StateY = 2;					// 스프라이트 이미지 세로 수 
 			frame.EndX = 6;
 			frame.Time = 0;						// 현재 진행 시간
-			frame.DelayTime = 50; //;				// 프레임 딜레이 (높을수록 느립니다.)
+			frame.DelayTime = 100;				// 프레임 딜레이 (높을수록 느립니다.)
 			break;
 		case DEAD:
 			frame.StartX = 3;

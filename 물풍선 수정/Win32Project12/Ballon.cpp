@@ -22,7 +22,7 @@ CBallon::CBallon(POINT Pos, int Size, int Number, int _explosionLength, bool _pl
 	frame.StateY = 0;					// 스프라이트 이미지 세로 수 
 	frame.EndX = 2;						// 스프라이트 이미지 가로 수 
 	frame.Time = 0;						// 현재 진행 시간
-	frame.DelayTime = 100;				// 프레임 딜레이 (높을수록 느립니다.)
+	frame.DelayTime = 200;				// 프레임 딜레이 (높을수록 느립니다.)
 
 	exploded = false;
 
