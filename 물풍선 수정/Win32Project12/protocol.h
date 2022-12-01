@@ -26,10 +26,11 @@ struct CLIENTINFO
 	CPlayer player{};
 };
 
-struct ObjectINFO
+struct BlockINFO
 {
-	short pos;
-	short type;
+	// short index 멤버가 클라이언트에서 사용되지 않음을 확인하여 삭제함.
+	short blocktype = -1;
+	short itemtype = -1;
 };
 #pragma pack(push, 1)
 
@@ -41,8 +42,8 @@ struct SC_GAMEINFO
 	int gameStart{};
 	TEAM teamId;
 
-	int blockType[INDEX_MAPEND - INDEX_MAPSTART];
-	ObjectINFO itemType[MAX_ITEM_CNT];
+	//int blockType[INDEX_MAPEND - INDEX_MAPSTART];
+	BlockINFO Blockinfo[INDEX_MAPEND - INDEX_MAPSTART];
 };
 
 struct SC_PLAYERUPDATE

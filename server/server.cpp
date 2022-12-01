@@ -30,6 +30,7 @@ DWORD WINAPI UpdateThread(LPVOID arg);
 
 void Map_Init()
 {
+	srand((unsigned int)time(NULL));
 	// 맵 바닥 설치 ( 포지션 계산을 위해 )
 	for (int i = 0; i < 13; ++i)
 	{
@@ -42,29 +43,31 @@ void Map_Init()
 	// player_data의 itemtype과 blocktype의 값을 채우는 함수
 
 	int map_range = INDEX_MAPEND - INDEX_MAPSTART;
-	for (int i = 0; i < map_range; i++) {
+	for (int i = 0; i < map_range; i++) 
+	{
 		if (rand() % 10 <= 7)	// 70% 확률로 벽, 30%확률로 공간
 		{
 			if (rand() % 10 <= 3)
 			{
-				player_data.blockType[i] = 1;		//돌
+				player_data.Blockinfo[i].blocktype = 1;		//돌
 				obstacles.emplace_back(map[i + 30].GetPos(), map[i + 30].GetIndex(), map, true);
 			}
 			else
 			{
-				player_data.blockType[i] = 0;		//나무블럭
+				player_data.Blockinfo[i].itemtype = rand() % 5 - 1;	// 나무블럭에만 아이템타입 연산 수행
+				player_data.Blockinfo[i].blocktype = 0;		//나무블럭
 				obstacles.emplace_back(map[i + 30].GetPos(), map[i + 30].GetIndex(), map, false);
 			}
 		}
 		else
-			player_data.blockType[i] = -1;
+			player_data.Blockinfo[i].blocktype = -1;
 	}
 
-	for (int i = 0; i < MAX_ITEM_CNT; i++)
-	{
-		player_data.itemType[i].type = rand() % 7;
-		player_data.itemType[i].pos = rand() % (map_range)+INDEX_MAPSTART;
-	}
+	//for (int i = 0; i < MAX_ITEM_CNT; i++)
+	//{
+	//	player_data.itemType[i].type = rand() % 7;
+	//	player_data.itemType[i].pos = rand() % (map_range)+INDEX_MAPSTART;
+	//}
 
 }
 

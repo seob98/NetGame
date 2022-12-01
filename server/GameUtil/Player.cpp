@@ -108,7 +108,6 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 	{
 		if (pressedButton == 1)
 		{
-			printf("TRAPPED1\n");
 			pos.y -= trappedSpeed;
 			eCurState = TRAPPED;
 			playerDir = 1;
@@ -116,7 +115,6 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 		}
 		else if (pressedButton == 3)
 		{
-			printf("TRAPPED2\n");
 			pos.y += trappedSpeed;
 			eCurState = TRAPPED;
 			playerDir = 3;
@@ -124,7 +122,6 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 		}
 		else if (pressedButton == 0)
 		{
-			printf("TRAPPED3\n");
 			pos.x -= trappedSpeed;
 			eCurState = TRAPPED;
 			playerDir = 0;
@@ -132,7 +129,6 @@ void CPlayer::Move(std::vector<CBlock>& map, int pressedButton)
 		}
 		else if (pressedButton == 2)
 		{
-			printf("TRAPPED4\n");
 			pos.x += trappedSpeed;
 			eCurState = TRAPPED;
 			playerDir = 2;
