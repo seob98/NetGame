@@ -1,9 +1,10 @@
-﻿  Player.cpp
+﻿  WaterStream.cpp
 C:\Users\PC-2\Desktop\NetGame\server\GameUtil\Ballon.h(54,24): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\PC-2\Desktop\NetGame\server\GameUtil\Player.cpp(14,6): warning C4101: 'hMemDC' :참조되지 않은 지역 변수입니다.
-C:\Users\PC-2\Desktop\NetGame\server\GameUtil\Player.cpp(475,19): warning C4244: '+=': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\PC-2\Desktop\NetGame\server\GameUtil\WaterStream.cpp(81,17): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\PC-2\Desktop\NetGame\server\GameUtil\WaterStream.cpp(83,16): warning C4244: '=': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\PC-2\Desktop\NetGame\server\GameUtil\WaterStream.cpp(86,21): warning C4244: '-=': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   코드를 생성하고 있습니다.
-  3 of 409 functions ( 0.7%) were compiled, the rest were copied from previous compilation.
+  6 of 410 functions ( 1.5%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     1 functions had inline decision re-evaluated but remain unchanged
   코드를 생성했습니다.

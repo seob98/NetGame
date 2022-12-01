@@ -91,7 +91,6 @@ public:
 	int GetSize() { return size; }
 	int GetState() { return (int)eCurState; }
 	void SetState(STATE in) { eCurState = in; }
-	void CheckAnimationFrame1();
 
 	RECT GetRect() { return rt; }
 	POINT GetPos() { return pos; }
@@ -99,6 +98,9 @@ public:
 	bool isMoving() { return moving; }
 	bool spaceButton() { return pressSpace; }
 	void SetMoving(bool in) { moving = in; }
+
+	void SetClientNum(int num) { clientNum = num; }
+	int GetClientNum() { return clientNum; }
 
 public:
 	bool SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, std::vector<CPlayer>& players, bool player0, int ballonID);
