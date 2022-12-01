@@ -131,6 +131,8 @@ void CBallon::CheckCollision(std::vector<CPlayer*> players)
 					players[i]->SetPosY(rt.bottom + playerSize);
 				if (playerDir == 3)		//플레이어가 아래방향
 					players[i]->SetPosY(rt.top - playerSize);
+				//players[i]->SetState(CPlayer::DEAD);
+				printf("player[%d] state = %d", i, players[i]->GetState());
 			}
 		}
 	}

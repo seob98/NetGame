@@ -99,6 +99,7 @@ unsigned short Player_Create(SOCKET sock)
 	players[cur_player].player.SetPosY(pos.y);
 	players[cur_player].player.SetMoving(false);
 	players[cur_player].player.clientNum = cur_player;
+	players[cur_player].player.SetState(p_state);
 	cur_player++;
 
 	if (cur_player == 4) {
@@ -111,6 +112,8 @@ unsigned short Player_Create(SOCKET sock)
 	return players[cur_player - 1].ID;
 
 }
+
+void PlayerStateUpdate();
 
 // 클라이언트와 데이터 통신
 DWORD WINAPI RecvThread(LPVOID arg)
@@ -157,8 +160,8 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	}
 
 	while (1) {
-		if (players[myID].player.GetState() >= 8)
-			break;
+		//if (players[myID].player.GetState() >= 8)
+		//	break;
 		retval = recv(players[myID].sock, buf, sizeof(CS_EVENT), MSG_WAITALL);
 		//if (retval == SOCKET_ERROR) {
 		//	err_display("recv()");
@@ -196,14 +199,6 @@ void PlayerMove()
 	}
 }
 
-void PlayerUpdateState()
-{
-	for (int i = 0; i < 4; i++)
-	{
-		players[i].player.SetState((CPlayer::STATE)event_data[i].State);
-	}
-}
-
 void PlayerMapCollisionCheck(/*std::vector<CBlock>& TILES*/)
 {
 	for (int i = 0; i < MAX_PLAYER; i++)
@@ -233,16 +228,20 @@ void PlayerCollisionCheck()
 		item.CheckCollisionPlayers(ptPlayers);
 		item.CheckCollisionWaterStreams(waterstreams);
 	}
-	// 상태 변화 없데이트
+	// 상태 변화 업데이트
 	int speed, length, maxCnt;
 	bool needle;
 	for (int i = 0; i < 4; i++)
 	{
+		// 아이템에 따른 플레이어 상태 변화
 		speed = ptPlayers[i]->GetSpeed();
 		length = ptPlayers[i]->GetBallonLength();
 		maxCnt = ptPlayers[i]->GetBallonMaxCnt();
 		needle = ptPlayers[i]->GetNeedle();
 		players[i].player.setStat(speed, length, maxCnt, needle);
+		// 물풍선에 플레이어가 충돌 했을때 상태 변화
+		players[i].player.SetState(ptPlayers[i]->Get_State());
+		printf("player[%d] state = %d\n", players[i].player.clientNum, players[i].player.Get_State());
 	}
 }
 
@@ -346,11 +345,25 @@ void ObstacleUpdate()
 	}
 }
 
+void PlayerStateUpdate()
+{
+	for (int i = 0; i < MAX_PLAYER; i++)
+	{
+		if (event_data[i].State == -1)
+			while (event_data[i].State <= -1);
+		if (players[i].player.Get_State() != CPlayer::DIE && players[i].player.Get_State() != CPlayer::DEAD && players[i].player.Get_State() != CPlayer::TRAPPED)
+			players[i].player.SetState((CPlayer::STATE)event_data[i].State);
+		//printf("player[%d] State = %d\n", i, players[i].player.GetState());
+	}
+}
+
 DWORD WINAPI UpdateThread(LPVOID arg)
 {
 	int retval;
 #pragma region 서버객체 업데이트
-	while (1) {
+	while (1) 
+	{
+		//PlayerStateUpdate();
 		WaitForMultipleObjects(cur_player, recvEvent, TRUE, 15);
 		//WaitForMultipleObjects(4, recvEvent, FALSE, INFINITE);
 		BallonUpdate();
@@ -358,15 +371,14 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 		ObstacleUpdate();
 		PlaceBallon();
 
-
 		PlayerMove();
+		PlayerCollisionCheck();
 		PlayerStateCheck();
+		PlayerStateUpdate();
 		PlayerUpdateFrameOnce();
 		PlayerMapCollisionCheck();
-		PlayerCollisionCheck();
 		PlayerWaterstreamCollisionCheck();
-
-
+		//SetEvent(updateEvent);
 
 
 		// 업데이트 보내기

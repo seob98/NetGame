@@ -256,29 +256,34 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 		if (GetAsyncKeyState('W') & 0x8000)
 		{
 			PLAYERS[myClientID].playerDir = 1;
+			//eCurState = PLAYERS[myClientID].Get_State();
 			moving = true;
 			SetEvent(SendEvent);
 		}
 		else if (GetAsyncKeyState('S') & 0x8000)
 		{
 			PLAYERS[myClientID].playerDir = 3;
+			//eCurState = PLAYERS[myClientID].Get_State();
 			moving = true;
 			SetEvent(SendEvent);
 		}
 		else if (GetAsyncKeyState('A') & 0x8000)
 		{
 			PLAYERS[myClientID].playerDir = 0;
+			//eCurState = PLAYERS[myClientID].Get_State();
 			moving = true;
 			SetEvent(SendEvent);
 		}
 		else if (GetAsyncKeyState('D') & 0x8000)
 		{
 			PLAYERS[myClientID].playerDir = 2;
+			//eCurState = PLAYERS[myClientID].Get_State();
 			moving = true;
 			SetEvent(SendEvent);
 		}
 		else {
 			PLAYERS[myClientID].playerDir = -1;
+			//eCurState = PLAYERS[myClientID].Get_State();
 			moving = false;
 			SetEvent(SendEvent);
 		}

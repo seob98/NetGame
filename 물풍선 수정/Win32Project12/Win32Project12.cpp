@@ -522,7 +522,14 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		retval = recv(sock, buf, sizeof(SC_PLAYERUPDATE) * 4, MSG_WAITALL);
 		//if (retval == SOCKET_ERROR)
 		//	err_quit("recv()");
+		//SC_PLAYERUPDATE* test_data = (SC_PLAYERUPDATE*)buf;
 		Player_Update((SC_PLAYERUPDATE*)buf);
+		// Å×½ºÆ®
+		/*
+		for (int i = 0; i < 4; i++)
+			if (test_data[i].state == CPlayer::DEAD)
+				break;
+		*/
 
 		///================================================================================================================================
 		retval = recv(sock, buf, sizeof(SC_BALLONBOMBEVENT), MSG_WAITALL);
