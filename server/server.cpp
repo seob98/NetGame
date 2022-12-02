@@ -351,10 +351,10 @@ void PlayerStateUpdate()
 	{
 		if (event_data[i].State == -1)
 			while (event_data[i].State <= -1);
-		if (players[i].player.Get_State() != CPlayer::DIE && players[i].player.Get_State() != CPlayer::DEAD && players[i].player.Get_State() != CPlayer::TRAPPED)
+		if (players[i].player.Get_State() != CPlayer::TRAPPED || players[i].player.Get_State() != CPlayer::DEAD || players[i].player.Get_State() != CPlayer::DIE)
 			players[i].player.SetState((CPlayer::STATE)event_data[i].State);
-		else
-			players[i].player.SetState(players[i].player.Get_State());
+		//else
+		//	players[i].player.SetState(players[i].player.Get_State());
 		//printf("player[%d] State = %d\n", i, players[i].player.GetState());
 	}
 }

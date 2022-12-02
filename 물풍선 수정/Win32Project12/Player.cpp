@@ -282,7 +282,7 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 			SetEvent(SendEvent);
 		}
 		else {
-			PLAYERS[myClientID].playerDir = -1;
+			//PLAYERS[myClientID].playerDir = -1;
 			//eCurState = PLAYERS[myClientID].Get_State();
 			moving = false;
 			SetEvent(SendEvent);
