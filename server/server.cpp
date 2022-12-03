@@ -89,6 +89,7 @@ unsigned short Player_Create(SOCKET sock)
 	players[cur_player].ID = cur_player;
 	players[cur_player].player.SetPosX(pos.x);
 	players[cur_player].player.SetPosY(pos.y);
+	players[cur_player].player.clientNum = cur_player;
 	players[cur_player].player.SetMoving(false);
 	cur_player++;
 
@@ -170,6 +171,7 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		event_data[myID].ballonLength = event->ballonLength;
 		event_data[myID].speed = event->speed;
 		event_data[myID].ballonMaxCnt = event->ballonMaxCnt;
+		event_data[myID].usedNeedle = event->usedNeedle;
 		SetEvent(recvEvent[myID]);
 		LeaveCriticalSection(&cs);
 		//WaitForSingleObject(updateEvent, INFINITE);
@@ -181,13 +183,22 @@ void PlayerMove()
 {
 	for (int i = 0; i < MAX_PLAYER; i++) 
 	{
-		if (event_data[i].moving)
+		if (event_data[i].State != -1)
 		{
-			players[i].player.Move(map, event_data[i].Dir);
-			//players[i].player.MoveTrapped(map, event_data[i].State);
+			if (event_data[i].moving)
+			{
+				players[i].player.SetState((CPlayer::STATE)event_data[i].State);
+				players[i].player.Move(map, event_data[i].Dir);
+				//players[i].player.MoveTrapped(map, event_data[i].State);
+			}
+			else
+			{
+				players[i].player.SetState((CPlayer::STATE)event_data[i].State); 
+				if (players[i].player.Get_State() == CPlayer::SAVED)
+					printf("player[%d] state %d\n", i, (int)players[i].player.Get_State());
+				players[i].player.SetMoving(false);
+			}
 		}
-		else
-			players[i].player.SetMoving(false);
 	}
 }
 

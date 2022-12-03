@@ -210,7 +210,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 		if (wParam == 'Q')
 		{
-			PLAYERS[0].useNeedle();
+			PLAYERS[myClientID].useNeedle();
 		}
 		if (wParam == 'P')
 		{
@@ -548,6 +548,7 @@ DWORD WINAPI SendThread(LPVOID arg)
 		event.setBallon = PLAYERS[myClientID].spaceButton();
 		event.ballonLength = PLAYERS[myClientID].GetballonLength();
 		event.speed = PLAYERS[myClientID].GetSpeed();
+		event.usedNeedle = PLAYERS[myClientID].GetUseNeedle();
 		event.ballonMaxCnt = PLAYERS[myClientID].GetballonCnt();
 
 		retval = send(sock, (char*)&event, sizeof(CS_EVENT), 0);
@@ -567,7 +568,7 @@ void Add_Player(int cnt) {
 			PLAYERS.emplace_back(TILES[180].GetPos());
 		else if (i == 3)
 			PLAYERS.emplace_back(TILES[194].GetPos());
-		PLAYERS[i].clientNum = 0;
+		PLAYERS[i].clientNum = i;
 		if (i % 2 == 0)
 			PLAYERS[i].clinetTeam = 1;
 		else

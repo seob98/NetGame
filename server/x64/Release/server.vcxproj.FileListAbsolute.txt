@@ -6,3 +6,4 @@ C:\Users\gnslg\OneDrive\바탕 화면\NetGame\server\x64\Release\server.exe
 C:\Users\als63\Desktop\수업\네트워크게임프로그래밍\텀 프로젝트\깃\NetGame\server\x64\Release\server.exe
 C:\Users\gnslg\OneDrive\바탕 화면\강의 폴더\2022 2학기\2022년 넷겜플\텀\NetGame\server\x64\Release\server.exe
 C:\Users\als63\Desktop\NetGame-KMH-5\server\x64\Release\server.exe
+C:\Users\als63\Desktop\NetGame\server\x64\Release\server.exe

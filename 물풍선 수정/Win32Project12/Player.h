@@ -33,6 +33,7 @@ private:
 
 	int DeadTime{};
 	bool needle{ false };
+	bool useneedle{ false };
 private:
 	STATE ePreState{ IDLE };
 	STATE eCurState{ IDLE };
@@ -90,6 +91,7 @@ public:
 	void SetDir(int in) { playerDir = in; }
 	int GetSize() { return size; }
 	int GetState() { return (int)eCurState; }
+	bool GetUseNeedle() { return useneedle; }
 	void SetState(STATE in) { eCurState = in; }
 	void CheckAnimationFrame1();
 

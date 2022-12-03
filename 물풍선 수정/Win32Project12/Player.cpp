@@ -277,6 +277,14 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 			moving = true;
 			SetEvent(SendEvent);
 		}
+		else if (GetAsyncKeyState('Q') & 0x8000)
+		{
+			PLAYERS[myClientID].useNeedle();
+			PLAYERS[myClientID].useneedle = true;
+			if (PLAYERS[myClientID].Get_State() == SAVED)
+				PLAYERS[myClientID].useneedle = false;
+			SetEvent(SendEvent);
+		}
 		else {
 			PLAYERS[myClientID].playerDir = -1;
 			moving = false;
