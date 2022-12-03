@@ -170,7 +170,7 @@ void CPlayer::DrawItem(HDC hdc)
 	HDC hMemDC = CBmpMgr::Get_Instance()->Find_Image(L"needle");
 
 
-	if (clientNum == 0)
+	if (clientNum == 0 || clientNum == 1 || clientNum == 2 || clientNum == 3)
 	{
 		GdiTransparentBlt(hdc
 			, 664, 485
@@ -281,8 +281,6 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 		{
 			PLAYERS[myClientID].useNeedle();
 			PLAYERS[myClientID].useneedle = true;
-			if (PLAYERS[myClientID].Get_State() == SAVED)
-				PLAYERS[myClientID].useneedle = false;
 			SetEvent(SendEvent);
 		}
 		else {

@@ -424,10 +424,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//if (PLAYERS[0].GetState() == 8 && (PLAYERS[1].GetState() == 8))
 		//	PLAYERS[0].DrawDrawUI(hMemDC);
 
-		/*
+		
 		if(currentPlayerCnt >= 4)
 			PLAYERS[myClientID].DrawItem(hMemDC);
-		*/
+		
 		BitBlt(hdc, 0, 0, WINCX, WINCY, hMemDC, 0, 0, SRCCOPY);
 		DeleteDC(hMemDC);
 		DeleteDC(hMemDCUI);
