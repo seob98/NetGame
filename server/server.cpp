@@ -187,15 +187,14 @@ void PlayerMove()
 		{
 			if (event_data[i].moving)
 			{
-				players[i].player.SetState((CPlayer::STATE)event_data[i].State);
+				//players[i].player.SetState((CPlayer::STATE)event_data[i].State);
 				players[i].player.Move(map, event_data[i].Dir);
 				//players[i].player.MoveTrapped(map, event_data[i].State);
 			}
 			else
 			{
-				players[i].player.SetState((CPlayer::STATE)event_data[i].State); 
-				if (players[i].player.Get_State() == CPlayer::SAVED)
-					printf("player[%d] state %d\n", i, (int)players[i].player.Get_State());
+				if (event_data[i].State == CPlayer::SAVED)
+					players[i].player.SetState((CPlayer::STATE)event_data[i].State);
 				players[i].player.SetMoving(false);
 			}
 		}
