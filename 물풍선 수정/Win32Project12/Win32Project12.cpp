@@ -546,6 +546,9 @@ DWORD WINAPI SendThread(LPVOID arg)
 		event.moving = PLAYERS[myClientID].isMoving();
 		event.Dir = PLAYERS[myClientID].GetDir();
 		event.setBallon = PLAYERS[myClientID].spaceButton();
+		event.ballonLength = PLAYERS[myClientID].GetballonLength();
+		event.speed = PLAYERS[myClientID].GetSpeed();
+		event.ballonMaxCnt = PLAYERS[myClientID].GetballonCnt();
 
 		retval = send(sock, (char*)&event, sizeof(CS_EVENT), 0);
 		//if (retval == SOCKET_ERROR) err_quit("send()");

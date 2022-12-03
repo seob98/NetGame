@@ -408,7 +408,7 @@ int CPlayer::GetCurrentIndex(std::vector<CBlock>& map)
 void CPlayer::CheckAnimationFrame1()
 {
 	//if(eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState)
-	if (eCurState == LEFT || eCurState == RIGHT || eCurState == UP)
+	if (eCurState == LEFT || eCurState == RIGHT || eCurState == UP || eCurState == DOWN)
 	{
 		if (!moving)
 			frame.StartX = 1;
@@ -480,6 +480,7 @@ void CPlayer::AcquireItem(int _eType)
 		ballonLength = maxBallonLength;
 		break;
 	}
+	SetEvent(SendEvent);
 }
 
 void CPlayer::STATE_CHECK()

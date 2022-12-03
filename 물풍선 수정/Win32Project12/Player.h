@@ -99,7 +99,8 @@ public:
 	bool isMoving() { return moving; }
 	bool spaceButton() { return pressSpace; }
 	void SetMoving(bool in) { moving = in; }
-
+	int GetballonCnt() { return ballonMaxCnt; }
+	int GetballonLength() { return ballonLength; }
 public:
 	bool SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, std::vector<CPlayer>& players, bool player0, int ballonID);
 	void BallonCntUpdate() { ballonCurCnt -= 1; }

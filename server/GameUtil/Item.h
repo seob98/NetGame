@@ -20,7 +20,7 @@ private:
 public:
 	void Draw(HDC hdc);
 
-	void CheckCollisionPlayers(std::vector<CPlayer>& _players);
+	void CheckCollisionPlayers(std::vector<CPlayer*> _players);
 	void CheckCollisionWaterStreams(std::vector<CWaterStream>& _waterstreams);
 };
 

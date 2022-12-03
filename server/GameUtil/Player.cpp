@@ -311,6 +311,7 @@ void CPlayer::useNeedle()
 
 void CPlayer::AcquireItem(int _eType)
 {
+	printf("Cnt: %d, spped: %d, length: %d\n", ballonMaxCnt, speed, ballonLength);
 	switch (_eType)
 	{
 	case 0:

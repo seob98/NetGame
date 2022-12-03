@@ -21,7 +21,8 @@ std::vector<CBlock> map;
 std::vector<CObstacle> obstacles;
 std::vector<CBallon> ballons{};
 std::vector<CWaterStream> waterstreams{};
-
+std::vector<CItem> items{};
+std::vector<CPlayer*> ptPlayers;
 
 CRITICAL_SECTION cs;
 int cur_player = 0;
@@ -63,12 +64,6 @@ void Map_Init()
 			player_data.Blockinfo[i].blocktype = -1;
 	}
 
-	//for (int i = 0; i < MAX_ITEM_CNT; i++)
-	//{
-	//	player_data.itemType[i].type = rand() % 7;
-	//	player_data.itemType[i].pos = rand() % (map_range)+INDEX_MAPSTART;
-	//}
-
 }
 
 
@@ -98,6 +93,9 @@ unsigned short Player_Create(SOCKET sock)
 	cur_player++;
 
 	if (cur_player == 4) {
+		for (auto& p : players)
+			ptPlayers.emplace_back(&(p.player));
+
 		uThread = CreateThread(NULL, 0, UpdateThread,
 			NULL, 0, NULL);
 		if (uThread == NULL) {}
@@ -169,6 +167,9 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		event_data[myID].State = event->State;
 		event_data[myID].setBallon = event->setBallon;
 		event_data[myID].Dir = event->Dir;
+		event_data[myID].ballonLength = event->ballonLength;
+		event_data[myID].speed = event->speed;
+		event_data[myID].ballonMaxCnt = event->ballonMaxCnt;
 		SetEvent(recvEvent[myID]);
 		LeaveCriticalSection(&cs);
 		//WaitForSingleObject(updateEvent, INFINITE);
@@ -203,10 +204,6 @@ void PlayerMapCollisionCheck(/*std::vector<CBlock>& TILES*/)
 
 void PlayerBallonCollisionCheck()
 {
-	std::vector<CPlayer*> ptPlayers;
-	for (auto& p : players)
-		ptPlayers.emplace_back(&(p.player));
-
 	for (auto& ballon : ballons)
 	{
 		ballon.CheckPlayerOut(ptPlayers);
@@ -263,6 +260,20 @@ void BallonUpdate()
 	}
 }
 
+void ItemPlayerCollisionCheck()
+{
+	for (auto& item : items) 
+		item.CheckCollisionPlayers(ptPlayers);
+}
+
+void PlayerUpdate()
+{
+	for (int i = 0; i < MAX_PLAYER; i++) {
+		ptPlayers[i]->SetBallonLength(event_data[i].ballonLength);
+		ptPlayers[i]->SetSpeed(event_data[i].speed);
+		ptPlayers[i]->SetBallonMax(event_data[i].ballonMaxCnt);
+	}
+}
 void PlaceBallon()
 {
 	for (int i = 0; i < MAX_PLAYER; i++)
@@ -334,7 +345,8 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 		PlayerMapCollisionCheck();
 		PlayerBallonCollisionCheck();
 		PlayerWaterstreamCollisionCheck();
-
+		PlayerUpdate();
+		//ItemPlayerCollisionCheck();
 
 
 

@@ -51,7 +51,7 @@ struct SC_PLAYERUPDATE
 	short ID = -1;
 	POINT pt;
 	CPlayer::STATE state;
-	int   ballonLength = -1;
+	short   ballonLength = -1;
 	bool keydown;
 	bool moving;
 	short playerDir = -1;
@@ -70,6 +70,9 @@ struct CS_EVENT
 	bool usedNeedle = false;
 	short Dir = -1;
 	short Index = -1;
+	short ballonLength = -1;
+	short speed = -1;
+	short ballonMaxCnt = -1;
 };
 
 
