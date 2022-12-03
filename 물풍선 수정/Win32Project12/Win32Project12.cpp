@@ -208,10 +208,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_KEYDOWN:
-		if (wParam == 'Q')
-		{
-			PLAYERS[myClientID].useNeedle();
-		}
 		if (wParam == 'P')
 		{
 			PLAYERS[1].useNeedle();
