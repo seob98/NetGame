@@ -91,6 +91,7 @@ public:
 	void SetSpeed(int in) { speed = in; }
 	void SetBallonMax(int in) { ballonMaxCnt = in; }
 	void SetBallonLength(int in) { ballonLength = in; }
+	void SetNeedle(bool in) { needle = in; }
 
 public:
 	bool SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, /*std::vector<CPlayer>& players,*/ bool player0, int ballonID);
