@@ -24,6 +24,9 @@ std::vector<CWaterStream> waterstreams{};
 std::vector<CItem> items{};
 std::vector<CPlayer*> ptPlayers;
 
+int GameResult{-1};
+//0 :0ÆÀ ½Â¸®		1:1ÆÀ½Â¸®		2:¹«½ÂºÎ
+
 CRITICAL_SECTION cs;
 int cur_player = 0;
 
@@ -185,6 +188,9 @@ DWORD WINAPI RecvThread(LPVOID arg)
 
 void PlayerMove()
 {
+	if (GameResult != -1)
+		return;
+
 	for (int i = 0; i < MAX_PLAYER; i++) 
 	{
 		if (event_data[i].State != -1)
@@ -245,6 +251,9 @@ void PlayerStateCheck()	// 1È¸¸¸ Àç»ýµÇ´Â ¾Ö´Ï¸ÞÀÌ¼Ç (¹°Ç³¼± °¤Èû -> Á×À½/ºÎÈ°¸ð
 
 void PlayerWaterstreamCollisionCheck()
 {
+	if (GameResult != -1)
+		return;
+
 	for (int i = 0; i < MAX_PLAYER; ++i)
 	{
 		players[i].player.CheckCollisionWaterStreams(waterstreams);
@@ -299,6 +308,9 @@ void PlayerUpdate()
 }
 void PlaceBallon()
 {
+	if (GameResult != -1)
+		return;
+
 	for (int i = 0; i < MAX_PLAYER; i++)
 	{
 		players[i].player.setSpaceButton(event_data[i].setBallon);
@@ -348,6 +360,65 @@ void ObstacleUpdate()
 	}
 }
 
+void GameSet()
+{
+	if (GameResult != -1)
+		return;						//½ÂºÎ°¡ ³µÀ¸¸é ´õ ÀÌ»ó È£ÃâÇÏÁö ¾Ê´Â´Ù.
+
+	// team : 02 / 13
+	for (int i = 0; i < MAX_PLAYER; i++)
+	{
+		players[i].player.Update_DeadTime();												//Á×Àº ½Ã°£ Ã¼Å©
+	}
+	
+	if (players[0].player.GetState() == 8 && players[1].player.GetState() == 8 &&
+		players[2].player.GetState() == 8 && players[3].player.GetState() == 8)				//´ÙÁ×À¸¸é ¹«½ÂºÎ
+	{
+		std::cout << "¹«½ÂºÎ" << std::endl;
+		GameResult = 2;
+		return;
+	}
+
+	else if (players[0].player.GetDeadTime() > 30 && players[2].player.GetDeadTime() > 30)	//02(1ÆÀ)°¡ ¿À·¡ Á×¾îÀÖ¾úÀ½. 0ÆÀ ½Â¸®
+	{
+		std::cout << "0ÆÀ ½Â¸®" << std::endl;
+		GameResult = 0;		//2ÆÀ ½Â¸®
+		return;
+	}
+
+	else if (players[1].player.GetDeadTime() > 30 && players[3].player.GetDeadTime() > 30)	//13(0ÆÀ)°¡ ¿À·¡ Á×¾îÀÖ¾úÀ½. 1ÆÀ ½Â¸®
+	{
+		std::cout << "1ÆÀ ½Â¸®" << std::endl;
+		GameResult = 1;		//1ÆÀ ½Â¸®
+		return;
+	}
+
+}
+
+void ChangeToWinPose()
+{
+	if (GameResult == -1)
+		return;
+
+	if (GameResult == 0)
+	{
+		if(players[1].player.GetState() != 7 && players[1].player.GetState() != 8)		//Á×Áö ¾Ê¾Ò´Ù¸é
+			players[1].player.SetState2(9);
+		if (players[3].player.GetState() != 7 && players[3].player.GetState() != 8)		//Á×Áö ¾Ê¾Ò´Ù¸é
+			players[3].player.SetState2(9);
+		return;
+	}
+
+	else if (GameResult == 1)
+	{
+		if (players[0].player.GetState() != 7 && players[0].player.GetState() != 8)		//Á×Áö ¾Ê¾Ò´Ù¸é
+			players[0].player.SetState2(9);
+		if (players[2].player.GetState() != 7 && players[2].player.GetState() != 8)		//Á×Áö ¾Ê¾Ò´Ù¸é
+			players[2].player.SetState2(9);
+		return;
+	}
+}
+
 
 DWORD WINAPI UpdateThread(LPVOID arg)
 {
@@ -369,11 +440,19 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 		PlayerBallonCollisionCheck();
 		PlayerWaterstreamCollisionCheck();
 		PlayerUpdate();
-		//ItemPlayerCollisionCheck();
 
+		GameSet();
+		ChangeToWinPose();
 
-
-
+		bool static once{};
+		if(!once)
+		{
+			std::cout << players[0].player.clinetTeam << std::endl;		//1
+			std::cout << players[1].player.clinetTeam << std::endl;		//0
+			std::cout << players[2].player.clinetTeam << std::endl;		//1
+			std::cout << players[3].player.clinetTeam << std::endl;		//0
+			once = true;
+		}
 
 		// ¾÷µ¥ÀÌÆ® º¸³»±â
 		for (int i = 0; i < 4; i++) {

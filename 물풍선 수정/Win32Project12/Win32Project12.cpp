@@ -375,30 +375,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		for (auto& Player : PLAYERS)
 			Player.Draw(hMemDC);
 
-		//승패조건 코드. 이후에 수정
-		//if (PLAYERS[0].Get_State() == CPlayer::DEAD || PLAYERS[0].Get_State() == CPlayer::DIE)		//0이 죽었으면 0그리고 생존자 그려
-		//{
-		//	PLAYERS[0].Draw(hMemDC);
-		//	PLAYERS[1].Draw(hMemDC);
-		//}
-		//else if (PLAYERS[1].Get_State() == CPlayer::DEAD || PLAYERS[1].Get_State() == CPlayer::DIE)	//1이 죽었으면 1그리고 생존자 그려
-		//{
-		//	PLAYERS[1].Draw(hMemDC);
-		//	PLAYERS[0].Draw(hMemDC);
-		//}
-		//else																					// 둘다 아니면 아무렇게나
-		//{
-		//	if (PLAYERS[0].GetPos().y > PLAYERS[1].GetPos().y)
-		//	{
-		//		PLAYERS[1].Draw(hMemDC);
-		//		PLAYERS[0].Draw(hMemDC);
-		//	}
-		//	else
-		//	{
-		//		PLAYERS[0].Draw(hMemDC);
-		//		PLAYERS[1].Draw(hMemDC);
-		//	}
-		//}
+
+		if (PLAYERS.size() == 4)
+		{
+			if (PLAYERS[0].GetState() == 8 && PLAYERS[1].GetState() == 8 &&
+				PLAYERS[2].GetState() == 8 && PLAYERS[3].GetState() == 8)
+			{
+				PLAYERS[0].DrawDrawUI(hMemDC);
+			}
+
+			if (PLAYERS[0].GetState() == 9 || PLAYERS[2].GetState() == 9)
+			{
+				if (myClientID == 0 || myClientID == 2)
+					PLAYERS[0].DrawWinnerUI(hMemDC);
+				else
+					PLAYERS[0].DrawLoserUI(hMemDC);
+			}
+
+			else if (PLAYERS[1].GetState() == 9 || PLAYERS[3].GetState() == 9)
+			{
+				if (myClientID == 1 || myClientID == 3)
+					PLAYERS[0].DrawWinnerUI(hMemDC);
+				else
+					PLAYERS[0].DrawLoserUI(hMemDC);
+			}
+		}
+
 
 		hMemDCUI = CBmpMgr::Get_Instance()->Find_Image(L"test");
 

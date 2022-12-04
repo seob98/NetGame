@@ -76,37 +76,28 @@ void CPlayer::DrawMainFrmUI(HDC hdc)
 
 void CPlayer::DrawWinnerUI(HDC hdc)
 {
-	if (player0)
-	{
-		if (eCurState == WIN)
-		{
-			HDC hMemDC = CBmpMgr::Get_Instance()->Find_Image(L"win0");
+	HDC hMemDC = CBmpMgr::Get_Instance()->Find_Image(L"win");
 
-			GdiTransparentBlt(hdc
-				, 200, 200
-				, 260, 90
-				, hMemDC
-				, 0, 0
-				, 260, 90
-				, RGB(100, 100, 100));
-		}
-	}
+	GdiTransparentBlt(hdc
+		, 170, 170
+		, 290 * 1.2, 50 * 1.2
+		, hMemDC
+		, 0, 0
+		, 290, 50 
+		, RGB(182, 185, 184));
+}
 
-	else
-	{
-		if (eCurState == WIN)
-		{
-			HDC hMemDC = CBmpMgr::Get_Instance()->Find_Image(L"win1");
+void CPlayer::DrawLoserUI(HDC hdc)
+{
+	HDC hMemDC = CBmpMgr::Get_Instance()->Find_Image(L"lose");
 
-			GdiTransparentBlt(hdc
-				, 200, 200
-				, 260, 90
-				, hMemDC
-				, 0, 0
-				, 260, 90
-				, RGB(100, 100, 100));
-		}
-	}
+	GdiTransparentBlt(hdc
+		, 170, 170
+		, 290 * 1.2, 50 * 1.2
+		, hMemDC
+		, 0, 0
+		, 290, 50
+		, RGB(182, 185, 184));
 }
 
 void CPlayer::DrawDrawUI(HDC hdc)
@@ -114,12 +105,12 @@ void CPlayer::DrawDrawUI(HDC hdc)
 	HDC hMemDC = CBmpMgr::Get_Instance()->Find_Image(L"draw");
 
 	GdiTransparentBlt(hdc
-		, 200, 200
-		, 443, 167
+		, 170, 170
+		, 290 * 1.2, 50 * 1.2
 		, hMemDC
 		, 0, 0
-		, 443, 167
-		, RGB(255, 0, 255));
+		, 290, 50
+		, RGB(182, 185, 184));
 }
 
 void CPlayer::DrawStartUI(HDC hdc, int currentPlayerCnt, bool pressStart)

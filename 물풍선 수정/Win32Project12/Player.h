@@ -31,7 +31,7 @@ private:
 
 	bool pressSpace{};
 
-	int DeadTime{};
+	float DeadTime{};
 	bool needle{ false };
 	bool useneedle{ false };
 private:
@@ -56,6 +56,10 @@ public:
 		CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Player/bazzi.bmp", L"bazzi");
 		CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Player/bazzidead_old.bmp", L"bazzidead");
 
+
+		CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Stage/Win.bmp", L"win");
+		CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Stage/Lose.bmp", L"lose");
+		 
 		////CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Player/bazzidead_old.bmp", L"bazzidead");
 		//CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Stage/win1p.bmp", L"win0");
 		//CBmpMgr::Get_Instance()->Insert_Bmp(L"CrazyArcadeImage/Image/Stage/win2p.bmp", L"win1");
@@ -70,6 +74,7 @@ public:
 	void Draw(HDC hdc);
 	void DrawMainFrmUI(HDC hdc);
 	void DrawWinnerUI(HDC hdc);
+	void DrawLoserUI(HDC hdc);
 	void DrawDrawUI(HDC hdc);
 	void DrawStartUI(HDC hdc, int currentPlayerCnt, bool pressStart);
 	void DrawLoadingUI(HDC hdc, int currentPlayerCnt, bool pressStart);
@@ -103,6 +108,7 @@ public:
 	void SetMoving(bool in) { moving = in; }
 	int GetballonCnt() { return ballonMaxCnt; }
 	int GetballonLength() { return ballonLength; }
+	float GetDeadTime() { return DeadTime; }
 public:
 	bool SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, std::vector<CPlayer>& players, bool player0, int ballonID);
 	void BallonCntUpdate() { ballonCurCnt -= 1; }
@@ -118,6 +124,8 @@ public:
 	void Update_Frame_Once();
 	void Update_DeadTime(std::vector<CPlayer>& _players);
 	void Set_Winner() { eCurState = WIN; }
+
+	//void CheckWin();
 
 	void CheckCollisionWaterStreams(std::vector<CWaterStream>& _waterstreams);
 	void CheckCollisionPlayers(std::vector<CPlayer>& _players);

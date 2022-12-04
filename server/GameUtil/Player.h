@@ -31,7 +31,7 @@ private:
 
 	bool pressSpace{};
 
-	int DeadTime{};
+	float DeadTime{};
 	bool needle{ false };
 
 private:
@@ -71,6 +71,7 @@ public:
 	void SetPosX(int x);
 	void SetPosY(int y);
 	void SetState(STATE eCurState);
+	void SetState2(int eState);
 
 public:
 	int GetCurrentIndex(std::vector<CBlock>& map);
@@ -81,6 +82,7 @@ public:
 	POINT GetPos() { return pos; }
 	int GetSpeed() { return speed; }
 	bool isMoving() { return moving; }
+	float GetDeadTime() { return DeadTime; }
 	
 	bool spaceButton() { return pressSpace; }
 	void setSpaceButton(bool space) { pressSpace = space; }
@@ -103,7 +105,7 @@ public:
 	void STATE_CHECK();
 	void Update_Frame();
 	void Update_Frame_Once();
-	void Update_DeadTime(std::vector<CPlayer>& _players);
+	void Update_DeadTime();
 	void Set_Winner() { eCurState = WIN; }
 
 	void CheckCollisionWaterStreams(std::vector<CWaterStream>& _waterstreams);

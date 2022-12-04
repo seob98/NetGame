@@ -256,6 +256,11 @@ void CPlayer::SetState(STATE State)
 	eCurState = State;
 }
 
+void CPlayer::SetState2(int eState)
+{
+	eCurState = (STATE)eState;
+}
+
 int CPlayer::GetCurrentIndex(std::vector<CBlock>& map)
 {
 	for (auto& block : map)
@@ -488,29 +493,12 @@ void CPlayer::Update_Frame_Once()
 	}
 }
 
-void CPlayer::Update_DeadTime(std::vector<CPlayer>& _players)
+void CPlayer::Update_DeadTime()
 {
 	if (eCurState == DEAD)
-		DeadTime += 10.f;			// 죽으면 시간 카운트
+		DeadTime += 1.f;			// 죽으면 시간 카운트
 	else
 		return;
-
-	if (DeadTime > 1000)
-	{
-		if (player0)				//죽은놈이 0이고 1이 생존해있다면 승리
-		{
-			STATE opponentState = _players[1].Get_State();
-			if (opponentState != DEAD && opponentState != SAVED && opponentState != TRAPPED && opponentState != DIE)
-				_players[1].Set_Winner();
-		}
-
-		else						//죽은놈이 1이고 0이 생존해있다면 승리
-		{
-			STATE opponentState = _players[0].Get_State();
-			if (opponentState != DEAD && opponentState != SAVED && opponentState != TRAPPED && opponentState != DIE)
-				_players[0].Set_Winner();
-		}
-	}
 }
 
 void CPlayer::CheckCollisionWaterStreams(std::vector<CWaterStream>& _waterstreams)
