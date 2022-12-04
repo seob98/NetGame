@@ -156,8 +156,8 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	}
 
 	while (1) {
-		if (players[myID].player.GetState() >= 8)
-			break;
+		//if (players[myID].player.GetState() >= 8)
+		//	break;
 		retval = recv(players[myID].sock, buf, sizeof(CS_EVENT), MSG_WAITALL);
 		//if (retval == SOCKET_ERROR) {
 		//	err_display("recv()");
@@ -202,7 +202,6 @@ void PlayerMove()
 					players[i].player.SetState((CPlayer::STATE)event_data[i].State);
 				players[i].player.SetMoving(false);
 				players[i].player.CheckCollisionPlayers(ptPlayers);
-				players[i].player.SetState(ptPlayers[i]->Get_State());
 			}
 		}
 	}
