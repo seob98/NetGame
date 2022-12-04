@@ -280,12 +280,13 @@ void CPlayer::Move(bool playerA, std::vector<CBlock>& map)
 		else if (GetAsyncKeyState('Q') & 0x8000)
 		{
 			PLAYERS[myClientID].useNeedle();
-			PLAYERS[myClientID].useneedle = true;
+			//PLAYERS[myClientID].useneedle = true;
 			SetEvent(SendEvent);
 		}
 		else {
 			PLAYERS[myClientID].playerDir = -1;
 			moving = false;
+			PLAYERS[myClientID].useneedle = false;
 			SetEvent(SendEvent);
 		}
 	}
@@ -452,9 +453,9 @@ void CPlayer::useNeedle()
 		if (eCurState == TRAPPED)
 		{
 			needle = false;
-
-			eCurState = SAVED;
-			frame.StartX = 0;
+			PLAYERS[myClientID].useneedle = true;
+			//eCurState = SAVED;
+			//frame.StartX = 0;
 		}
 	}
 }

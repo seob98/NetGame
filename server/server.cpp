@@ -198,8 +198,12 @@ void PlayerMove()
 			}
 			else
 			{
-				if (event_data[i].State == CPlayer::SAVED)
-					players[i].player.SetState((CPlayer::STATE)event_data[i].State);
+				if (event_data[i].usedNeedle)
+				{
+					players[i].player.SetNeedle(true);
+					players[i].player.useNeedle();
+				}
+				players[i].player.SetNeedle(false);
 				players[i].player.SetMoving(false);
 				players[i].player.CheckCollisionPlayers(ptPlayers);
 			}
