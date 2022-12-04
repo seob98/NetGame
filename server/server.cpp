@@ -90,6 +90,10 @@ unsigned short Player_Create(SOCKET sock)
 	players[cur_player].player.SetPosX(pos.x);
 	players[cur_player].player.SetPosY(pos.y);
 	players[cur_player].player.clientNum = cur_player;
+	if (cur_player % 2 == 0)
+		players[cur_player].player.clinetTeam = 1;
+	else
+		players[cur_player].player.clinetTeam = 0;
 	players[cur_player].player.SetMoving(false);
 	cur_player++;
 
@@ -189,6 +193,7 @@ void PlayerMove()
 			{
 				//players[i].player.SetState((CPlayer::STATE)event_data[i].State);
 				players[i].player.Move(map, event_data[i].Dir);
+				players[i].player.CheckCollisionPlayers(ptPlayers);
 				//players[i].player.MoveTrapped(map, event_data[i].State);
 			}
 			else
@@ -196,6 +201,8 @@ void PlayerMove()
 				if (event_data[i].State == CPlayer::SAVED)
 					players[i].player.SetState((CPlayer::STATE)event_data[i].State);
 				players[i].player.SetMoving(false);
+				players[i].player.CheckCollisionPlayers(ptPlayers);
+				players[i].player.SetState(ptPlayers[i]->Get_State());
 			}
 		}
 	}
@@ -279,9 +286,16 @@ void ItemPlayerCollisionCheck()
 void PlayerUpdate()
 {
 	for (int i = 0; i < MAX_PLAYER; i++) {
-		ptPlayers[i]->SetBallonLength(event_data[i].ballonLength);
-		ptPlayers[i]->SetSpeed(event_data[i].speed);
-		ptPlayers[i]->SetBallonMax(event_data[i].ballonMaxCnt);
+		if (event_data[i].State != -1)
+		{
+			POINT pos = players[i].player.GetPos();
+			ptPlayers[i]->SetPosX(pos.x);
+			ptPlayers[i]->SetPosY(pos.y);
+			ptPlayers[i]->SetBallonLength(event_data[i].ballonLength);
+			ptPlayers[i]->SetSpeed(event_data[i].speed);
+			ptPlayers[i]->SetBallonMax(event_data[i].ballonMaxCnt);
+			ptPlayers[i]->SetState(players[i].player.Get_State());
+		}	
 	}
 }
 void PlaceBallon()

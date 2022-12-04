@@ -107,7 +107,7 @@ public:
 	void Set_Winner() { eCurState = WIN; }
 
 	void CheckCollisionWaterStreams(std::vector<CWaterStream>& _waterstreams);
-	void CheckCollisionPlayers(std::vector<CPlayer>& _players);
+	void CheckCollisionPlayers(std::vector<CPlayer*> _players);
 	STATE Get_State() { return eCurState; };
 };
 

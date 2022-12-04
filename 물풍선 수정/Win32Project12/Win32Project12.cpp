@@ -275,7 +275,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				player.Update_Frame_Once();								// (서버에서 적용할 함수. 클라에서 삭제 예정.)
 
 
-				player.CheckCollisionPlayers(PLAYERS);					//상대방 pos를 받은 시점에서 클라에서 안할 이유가 없음
+				//player.CheckCollisionPlayers(PLAYERS);					//상대방 pos를 받은 시점에서 클라에서 안할 이유가 없음
 
 				player.Update_DeadTime(PLAYERS);						// (플레이어가 죽은 후 시간을 측정하는 함수. 서버로 옮길 예정.)
 			}

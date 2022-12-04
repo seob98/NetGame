@@ -532,7 +532,7 @@ void CPlayer::CheckCollisionWaterStreams(std::vector<CWaterStream>& _waterstream
 	}
 }
 
-void CPlayer::CheckCollisionPlayers(std::vector<CPlayer>& _players)
+void CPlayer::CheckCollisionPlayers(std::vector<CPlayer*> _players)
 {
 	if (eCurState != TRAPPED)
 		return;						//내가 물방울상태아니면 안함.
@@ -556,21 +556,51 @@ void CPlayer::CheckCollisionPlayers(std::vector<CPlayer>& _players)
 	//		eCurState = DIE;		//상대방이 멀쩡한 상태에서 부딪히면 펑
 	//}
 
+	/*
 	for (auto player : _players)
 	{
-		if (player.clientNum == clientNum)
+		if (player->clientNum == clientNum)
 			continue;						//자기자신과 충돌은 스킵한다.
 
-		STATE opponentState = player.Get_State();
+		STATE opponentState = player->Get_State();
 		if (opponentState == DEAD || opponentState == SAVED || opponentState == TRAPPED || opponentState == DIE)
 			continue;		//상대방도 죽었거나 살어나는 모션중이거나 물방울 갇혔거나 죽어있으면 충돌처리 안한다.
 
-		RECT temp2 = player.GetRect();
+		RECT temp2 = player->GetRect();
 		if (IntersectRect(&temp, &rt, &temp2))
+		{
 			eCurState = DIE;		//상대방이 멀쩡한 상태에서 부딪히면 펑
+			printf("player[%d] 충돌 확인\n", player->clientNum);
+		}
+	}
+	*/
+	for (int i = 0; i < MAX_PLAYER_CNT; i++)
+	{
+		//printf("내 player[%d] Index : %d\n", clientNum, index);
+		
+		if (clientNum == _players[i]->clientNum)
+			continue;
+		if (clinetTeam == _players[i]->clinetTeam) // 배찌 팀
+		{
+			RECT temp2 = _players[i]->GetRect();
+			if (IntersectRect(&temp, &rt, &temp2))
+			{
+				printf("상대 player[%d] Index : %d\n", _players[i]->clientNum, _players[i]->index);
+				eCurState = SAVED;
+				printf("player[%d] 충돌 확인\n", _players[i]->clientNum);
+				printf("내 player[%d] State : %d\n", clientNum, eCurState);
+			}
+		}
+		else
+		{
+			RECT temp2 = _players[i]->GetRect();
+			if (IntersectRect(&temp, &rt, &temp2))
+			{
+				eCurState = DIE;
+				printf("상대 player[%d] Index : %d\n", _players[i]->clientNum, _players[i]->index);
+				printf("player[%d] 충돌 확인\n", _players[i]->clientNum);
+				printf("내 player[%d] State : %d\n", clientNum, eCurState);
+			}
+		}
 	}
 }
-
-
-
-
