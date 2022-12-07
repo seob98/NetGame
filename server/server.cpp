@@ -448,7 +448,9 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 		for (auto& clients : players)
 		{
 			retval = send(clients.sock, (char*)&update_data, sizeof(SC_PLAYERUPDATE) * 4, 0);
-			//if (retval == SOCKET_ERROR) {
+			if (retval == SOCKET_ERROR && players[clients.ID].player.GetState() < 7) {
+				players[clients.ID].player.SetState2(7);
+			}
 			//	err_display("send()");
 			//	break;
 			//}
