@@ -166,15 +166,16 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		//}
 		CS_EVENT* event = (CS_EVENT*)buf;
 
-		event_data[myID].Index = event->Index;
-		event_data[myID].moving = event->moving;
-		event_data[myID].State = event->State;
-		event_data[myID].setBallon = event->setBallon;
-		event_data[myID].Dir = event->Dir;
-		event_data[myID].ballonLength = event->ballonLength;
-		event_data[myID].speed = event->speed;
-		event_data[myID].ballonMaxCnt = event->ballonMaxCnt;
-		event_data[myID].usedNeedle = event->usedNeedle;
+		memcpy(&event_data[myID], event, sizeof(CS_EVENT));
+		//event_data[myID].Index = event->Index;
+		//event_data[myID].moving = event->moving;
+		//event_data[myID].State = event->State;
+		//event_data[myID].setBallon = event->setBallon;
+		//event_data[myID].Dir = event->Dir;
+		//event_data[myID].ballonLength = event->ballonLength;
+		//event_data[myID].speed = event->speed;
+		//event_data[myID].ballonMaxCnt = event->ballonMaxCnt;
+		//event_data[myID].usedNeedle = event->usedNeedle;
 		SetEvent(recvEvent[myID]);
 	}
 	return 0;
@@ -340,7 +341,6 @@ void ObstacleUpdate()
 	for (int i = 0; i < obstacles.size(); ++i)
 	{
 		obstacles[i].CheckExplosionRange(map);
-		//obstacles[i].makeItem(ITEMS);
 	}
 	for (int i = 0; i < obstacles.size();)
 	{
@@ -437,7 +437,6 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 
 		// 업데이트 보내기
 		for (int i = 0; i < 4; i++) {
-			
 			update_data[i].moving = players[i].player.isMoving();
 			update_data[i].playerDir = players[i].player.GetDir();
 			update_data[i].state = players[i].player.Get_State();

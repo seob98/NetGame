@@ -274,11 +274,11 @@ int CPlayer::GetCurrentIndex(std::vector<CBlock>& map)
 
 bool CPlayer::SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, /*std::vector<CPlayer>& players,*/ bool player0, int ballonID)
 {
-	if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState == DIE)
+	if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DEAD || eCurState == DIE || eCurState == WIN)
 		return false;						//물풍선 설치 실패
 
 	int index = GetCurrentIndex(map);
-	for (auto ballon : ballons)
+	for (auto& ballon : ballons)
 	{
 		if (ballon.GetIndex() == index)
 			return false;					//물풍선 설치 실패
@@ -449,7 +449,7 @@ void CPlayer::Update_Frame_Once()
 
 	if (eCurState == TRAPPED || eCurState == SAVED || eCurState == DIE)
 	{
-		frame.Time += 15.f;
+		frame.Time += 10.f;
 		if (frame.Time > frame.DelayTime)
 		{
 			frame.Time = 0.f;
@@ -486,7 +486,7 @@ void CPlayer::Update_Frame_Once()
 void CPlayer::Update_DeadTime()
 {
 	if (eCurState == DEAD)
-		DeadTime += 1.f;			// 죽으면 시간 카운트
+		DeadTime += 10.f;			// 죽으면 시간 카운트
 	else
 		return;
 }
