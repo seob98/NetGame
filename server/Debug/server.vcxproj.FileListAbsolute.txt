@@ -1,4 +1,0 @@
-C:\Users\Administrator\Desktop\넷겜프 텀\server\Debug\server.exe
-C:\Users\PC-2\Desktop\NetGame\server\server\Debug\server.exe
-C:\Users\PC-2\Desktop\server\server\Debug\server.exe
-C:\Users\PC-2\Desktop\NetGame\server\Debug\server.exe

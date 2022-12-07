@@ -134,7 +134,6 @@ DWORD WINAPI RecvThread(LPVOID arg)
 
 	// 클라이언트 초기 정보 보내주기
 	player_data.ID = myID;
-	player_data.gameStart = 0;
 	player_data.currentPlayerCnt = cur_player;
 	if (player_data.ID % 2 == 0)
 		player_data.teamId = BAZZI;
