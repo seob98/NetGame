@@ -167,8 +167,6 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		//	break;
 		//}
 		CS_EVENT* event = (CS_EVENT*)buf;
-		EnterCriticalSection(&cs);
-		
 
 		event_data[myID].Index = event->Index;
 		event_data[myID].moving = event->moving;
@@ -180,7 +178,6 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		event_data[myID].ballonMaxCnt = event->ballonMaxCnt;
 		event_data[myID].usedNeedle = event->usedNeedle;
 		SetEvent(recvEvent[myID]);
-		LeaveCriticalSection(&cs);
 		//WaitForSingleObject(updateEvent, INFINITE);
 	}
 	return 0;
@@ -208,8 +205,8 @@ void PlayerMove()
 				{
 					players[i].player.SetNeedle(true);
 					players[i].player.useNeedle();
+					event_data[i].usedNeedle = false;
 				}
-				players[i].player.SetNeedle(false);
 				players[i].player.SetMoving(false);
 				players[i].player.CheckCollisionPlayers(ptPlayers);
 			}
@@ -310,6 +307,7 @@ void PlayerUpdate()
 		}	
 	}
 }
+
 void PlaceBallon()
 {
 	if (GameResult != -1)
