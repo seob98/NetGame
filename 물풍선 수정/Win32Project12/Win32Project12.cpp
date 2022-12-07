@@ -214,14 +214,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		POINT pos{ LOWORD(lParam),HIWORD(lParam) };
 		if (PtInRect(&rtStart, pos))
 			pressStart = true;
-		else if (PtInRect(&rtQuit, pos))
-			PostQuitMessage(0);
+		//else if (PtInRect(&rtQuit, pos))
+		//	PostQuitMessage(0);
 
-		if (pressStart)
-		{
-			if (PtInRect(&rtQuit2, pos))
-				PostQuitMessage(0);
-		}
+		//if (pressStart)
+		//{
+		//	if (PtInRect(&rtQuit2, pos))
+		//		PostQuitMessage(0);
+		//}
 	}
 
 	case WM_COMMAND:
