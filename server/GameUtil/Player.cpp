@@ -149,26 +149,22 @@ void CPlayer::MoveTrapped( std::vector<CBlock>& map, int pressedButton)
 
 	if (pressedButton == 1)
 	{
-		printf("TRAPPED1\n");
 		pos.y -= trappedSpeed;
 		playerDir = 1;
 	}
 	else if (pressedButton == 2)
 	{
-		printf("TRAPPED2\n");
 		pos.y += trappedSpeed;
 		playerDir = 3;
 
 	}
 	else if (pressedButton == 3)
 	{
-		printf("TRAPPED3\n");
 		pos.x -= trappedSpeed;
 		playerDir = 0;
 	}
 	else if (pressedButton == 4)
 	{
-		printf("TRAPPED4\n");
 		pos.x += trappedSpeed;
 		playerDir = 2;
 	}
@@ -316,7 +312,6 @@ void CPlayer::useNeedle()
 
 void CPlayer::AcquireItem(int _eType)
 {
-	printf("Cnt: %d, spped: %d, length: %d\n", ballonMaxCnt, speed, ballonLength);
 	switch (_eType)
 	{
 	case 0:
@@ -408,7 +403,6 @@ void CPlayer::STATE_CHECK()
 			frame.DelayTime = 100;				// 프레임 딜레이 (높을수록 느립니다.)
 			break;
 		case DIE:
-			cout << "frame 정보 Dead로 변경" << endl;
 			frame.StartX = 0;
 			frame.StateY = 2;					// 스프라이트 이미지 세로 수 
 			frame.EndX = 6;						
@@ -474,10 +468,6 @@ void CPlayer::Update_Frame_Once()
 
 			else if (eCurState == DIE)
 			{
-				cout << "frame.Time : " << frame.Time << endl;
-				cout << "frame.DelayTime : " << frame.DelayTime << endl;
-				cout << "frame.startX" << frame.StartX << endl;
-				cout << "frame.endX" << frame.EndX << endl;
 				eCurState = DEAD;			//죽는 애니메이션 끝나면 시체
 			}
 
@@ -526,45 +516,8 @@ void CPlayer::CheckCollisionPlayers(std::vector<CPlayer*> _players)
 		return;						//내가 물방울상태아니면 안함.
 
 	RECT temp{};
-	//if (player0)					// 0번 플레이어의 경우 1번과 연산
-	//{
-	//	STATE opponentState = _players[1].Get_State();
-	//	if (opponentState == DEAD || opponentState == SAVED || opponentState == TRAPPED || opponentState == DIE)
-	//		return;		//상대방도 죽었거나 살어나는 모션중이거나 물방울 갇혔거나 죽어있으면 충돌처리 안한다.
-	//	if (IntersectRect(&temp, &rt, &_players[1].GetRect()))
-	//		eCurState = DIE;		//상대방이 멀쩡한 상태에서 부딪히면 펑
-	//}
-
-	//else							// 1번 플레이어의 경우 0번과 연산
-	//{
-	//	STATE opponentState = _players[0].Get_State();
-	//	if (opponentState == DEAD || opponentState == SAVED || opponentState == TRAPPED || opponentState == DIE)
-	//		return;		//상대방도 죽었거나 살어나는 모션중이거나 물방울 갇혔거나 죽어있으면 충돌처리 안한다.
-	//	if (IntersectRect(&temp, &rt, &_players[0].GetRect()))
-	//		eCurState = DIE;		//상대방이 멀쩡한 상태에서 부딪히면 펑
-	//}
-
-	/*
-	for (auto player : _players)
-	{
-		if (player->clientNum == clientNum)
-			continue;						//자기자신과 충돌은 스킵한다.
-
-		STATE opponentState = player->Get_State();
-		if (opponentState == DEAD || opponentState == SAVED || opponentState == TRAPPED || opponentState == DIE)
-			continue;		//상대방도 죽었거나 살어나는 모션중이거나 물방울 갇혔거나 죽어있으면 충돌처리 안한다.
-
-		RECT temp2 = player->GetRect();
-		if (IntersectRect(&temp, &rt, &temp2))
-		{
-			eCurState = DIE;		//상대방이 멀쩡한 상태에서 부딪히면 펑
-			printf("player[%d] 충돌 확인\n", player->clientNum);
-		}
-	}
-	*/
 	for (int i = 0; i < MAX_PLAYER_CNT; i++)
 	{
-		//printf("내 player[%d] Index : %d\n", clientNum, index);
 		
 		if (clientNum == _players[i]->clientNum)
 			continue;
@@ -573,10 +526,7 @@ void CPlayer::CheckCollisionPlayers(std::vector<CPlayer*> _players)
 			RECT temp2 = _players[i]->GetRect();
 			if (IntersectRect(&temp, &rt, &temp2))
 			{
-				printf("상대 player[%d] Index : %d\n", _players[i]->clientNum, _players[i]->index);
 				eCurState = SAVED;
-				printf("player[%d] 충돌 확인\n", _players[i]->clientNum);
-				printf("내 player[%d] State : %d\n", clientNum, eCurState);
 			}
 		}
 		else
@@ -585,9 +535,6 @@ void CPlayer::CheckCollisionPlayers(std::vector<CPlayer*> _players)
 			if (IntersectRect(&temp, &rt, &temp2))
 			{
 				eCurState = DIE;
-				printf("상대 player[%d] Index : %d\n", _players[i]->clientNum, _players[i]->index);
-				printf("player[%d] 충돌 확인\n", _players[i]->clientNum);
-				printf("내 player[%d] State : %d\n", clientNum, eCurState);
 			}
 		}
 	}

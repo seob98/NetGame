@@ -192,7 +192,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 #pragma endregion
 
-		SetTimer(hWnd, 1, 10, NULL);
+		SetTimer(hWnd, 1, 15, NULL);
 
 		srand((unsigned int)time(NULL));
 
@@ -206,12 +206,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 
 		break;
-
-	case WM_KEYDOWN:
-		if (wParam == 'P')
-		{
-			PLAYERS[1].useNeedle();
-		}
 	case WM_LBUTTONDOWN:
 	{
 		RECT rtStart{ 155, 432, 155 + 78, 432 + 97 };
@@ -525,7 +519,9 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		retval = recv(sock, buf, sizeof(SC_BALLONBOMBEVENT), MSG_WAITALL);
 		//if (retval == SOCKET_ERROR)
 		//	err_quit("recv()");
-		Waterbomb_Update((SC_BALLONBOMBEVENT*)buf);
+		SC_BALLONBOMBEVENT* BB_EVENT = (SC_BALLONBOMBEVENT*)buf;
+		if (BB_EVENT->explodedBomb[0] >= 0)
+			Waterbomb_Update(BB_EVENT);
 
 	}
 

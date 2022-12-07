@@ -7,7 +7,6 @@
 int horzBlockCnt = 15;
 int vertBlockCnt = 13;
 int ballonID{};
-int explodedBallon[30]{};
 
 CLIENTINFO players[MAX_PLAYER];
 SC_GAMEINFO player_data{};	// SC_GAMEINFO를 배열에서 단일 변수로 변환
@@ -27,7 +26,6 @@ std::vector<CPlayer*> ptPlayers;
 int GameResult{-1};
 //0 :0팀 승리		1:1팀승리		2:무승부
 
-CRITICAL_SECTION cs;
 int cur_player = 0;
 
 DWORD WINAPI UpdateThread(LPVOID arg);
@@ -178,7 +176,6 @@ DWORD WINAPI RecvThread(LPVOID arg)
 		event_data[myID].ballonMaxCnt = event->ballonMaxCnt;
 		event_data[myID].usedNeedle = event->usedNeedle;
 		SetEvent(recvEvent[myID]);
-		//WaitForSingleObject(updateEvent, INFINITE);
 	}
 	return 0;
 }
@@ -194,10 +191,8 @@ void PlayerMove()
 		{
 			if (event_data[i].moving)
 			{
-				//players[i].player.SetState((CPlayer::STATE)event_data[i].State);
 				players[i].player.Move(map, event_data[i].Dir);
 				players[i].player.CheckCollisionPlayers(ptPlayers);
-				//players[i].player.MoveTrapped(map, event_data[i].State);
 			}
 			else
 			{
@@ -214,7 +209,7 @@ void PlayerMove()
 	}
 }
 
-void PlayerMapCollisionCheck(/*std::vector<CBlock>& TILES*/)
+void PlayerMapCollisionCheck()
 {
 	for (int i = 0; i < MAX_PLAYER; i++)
 	{
@@ -318,13 +313,7 @@ void PlaceBallon()
 		players[i].player.setSpaceButton(event_data[i].setBallon);
 		if (event_data[i].setBallon == true)
 		{
-			int placed = players[i].player.SetupBallon(map, ballons, true, ballonID);
-
-			if (placed)
-			{
-				update_data[i].setBallon;
-			}
-
+			players[i].player.SetupBallon(map, ballons, true, ballonID);
 		}
 	}
 }
@@ -428,7 +417,7 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 #pragma region 서버객체 업데이트
 	while (1) {
 		WaitForMultipleObjects(cur_player, recvEvent, TRUE, 15);
-		//WaitForMultipleObjects(4, recvEvent, FALSE, INFINITE);
+
 		BallonUpdate();
 		WaterStreamUpdate();
 		ObstacleUpdate();
@@ -445,16 +434,6 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 
 		GameSet();
 		ChangeToWinPose();
-
-		bool static once{};
-		if(!once)
-		{
-			std::cout << players[0].player.clinetTeam << std::endl;		//1
-			std::cout << players[1].player.clinetTeam << std::endl;		//0
-			std::cout << players[2].player.clinetTeam << std::endl;		//1
-			std::cout << players[3].player.clinetTeam << std::endl;		//0
-			once = true;
-		}
 
 		// 업데이트 보내기
 		for (int i = 0; i < 4; i++) {
@@ -518,7 +497,6 @@ int main(int argc, char* argv[])
 	retval = listen(listen_sock, SOMAXCONN);
 	if (retval == SOCKET_ERROR) err_quit("listen()");
 
-	InitializeCriticalSection(&cs);
 	// 데이터 통신에 사용할 변수
 	SOCKET client_sock;
 	struct sockaddr_in clientaddr;
@@ -558,7 +536,6 @@ int main(int argc, char* argv[])
 
 	// 소켓 닫기
 	closesocket(listen_sock);
-	DeleteCriticalSection(&cs);
 	// 윈속 종료
 	WSACleanup();
 	return 0;
