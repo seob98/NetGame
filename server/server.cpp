@@ -7,7 +7,6 @@
 int horzBlockCnt = 15;
 int vertBlockCnt = 13;
 int ballonID{};
-int explodedBallon[30]{};
 
 CLIENTINFO players[MAX_PLAYER];
 SC_GAMEINFO player_data{};	// SC_GAMEINFO를 배열에서 단일 변수로 변환
@@ -21,15 +20,19 @@ std::vector<CBlock> map;
 std::vector<CObstacle> obstacles;
 std::vector<CBallon> ballons{};
 std::vector<CWaterStream> waterstreams{};
+std::vector<CItem> items{};
+std::vector<CPlayer*> ptPlayers;
 
+int GameResult{-1};
+//0 :0팀 승리		1:1팀승리		2:무승부
 
-CRITICAL_SECTION cs;
 int cur_player = 0;
 
 DWORD WINAPI UpdateThread(LPVOID arg);
 
 void Map_Init()
 {
+	srand((unsigned int)time(NULL));
 	// 맵 바닥 설치 ( 포지션 계산을 위해 )
 	for (int i = 0; i < 13; ++i)
 	{
@@ -42,28 +45,24 @@ void Map_Init()
 	// player_data의 itemtype과 blocktype의 값을 채우는 함수
 
 	int map_range = INDEX_MAPEND - INDEX_MAPSTART;
-	for (int i = 0; i < map_range; i++) {
+	for (int i = 0; i < map_range; i++) 
+	{
 		if (rand() % 10 <= 7)	// 70% 확률로 벽, 30%확률로 공간
 		{
 			if (rand() % 10 <= 3)
 			{
-				player_data.blockType[i] = 1;		//돌
+				player_data.Blockinfo[i].blocktype = 1;		//돌
 				obstacles.emplace_back(map[i + 30].GetPos(), map[i + 30].GetIndex(), map, true);
 			}
 			else
 			{
-				player_data.blockType[i] = 0;		//나무블럭
+				player_data.Blockinfo[i].itemtype = rand() % 5 - 1;	// 나무블럭에만 아이템타입 연산 수행
+				player_data.Blockinfo[i].blocktype = 0;		//나무블럭
 				obstacles.emplace_back(map[i + 30].GetPos(), map[i + 30].GetIndex(), map, false);
 			}
 		}
 		else
-			player_data.blockType[i] = -1;
-	}
-
-	for (int i = 0; i < MAX_ITEM_CNT; i++)
-	{
-		player_data.itemType[i].type = rand() % 7;
-		player_data.itemType[i].pos = rand() % (map_range)+INDEX_MAPSTART;
+			player_data.Blockinfo[i].blocktype = -1;
 	}
 
 }
@@ -91,10 +90,18 @@ unsigned short Player_Create(SOCKET sock)
 	players[cur_player].ID = cur_player;
 	players[cur_player].player.SetPosX(pos.x);
 	players[cur_player].player.SetPosY(pos.y);
+	players[cur_player].player.clientNum = cur_player;
+	if (cur_player % 2 == 0)
+		players[cur_player].player.clinetTeam = 1;
+	else
+		players[cur_player].player.clinetTeam = 0;
 	players[cur_player].player.SetMoving(false);
 	cur_player++;
 
 	if (cur_player == 4) {
+		for (auto& p : players)
+			ptPlayers.emplace_back(&(p.player));
+
 		uThread = CreateThread(NULL, 0, UpdateThread,
 			NULL, 0, NULL);
 		if (uThread == NULL) {}
@@ -127,7 +134,6 @@ DWORD WINAPI RecvThread(LPVOID arg)
 
 	// 클라이언트 초기 정보 보내주기
 	player_data.ID = myID;
-	player_data.gameStart = 0;
 	player_data.currentPlayerCnt = cur_player;
 	if (player_data.ID % 2 == 0)
 		player_data.teamId = BAZZI;
@@ -150,44 +156,60 @@ DWORD WINAPI RecvThread(LPVOID arg)
 	}
 
 	while (1) {
-		if (players[myID].player.GetState() >= 8)
-			break;
+		//if (players[myID].player.GetState() >= 8)
+		//	break;
 		retval = recv(players[myID].sock, buf, sizeof(CS_EVENT), MSG_WAITALL);
 		//if (retval == SOCKET_ERROR) {
 		//	err_display("recv()");
 		//	break;
 		//}
 		CS_EVENT* event = (CS_EVENT*)buf;
-		EnterCriticalSection(&cs);
-		
 
-		event_data[myID].Index = event->Index;
-		event_data[myID].moving = event->moving;
-		event_data[myID].State = event->State;
-		event_data[myID].setBallon = event->setBallon;
-		event_data[myID].Dir = event->Dir;
+		memcpy(&event_data[myID], event, sizeof(CS_EVENT));
+		//event_data[myID].Index = event->Index;
+		//event_data[myID].moving = event->moving;
+		//event_data[myID].State = event->State;
+		//event_data[myID].setBallon = event->setBallon;
+		//event_data[myID].Dir = event->Dir;
+		//event_data[myID].ballonLength = event->ballonLength;
+		//event_data[myID].speed = event->speed;
+		//event_data[myID].ballonMaxCnt = event->ballonMaxCnt;
+		//event_data[myID].usedNeedle = event->usedNeedle;
 		SetEvent(recvEvent[myID]);
-		LeaveCriticalSection(&cs);
-		//WaitForSingleObject(updateEvent, INFINITE);
 	}
 	return 0;
 }
 
 void PlayerMove()
 {
+	if (GameResult != -1)
+		return;
+
 	for (int i = 0; i < MAX_PLAYER; i++) 
 	{
-		if (event_data[i].moving)
+		if (event_data[i].State != -1)
 		{
-			players[i].player.Move(map, event_data[i].Dir);
-			//players[i].player.MoveTrapped(map, event_data[i].State);
+			if (event_data[i].moving)
+			{
+				players[i].player.Move(map, event_data[i].Dir);
+				players[i].player.CheckCollisionPlayers(ptPlayers);
+			}
+			else
+			{
+				if (event_data[i].usedNeedle)
+				{
+					players[i].player.SetNeedle(true);
+					players[i].player.useNeedle();
+					event_data[i].usedNeedle = false;
+				}
+				players[i].player.SetMoving(false);
+				players[i].player.CheckCollisionPlayers(ptPlayers);
+			}
 		}
-		else
-			players[i].player.SetMoving(false);
 	}
 }
 
-void PlayerMapCollisionCheck(/*std::vector<CBlock>& TILES*/)
+void PlayerMapCollisionCheck()
 {
 	for (int i = 0; i < MAX_PLAYER; i++)
 	{
@@ -200,10 +222,6 @@ void PlayerMapCollisionCheck(/*std::vector<CBlock>& TILES*/)
 
 void PlayerBallonCollisionCheck()
 {
-	std::vector<CPlayer*> ptPlayers;
-	for (auto& p : players)
-		ptPlayers.emplace_back(&(p.player));
-
 	for (auto& ballon : ballons)
 	{
 		ballon.CheckPlayerOut(ptPlayers);
@@ -229,6 +247,9 @@ void PlayerStateCheck()	// 1회만 재생되는 애니메이션 (물풍선 갇힘 -> 죽음/부활모
 
 void PlayerWaterstreamCollisionCheck()
 {
+	if (GameResult != -1)
+		return;
+
 	for (int i = 0; i < MAX_PLAYER; ++i)
 	{
 		players[i].player.CheckCollisionWaterStreams(waterstreams);
@@ -260,20 +281,39 @@ void BallonUpdate()
 	}
 }
 
+void ItemPlayerCollisionCheck()
+{
+	for (auto& item : items) 
+		item.CheckCollisionPlayers(ptPlayers);
+}
+
+void PlayerUpdate()
+{
+	for (int i = 0; i < MAX_PLAYER; i++) {
+		if (event_data[i].State != -1)
+		{
+			POINT pos = players[i].player.GetPos();
+			ptPlayers[i]->SetPosX(pos.x);
+			ptPlayers[i]->SetPosY(pos.y);
+			ptPlayers[i]->SetBallonLength(event_data[i].ballonLength);
+			ptPlayers[i]->SetSpeed(event_data[i].speed);
+			ptPlayers[i]->SetBallonMax(event_data[i].ballonMaxCnt);
+			ptPlayers[i]->SetState(players[i].player.Get_State());
+		}	
+	}
+}
+
 void PlaceBallon()
 {
+	if (GameResult != -1)
+		return;
+
 	for (int i = 0; i < MAX_PLAYER; i++)
 	{
 		players[i].player.setSpaceButton(event_data[i].setBallon);
 		if (event_data[i].setBallon == true)
 		{
-			int placed = players[i].player.SetupBallon(map, ballons, true, ballonID);
-
-			if (placed)
-			{
-				update_data[i].setBallon;
-			}
-
+			players[i].player.SetupBallon(map, ballons, true, ballonID);
 		}
 	}
 }
@@ -300,7 +340,6 @@ void ObstacleUpdate()
 	for (int i = 0; i < obstacles.size(); ++i)
 	{
 		obstacles[i].CheckExplosionRange(map);
-		//obstacles[i].makeItem(ITEMS);
 	}
 	for (int i = 0; i < obstacles.size();)
 	{
@@ -311,6 +350,65 @@ void ObstacleUpdate()
 	}
 }
 
+void GameSet()
+{
+	if (GameResult != -1)
+		return;						//승부가 났으면 더 이상 호출하지 않는다.
+
+	// team : 02 / 13
+	for (int i = 0; i < MAX_PLAYER; i++)
+	{
+		players[i].player.Update_DeadTime();												//죽은 시간 체크
+	}
+	
+	if (players[0].player.GetState() == 8 && players[1].player.GetState() == 8 &&
+		players[2].player.GetState() == 8 && players[3].player.GetState() == 8)				//다죽으면 무승부
+	{
+		std::cout << "무승부" << std::endl;
+		GameResult = 2;
+		return;
+	}
+
+	else if (players[0].player.GetDeadTime() > 30 && players[2].player.GetDeadTime() > 30)	//02(1팀)가 오래 죽어있었음. 0팀 승리
+	{
+		std::cout << "0팀 승리" << std::endl;
+		GameResult = 0;		//2팀 승리
+		return;
+	}
+
+	else if (players[1].player.GetDeadTime() > 30 && players[3].player.GetDeadTime() > 30)	//13(0팀)가 오래 죽어있었음. 1팀 승리
+	{
+		std::cout << "1팀 승리" << std::endl;
+		GameResult = 1;		//1팀 승리
+		return;
+	}
+
+}
+
+void ChangeToWinPose()
+{
+	if (GameResult == -1)
+		return;
+
+	if (GameResult == 0)
+	{
+		if(players[1].player.GetState() != 7 && players[1].player.GetState() != 8)		//죽지 않았다면
+			players[1].player.SetState2(9);
+		if (players[3].player.GetState() != 7 && players[3].player.GetState() != 8)		//죽지 않았다면
+			players[3].player.SetState2(9);
+		return;
+	}
+
+	else if (GameResult == 1)
+	{
+		if (players[0].player.GetState() != 7 && players[0].player.GetState() != 8)		//죽지 않았다면
+			players[0].player.SetState2(9);
+		if (players[2].player.GetState() != 7 && players[2].player.GetState() != 8)		//죽지 않았다면
+			players[2].player.SetState2(9);
+		return;
+	}
+}
+
 
 DWORD WINAPI UpdateThread(LPVOID arg)
 {
@@ -318,7 +416,7 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 #pragma region 서버객체 업데이트
 	while (1) {
 		WaitForMultipleObjects(cur_player, recvEvent, TRUE, 15);
-		//WaitForMultipleObjects(4, recvEvent, FALSE, INFINITE);
+
 		BallonUpdate();
 		WaterStreamUpdate();
 		ObstacleUpdate();
@@ -331,15 +429,13 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 		PlayerMapCollisionCheck();
 		PlayerBallonCollisionCheck();
 		PlayerWaterstreamCollisionCheck();
+		PlayerUpdate();
 
-
-
-
-
+		GameSet();
+		ChangeToWinPose();
 
 		// 업데이트 보내기
 		for (int i = 0; i < 4; i++) {
-			
 			update_data[i].moving = players[i].player.isMoving();
 			update_data[i].playerDir = players[i].player.GetDir();
 			update_data[i].state = players[i].player.Get_State();
@@ -351,7 +447,9 @@ DWORD WINAPI UpdateThread(LPVOID arg)
 		for (auto& clients : players)
 		{
 			retval = send(clients.sock, (char*)&update_data, sizeof(SC_PLAYERUPDATE) * 4, 0);
-			//if (retval == SOCKET_ERROR) {
+			if (retval == SOCKET_ERROR && players[clients.ID].player.GetState() < 7) {
+				players[clients.ID].player.SetState2(7);
+			}
 			//	err_display("send()");
 			//	break;
 			//}
@@ -399,7 +497,6 @@ int main(int argc, char* argv[])
 	retval = listen(listen_sock, SOMAXCONN);
 	if (retval == SOCKET_ERROR) err_quit("listen()");
 
-	InitializeCriticalSection(&cs);
 	// 데이터 통신에 사용할 변수
 	SOCKET client_sock;
 	struct sockaddr_in clientaddr;
@@ -439,7 +536,6 @@ int main(int argc, char* argv[])
 
 	// 소켓 닫기
 	closesocket(listen_sock);
-	DeleteCriticalSection(&cs);
 	// 윈속 종료
 	WSACleanup();
 	return 0;

@@ -31,7 +31,7 @@ private:
 
 	bool pressSpace{};
 
-	int DeadTime{};
+	float DeadTime{};
 	bool needle{ false };
 
 private:
@@ -71,6 +71,7 @@ public:
 	void SetPosX(int x);
 	void SetPosY(int y);
 	void SetState(STATE eCurState);
+	void SetState2(int eState);
 
 public:
 	int GetCurrentIndex(std::vector<CBlock>& map);
@@ -81,11 +82,17 @@ public:
 	POINT GetPos() { return pos; }
 	int GetSpeed() { return speed; }
 	bool isMoving() { return moving; }
+	float GetDeadTime() { return DeadTime; }
 	
 	bool spaceButton() { return pressSpace; }
 	void setSpaceButton(bool space) { pressSpace = space; }
 
 	void SetMoving(bool in) { moving = in; }
+	void SetSpeed(int in) { speed = in; }
+	void SetBallonMax(int in) { ballonMaxCnt = in; }
+	void SetBallonLength(int in) { ballonLength = in; }
+	void SetNeedle(bool in) { needle = in; }
+
 public:
 	bool SetupBallon(std::vector<CBlock>& map, std::vector<CBallon>& ballons, /*std::vector<CPlayer>& players,*/ bool player0, int ballonID);
 	void BallonCntUpdate() { ballonCurCnt -= 1; }
@@ -99,11 +106,11 @@ public:
 	void STATE_CHECK();
 	void Update_Frame();
 	void Update_Frame_Once();
-	void Update_DeadTime(std::vector<CPlayer>& _players);
+	void Update_DeadTime();
 	void Set_Winner() { eCurState = WIN; }
 
 	void CheckCollisionWaterStreams(std::vector<CWaterStream>& _waterstreams);
-	void CheckCollisionPlayers(std::vector<CPlayer>& _players);
+	void CheckCollisionPlayers(std::vector<CPlayer*> _players);
 	STATE Get_State() { return eCurState; };
 };
 
